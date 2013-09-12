@@ -90,17 +90,59 @@ end
 print("Letterbox: " .. letterbox)
 -- ---------------------
 
+-- DISPLAY LETTERS -----
+local x = 100
+local y = 150
+local word_group = display.newGroup()
 
+for i = 1, #word_to_guess do
+    local c = get_char(i, word_to_guess)
+    local filename = "images2"
+    if (c == "_") then
+    	filename = filename .. "/blank.png"
+    else
+ 		filename = filename .. "/" .. c .. ".png"
+    end
+    print(filename
+    	)
+    local letter = display.newImage(filename)
+    word_group:insert(letter)
+    word_group[c] = letter
+    x = x + 60
+    word_group[c].x = x 
+    word_group[c].y = y
+end
+-- ---------------------
 
+-- DISPLAY LETTERBOX ---
+x = 100
+y = 250
+local letterbox_group = display.newGroup()
 
+for i = 1, #letterbox do
+    local c = get_char(i, letterbox)
+    local filename = "images2"
+    if (c == "_") then
+    	filename = filename .. "/blank.png"
+    else
+ 		filename = filename .. "/" .. c .. ".png"
+    end
+    print(filename)
+    local letter = display.newImage(filename)
+    letterbox_group:insert(letter)
+    letterbox_group[c] = letter
+    x = x + 60
+    letterbox_group[c].x = x 
+    letterbox_group[c].y = y
+end
+-- ---------------------
 
+--[[
 local letterFiles = { A="images2/a.png", B="images2/b.png", C="images2/c.png", D="images2/d.png", E="images2/e.png" }
-local alphabet = display.newGroup()
+
 
 -- print(letterFiles.A)
 
-local x = 5;
-local y = 5;
 
 for key,file in pairs(letterFiles) do
 
@@ -109,7 +151,7 @@ for key,file in pairs(letterFiles) do
 	alphabet[key] = letter;
 
 end
-
+]]
 
 
 
