@@ -14,34 +14,85 @@ bg.x = display.contentWidth/2;
 bg.y = display.contentHeight/2;
 
 local word = "apple"
-local string_length = word:len()
 local word_to_guess = word
 
-print("String length: " .. string_length)
+print("String length: " .. word:len())
 
-local blanks = math.floor(string_length/2)
+local blanks = math.floor(word:len()/2)
 
-print(blanks)
+print("Blanks: " .. blanks)
 
 
 -- FUNCTION ------------
-function replace_char (pos, str)
-	if pos == 1 then return "_" .. str:sub(pos+1)
-	elseif pos == str:len() then return str:sub(1, str:len()-1) .. "_"
-    else return str:sub(1, pos-1) .. "_" .. str:sub(pos+1)
+-- position in string to be replaced with ch
+function replace_char (pos, str, ch)
+	if (pos == 1) then return ch .. str:sub(pos+1)
+	elseif (pos == str:len()) then return str:sub(1, str:len()-1) .. ch
+    else return str:sub(1, pos-1) .. ch .. str:sub(pos+1)
    	end
+end
+
+function get_char (pos, str)
+	return str:sub(pos, pos)
 end
 -- ---------------------
 
-
+local letterbox = ""
+-- GET RANDOM BLANKS ---
 for i = 1,blanks do
-	rand = math.random(1, string_length)
-	print(rand)
-	word_to_guess = replace_char(rand, word_to_guess)
+	local first = 0
+	if (string.find(word_to_guess, "_") ~= nil) then
+		first = string.find(word_to_guess, "_")
+		-- print("1st blank index:" .. first)
+	end
+	local rand = math.random(word:len())
+	-- print("rand: " .. rand .. " first: " .. first)
+	while rand == first do
+		-- print("while")
+		rand = math.random(word:len())
+	end
+	-- print("blank at index: " .. rand)
+	letterbox = letterbox .. get_char(rand, word_to_guess)
+	word_to_guess = replace_char(rand, word_to_guess, "_")
 end
 
+print("Word to guess: " .. word_to_guess)
+-- ---------------------
 
-print(word_to_guess)
+-- GET LETTERBOX -------
+for i = 1,word:len()-2 do
+	local rand = math.random(26)
+	local letter = string.char(97+rand)
+	while (string.find(letterbox, letter) ~= nil) do
+		rand = math.random(26)
+		letter = string.char(97+rand)
+	end
+	letterbox = letterbox .. letter
+end
+
+-- FUNCTION ------------
+function swap_char (pos1, pos2, str)
+	local temp1 = get_char(pos1, str)
+	local temp2 = get_char(pos2, str)
+	str = replace_char(pos1, str, temp2)
+	str = replace_char(pos2, str, temp1)
+	return str
+end
+-- ---------------------
+
+-- SHUFFLE -------------
+for i = letterbox:len(), 2, -1 do -- backwards
+    local r = math.random(i) -- select a random number between 1 and i
+    letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
+end  
+-- ---------------------
+
+print("Letterbox: " .. letterbox)
+-- ---------------------
+
+
+
+
 
 local letterFiles = { A="images2/a.png", B="images2/b.png", C="images2/c.png", D="images2/d.png", E="images2/e.png" }
 local alphabet = display.newGroup()
