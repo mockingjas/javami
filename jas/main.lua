@@ -13,11 +13,10 @@ bg.height = display.contentHeight;
 bg.x = display.contentWidth/2;
 bg.y = display.contentHeight/2;
 
-local apple = display.newImage( "app.png" )
-apple.x = 60; apple.y = 150;
-
 local word = "apple"
 local word_to_guess = word
+local apple = display.newImage( "images2/" .. word .. ".png" )
+apple.x = 60; apple.y = 150;
 
 print("String length: " .. word:len())
 

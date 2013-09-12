@@ -1,6 +1,12 @@
 
 local storyboard = require ("storyboard")
+local widget = require( "widget" )
+
 local scene = storyboard.newScene()
+
+local buttonHandler = function( event )
+	storyboard.gotoScene("mainmenu", "fade", 400)
+end
 
 function scene:createScene(event)
 
@@ -20,6 +26,20 @@ function scene:createScene(event)
 	clouds2.x = 570;
 	clouds2.y = display.contentHeight/2;
 	screenGroup:insert(clouds2)
+	
+	start = widget.newButton{
+		id = "start",
+		defaultFile = "buttonOrange.png",
+		overFile = "buttonBlue.png",
+		label = "Start Game",
+		fontSize = 20,
+		emboss = true,
+		onEvent = buttonHandler,
+	}
+
+	start.x = 250; start.y = 230
+	screenGroup:insert(start)
+	
 end
 
 function moveBG(self,event)
@@ -30,18 +50,8 @@ function moveBG(self,event)
 	end
 end
 
-
-function startmenu(event)
-	if event.phase == "began" then
-		storyboard.gotoScene("game", "fade", 400)
-	end
-end
-
-
 function scene:enterScene(event)
 
-	bg:addEventListener("touch", startmenu)
-	
 	clouds.enterFrame = moveBG
     Runtime:addEventListener("enterFrame", clouds)
 	
@@ -52,7 +62,6 @@ function scene:enterScene(event)
 end
 
 function scene:exitScene(event)
-	bg:removeEventListener("touch", startmenu)
 	Runtime:removeEventListener("enterFrame", clouds)
 	Runtime:removeEventListener("enterFrame", clouds2)
 end
