@@ -1,5 +1,5 @@
 MultiTouch = require("dmc_multitouch");
-
+local timer = require("timer")
 -----------------------------------------------------------------------------------------
 --
 -- main.lua
@@ -201,3 +201,24 @@ local submitButton = widget.newButton
 	onRelease = submitHandler,
 }
 -- ---------------------
+
+local timeDelay = 1000;
+
+text = display.newText( "00:00", 400, 10, "ArialRoundedMTBold", 30 )
+
+function text:timer( event )
+	
+	local count = event.count
+	self.text = count
+ 
+ 	if (count % 60 < 10) then self.text = math.floor(count/60) .. ":0" .. (count%60)
+ 	else self.text = math.floor(count/60) .. ":" .. (count%60)
+ 	end
+
+	if count ==300 then
+		timer.cancel( event.source ) -- after the 20th iteration, cancel timer
+	end
+
+end
+
+timer.performWithDelay( timeDelay, text, 300 )
