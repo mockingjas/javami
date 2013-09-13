@@ -161,7 +161,7 @@ end
 
 
 function scene:createScene(event)
-
+	
 	paused = false
 	local screenGroup = self.view
 	setword()

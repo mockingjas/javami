@@ -4,7 +4,7 @@ local widget = require( "widget" )
 
 local scene = storyboard.newScene()
 
-local buttonHandler = function( event )
+local function startGame ( event )
 	storyboard.gotoScene("mainmenu", "fade", 400)
 end
 
@@ -27,6 +27,21 @@ function scene:createScene(event)
 	clouds2.y = display.contentHeight/2;
 	screenGroup:insert(clouds2)
 	
+	title = widget.newButton{
+		id = "title",
+		defaultFile = "title.png",
+		overFile = "title_over.png",
+		emboss = true,
+		onEvent = startGame,
+	}
+	title.x = display.contentWidth/2;
+	title.y = 230;
+	screenGroup:insert(title)
+
+	helpText = display.newText("Tap the title to start game", display.contentWidth/6, 270, Arial, 25)
+	helpText:setTextColor(255, 255, 255)
+	screenGroup:insert(helpText)
+	--[[
 	start = widget.newButton{
 		id = "start",
 		defaultFile = "buttonOrange.png",
@@ -39,7 +54,7 @@ function scene:createScene(event)
 
 	start.x = 250; start.y = 230
 	screenGroup:insert(start)
-	
+	]]
 end
 
 function moveBG(self,event)
