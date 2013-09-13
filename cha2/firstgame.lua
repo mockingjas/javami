@@ -55,7 +55,6 @@ end
 
 function getwordfromDB()
 	-- Insert function for getting random word from database here
-
 	local category = "easy"
 	local words = fetchByCategory(category)	--returns whole row
 	for i=1,#words do 

@@ -5,14 +5,51 @@
 -----------------------------------------------------------------------------------------
 require "sqlite3"
 local db = sqlite3.open("JAVAMIADB.sqlite3")
+local file
 local storyboard = require "storyboard"
 storyboard.gotoScene( "startmenu" )
 
---POPULATE
+--File handling functions
+function existsFile(path)
+    x = io.open(path)
+    if x == nil then
+        io.close()
+        return false
+    else
+        x:close()
+        return true
+    end
+end
 
-local easy = {"apple", "apple", "apple"}
-local images = {"apple.jpg", "apple.jpg", "apple.jpg"}
-local audio = {"1.wav", "2.wav", "3.wav"}
+function fileToArray(path)
+	if existsFile(path) then
+		file = io.open(path, "r");
+		local arr=""
+		for line in file:lines() do
+			arr = arr.."\n"..line
+		end
+		return arr
+	end
+end
+
+--File handling 
+--local path = "C:\\Users\\Maricia\\Documents\\GitHub\\javami\\cha2\\populator.txt" -- change -__-
+local path = "populator.txt"
+print(existsFile(path))
+local wordsFromFile = fileToArray(path)
+local words = {}
+local images = {}
+local audio = {}
+
+i = 1
+for j in string.gmatch(wordsFromFile, "[^%s]+") do
+	words[i] = j
+	images[i] = words[i]..".jpg"
+	audio[i] = words[i]..".wav"
+	print(words[i].." "..images[i].." "..audio[i])
+	i = i+1
+end
+file:close()
  
 function insertToDB(array, category)
 	for i=1,#array do
@@ -36,8 +73,6 @@ count = row.count
 end
 
 if count == 0 then
-	insertToDB(easy, "easy")
+	insertToDB(words, "easy")
 end
 print("COUNT!"..count)
-
-
