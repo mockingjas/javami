@@ -116,8 +116,8 @@ for i = 1, #wordToGuess do
 	end
 	wordGroup[c] = letter
 	x = x + 60
-	wordGroup[c].x = x 
-	wordGroup[c].y = y
+	letter.x = x 
+	letter.y = y
 end
 -- ---------------------
 
@@ -135,8 +135,8 @@ for i = 1, #letterbox do
 	letterboxGroup:insert(letter)
 	letterboxGroup[c] = letter
 	x = x + 60
-	letterboxGroup[c].x = x 
-	letterboxGroup[c].y = y
+	letter.x = x 
+	letter.y = y
 	MultiTouch.activate(letter, "move", "single");
 
 
