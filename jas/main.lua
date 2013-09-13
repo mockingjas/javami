@@ -7,14 +7,15 @@ MultiTouch = require("dmc_multitouch");
 -----------------------------------------------------------------------------------------
 
 -- Your code here
-local bg = display.newImage( "bg4.png" )
+local widget = require("widget")
+local bg = display.newImage( "images2/bg4.png" )
 bg.width = display.contentWidth;
 bg.height = display.contentHeight;
 bg.x = display.contentWidth/2;
 bg.y = display.contentHeight/2;
 
 local word = "apple"
-local word_to_guess = word
+local wordToGuess = word
 local apple = display.newImage( "images2/" .. word .. ".png" )
 apple.x = 60; apple.y = 150;
 
@@ -30,8 +31,8 @@ print("Blanks: " .. blanks)
 function replace_char (pos, str, ch)
 	if (pos == 1) then return ch .. str:sub(pos+1)
 	elseif (pos == str:len()) then return str:sub(1, str:len()-1) .. ch
-    else return str:sub(1, pos-1) .. ch .. str:sub(pos+1)
-   	end
+	else return str:sub(1, pos-1) .. ch .. str:sub(pos+1)
+	end
 end
 
 function get_char (pos, str)
@@ -43,8 +44,8 @@ local letterbox = ""
 -- GET RANDOM BLANKS ---
 for i = 1,blanks do
 	local first = 0
-	if (string.find(word_to_guess, "_") ~= nil) then
-		first = string.find(word_to_guess, "_")
+	if (string.find(wordToGuess, "_") ~= nil) then
+		first = string.find(wordToGuess, "_")
 		-- print("1st blank index:" .. first)
 	end
 	local rand = math.random(word:len())
@@ -54,11 +55,11 @@ for i = 1,blanks do
 		rand = math.random(word:len())
 	end
 	-- print("blank at index: " .. rand)
-	letterbox = letterbox .. get_char(rand, word_to_guess)
-	word_to_guess = replace_char(rand, word_to_guess, "_")
+	letterbox = letterbox .. get_char(rand, wordToGuess)
+	wordToGuess = replace_char(rand, wordToGuess, "_")
 end
 
-print("Word to guess: " .. word_to_guess)
+print("Word to guess: " .. wordToGuess)
 -- ---------------------
 
 -- GET LETTERBOX -------
@@ -84,8 +85,8 @@ end
 
 -- SHUFFLE -------------
 for i = letterbox:len(), 2, -1 do -- backwards
-    local r = math.random(i) -- select a random number between 1 and i
-    letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
+	local r = math.random(i) -- select a random number between 1 and i
+	letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
 end  
 -- ---------------------
 
@@ -95,105 +96,114 @@ print("Letterbox: " .. letterbox)
 -- DISPLAY LETTERS -----
 local x = 100
 local y = 150
-local word_group = display.newGroup()
-local a = 1
-for i = 1, #word_to_guess do
-    local c = get_char(i, word_to_guess)
-    local filename = "images2"
-    if (c == "_") then
-    	filename = filename .. "/blank.png"
-    else
- 		filename = filename .. "/" .. c .. ".png"
-    end
-    --print(filename)
-    local letter = display.newImage(filename)
-    word_group:insert(letter)
-    if (c == "_") then
-    	c = c .. a
-    	a = a + 1
-    end
-    word_group[c] = letter
-    x = x + 60
-    word_group[c].x = x 
-    word_group[c].y = y
+local wordGroup = display.newGroup()
+-- local a = 1
+for i = 1, #wordToGuess do
+	local c = get_char(i, wordToGuess)
+	local filename = "images2"
+	if (c == "_") then
+		filename = filename .. "/blank.png"
+	else
+		filename = filename .. "/" .. c .. ".png"
+	end
+	--print(filename)
+	local letter = display.newImage(filename)
+	wordGroup:insert(letter)
+	if (c == "_") then
+		c = c .. get_char(i, word)
+		-- c = c .. a
+		-- a = a + 1
+	end
+	wordGroup[c] = letter
+	x = x + 60
+	wordGroup[c].x = x 
+	wordGroup[c].y = y
 end
 -- ---------------------
-
-
-
 
 -- DISPLAY LETTERBOX ---
 x = 100
 y = 250
-local letterbox_group = display.newGroup()
+local letterboxGroup = display.newGroup()
 
 for i = 1, #letterbox do
-    local c = get_char(i, letterbox)
-    local filename = "images2"
-    filename = filename .. "/" .. c .. ".png"
-    -- print(filename)
-    local letter = display.newImage(filename)
-    letterbox_group:insert(letter)
-    letterbox_group[c] = letter
-    x = x + 60
-    letterbox_group[c].x = x 
-    letterbox_group[c].y = y
-    MultiTouch.activate(letter, "move", "single");
+	local c = get_char(i, letterbox)
+	local filename = "images2"
+	filename = filename .. "/" .. c .. ".png"
+	-- print(filename)
+	local letter = display.newImage(filename)
+	letterboxGroup:insert(letter)
+	letterboxGroup[c] = letter
+	x = x + 60
+	letterboxGroup[c].x = x 
+	letterboxGroup[c].y = y
+	MultiTouch.activate(letter, "move", "single");
 
 
-    -- OBJECT DRAG ---------
-	-- User drag interaction on blue circle
+	-- OBJECT DRAG ---------
 	local function objectDrag (event)
 		local t = event.target
-		-- If user touches & drags circle, follow the user's touch
 		if event.phase == "moved" then
-		   firstX = event.target.x - word_group["_1"].x; 
-		   firstY = event.target.y - word_group["_1"].y;
-		   if (firstX < 0) then firstX = firstX * -1; end
-		   if (firstY < 0) then firstY = firstY * -1; end
-		   -- If user drags circle within 50 pixels of center of outline, snap into middle
-		   if (firstX <= 10) and (firstY <= 10) then
-		      event.target.x = word_group["_1"].x;
-		      event.target.y = word_group["_1"].y;
-		   end
+			for i = 1, wordToGuess:len() do
+				if ( get_char(i, wordToGuess) == "_" ) then
+					local s = "_" .. get_char(i, word)
+					distX = math.abs(event.target.x - wordGroup[s].x);
+					distY = math.abs(event.target.y - wordGroup[s].y);
+					if (distX <= 10) and (distY <= 10) then
+						event.target.x = wordGroup[s].x;
+						event.target.y = wordGroup[s].y;
+					end
+				end
+			end
 		end
 
-		if event.phase == "moved" then
-		   circlePosX = event.target.x - word_group["_2"].x; 
-		   circlePosY = event.target.y - word_group["_2"].y;
-		   if (circlePosX < 0) then circlePosX = circlePosX * -1; end
-		   if (circlePosY < 0) then circlePosY = circlePosY * -1; end
-		   -- If user drags circle within 50 pixels of center of outline, snap into middle
-		   if (circlePosX <= 10) and (circlePosY <= 10) then
-		      event.target.x = word_group["_2"].x;
-		      event.target.y = word_group["_2"].y;
-		   end
-		end
 	end
 	-- ---------------------
 
 
-    letter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
+	letter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 end
+
+local submitted = false
+local answer = ""
+-- ADD SUBMIT BUTTON ---
+local submitHandler = function( event )
+	answer = ""
+	submitted = true
+	print(submitted)
+	for i = 1, wordToGuess:len() do
+		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank
+			answer = answer .. get_char(i, wordToGuess)
+		else
+			for j = 1, letterbox:len() do
+				if ( get_char(i, word) == get_char(j, letterbox) ) then -- if same letter, dapat same pos
+					local s = "_" .. get_char(i, word)
+					distX = math.abs(letterboxGroup[get_char(j, letterbox)].x - wordGroup[s].x)
+					distY = math.abs(letterboxGroup[get_char(j, letterbox)].y - wordGroup[s].y)
+					if (distX < 7) and (distY < 7) then
+						-- if nasa blank
+						answer = answer .. get_char(j, letterbox)
+						-- print("nasa for ng blank " .. s .. ": " .. answer)
+					end
+				end
+			end
+		end
+	end
+	print(answer)
+	if (answer == word) then
+		print("correct!")
+	end
+end
+
+local submitButton = widget.newButton
+{
+	id = "submitButton",
+	defaultFile = "images2/button.png",
+	overFile = "images2/button_over.png",
+	label = "Submit",
+	font = native.systemFontBold,
+	fontSize = 22,
+	emboss = true,
+	onRelease = submitHandler,
+}
 -- ---------------------
-
---[[
-local letterFiles = { A="images2/a.png", B="images2/b.png", C="images2/c.png", D="images2/d.png", E="images2/e.png" }
-
-
--- print(letterFiles.A)
-
-
-for key,file in pairs(letterFiles) do
-
-	local letter = display.newImage( file );
-	alphabet:insert(letter);
-	alphabet[key] = letter;
-
-end
-]]
-
-
-
-
-
