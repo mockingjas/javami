@@ -5,9 +5,10 @@ local scene = storyboard.newScene()
 
 ------- Global variables ---------
 local word
-local word_group
-local word_to_guess
+local wordGroup
+local wordToGuess
 local letterbox
+local letterboxGroup
 
 --------- FUNCTIONS FOR STRING MANIPULATIONS ------------
 -- position in str to be replaced with ch
@@ -34,7 +35,7 @@ end
 function getwordfromDB()
 	-- Insert function for getting random word from database here
 	word = "apple"
-	word_to_guess = word
+	wordToGuess = word
 	
 end
 
@@ -48,23 +49,17 @@ function setword()
 	letterbox = ""
 	-- GET RANDOM BLANKS ---
 	for i = 1,blanks do
-		local first = 0
-		if (string.find(word_to_guess, "_") ~= nil) then
-			first = string.find(word_to_guess, "_")
-			-- print("1st blank index:" .. first)
-		end
 		local rand = math.random(word:len())
-		-- print("rand: " .. rand .. " first: " .. first)
-		while rand == first do
-			-- print("while")
+		while (get_char(rand, wordToGuess) == "_") or (letterbox:find(get_char(rand, wordToGuess)) ~= nil) do
+			print("char at rand: " .. get_char(rand, wordToGuess))
+			print("curr letterbox: " .. letterbox)
 			rand = math.random(word:len())
 		end
-		-- print("blank at index: " .. rand)
-		letterbox = letterbox .. get_char(rand, word_to_guess)
-		word_to_guess = replace_char(rand, word_to_guess, "_")
+		letterbox = letterbox .. get_char(rand, wordToGuess)
+		wordToGuess = replace_char(rand, wordToGuess, "_")
 	end
 
-	print("Word to guess: " .. word_to_guess)
+	print("Word to guess: " .. wordToGuess)
 	-- ---------------------
 
 	-- GET LETTERBOX -------
@@ -80,8 +75,8 @@ function setword()
 
 		-- SHUFFLE -------------
 		for i = letterbox:len(), 2, -1 do -- backwards
-		    local r = math.random(i) -- select a random number between 1 and i
-		    letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
+			local r = math.random(i) -- select a random number between 1 and i
+			letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
 		end  
 		-- ---------------------
 
@@ -90,31 +85,20 @@ function setword()
 end
 
 ------------ FUNCTION FOR OBJECT DRAG --------------------
-function objectDrag (event)
+local function objectDrag (event)
 	local t = event.target
-	-- If user touches & drags circle, follow the user's touch
 	if event.phase == "moved" then
-	   firstX = event.target.x - word_group["_1"].x; 
-	   firstY = event.target.y - word_group["_1"].y;
-	   if (firstX < 0) then firstX = firstX * -1; end
-	   if (firstY < 0) then firstY = firstY * -1; end
-	   -- If user drags circle within 50 pixels of center of outline, snap into middle
-	   if (firstX <= 10) and (firstY <= 10) then
-		  event.target.x = word_group["_1"].x;
-		  event.target.y = word_group["_1"].y;
-	   end
-	end
-
-	if event.phase == "moved" then
-	   circlePosX = event.target.x - word_group["_2"].x; 
-	   circlePosY = event.target.y - word_group["_2"].y;
-	   if (circlePosX < 0) then circlePosX = circlePosX * -1; end
-	   if (circlePosY < 0) then circlePosY = circlePosY * -1; end
-	   -- If user drags circle within 50 pixels of center of outline, snap into middle
-	   if (circlePosX <= 10) and (circlePosY <= 10) then
-		  event.target.x = word_group["_2"].x;
-		  event.target.y = word_group["_2"].y;
-	   end
+		for i = 1, wordToGuess:len() do
+			if ( get_char(i, wordToGuess) == "_" ) then
+				local s = "_" .. get_char(i, word)
+				distX = math.abs(event.target.x - wordGroup[s].x);
+				distY = math.abs(event.target.y - wordGroup[s].y);
+				if (distX <= 10) and (distY <= 10) then
+					event.target.x = wordGroup[s].x;
+					event.target.y = wordGroup[s].y;
+				end
+			end
+		end
 	end
 end
 
@@ -122,6 +106,31 @@ end
 local checkanswer = function( event )
 	-- check the word
 	-- if right, add score and then,
+	answer = ""
+	submitted = true
+	print(submitted)
+	for i = 1, wordToGuess:len() do
+		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank
+			answer = answer .. get_char(i, wordToGuess)
+		else
+			for j = 1, letterbox:len() do
+				if ( get_char(i, word) == get_char(j, letterbox) ) then -- if same letter, dapat same pos
+					local s = "_" .. get_char(i, word)
+					distX = math.abs(letterboxGroup[get_char(j, letterbox)].x - wordGroup[s].x)
+					distY = math.abs(letterboxGroup[get_char(j, letterbox)].y - wordGroup[s].y)
+					if (distX < 7) and (distY < 7) then
+						-- if nasa blank
+						answer = answer .. get_char(j, letterbox)
+						-- print("nasa for ng blank " .. s .. ": " .. answer)
+					end
+				end
+			end
+		end
+	end
+	print("answer: " .. answer)
+	if (answer == word) then
+		print("correct!")
+	end
 	storyboard.gotoScene("reload", "fade", 400)
 end
 
@@ -154,52 +163,51 @@ function scene:createScene(event)
 	-- DISPLAY LETTERS -----
 	local x = 100
 	local y = 150
-	word_group = display.newGroup()
+	wordGroup = display.newGroup()
 	local a = 1
-	for i = 1, #word_to_guess do
-	    local c = get_char(i, word_to_guess)
-	    local filename = "images"
-	    if (c == "_") then
-	    	filename = filename .. "/blank.png"
-	    else
-	 		filename = filename .. "/" .. c .. ".png"
-	    end
-	    --print(filename)
-	    local letter = display.newImage(filename)
-	    word_group:insert(letter)
-	    if (c == "_") then
-	    	c = c .. a
-	    	a = a + 1
-	    end
-	    word_group[c] = letter
-	    x = x + 60
-	    word_group[c].x = x 
-	    word_group[c].y = y
+	for i = 1, #wordToGuess do
+		local c = get_char(i, wordToGuess)
+		local filename = "images"
+		if (c == "_") then
+			filename = filename .. "/blank.png"
+		else
+			filename = filename .. "/" .. c .. ".png"
+		end
+		--print(filename)
+		local letter = display.newImage(filename)
+		wordGroup:insert(letter)
+		if (c == "_") then
+			c = c .. get_char(i, word)
+		end
+		wordGroup[c] = letter
+		x = x + 60
+		letter.x = x 
+		letter.y = y
 	end
 	-- ---------------------
 	
 	-- DISPLAY LETTERBOX ---
 	x = 100
 	y = 250
-	local letterbox_group = display.newGroup()
+	letterboxGroup = display.newGroup()
 
 	for i = 1, #letterbox do
-	    local c = get_char(i, letterbox)
-	    local filename = "images"
-	    filename = filename .. "/" .. c .. ".png"
-	    -- print(filename)
-	    local letter = display.newImage(filename)
-	    letterbox_group:insert(letter)
-	    letterbox_group[c] = letter
-	    x = x + 60
-	    letterbox_group[c].x = x 
-	    letterbox_group[c].y = y
-	    MultiTouch.activate(letter, "move", "single")
-	    letter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
+		local c = get_char(i, letterbox)
+		local filename = "images"
+		filename = filename .. "/" .. c .. ".png"
+		-- print(filename)
+		local letter = display.newImage(filename)
+		letterboxGroup:insert(letter)
+		letterboxGroup[c] = letter
+		x = x + 60
+		letter.x = x 
+		letter.y = y
+		MultiTouch.activate(letter, "move", "single")
+		letter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
 	
-	screenGroup:insert(word_group)
-	screenGroup:insert(letterbox_group)
+	screenGroup:insert(wordGroup)
+	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(image)
 	
 end

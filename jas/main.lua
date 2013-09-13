@@ -43,18 +43,12 @@ end
 local letterbox = ""
 -- GET RANDOM BLANKS ---
 for i = 1,blanks do
-	local first = 0
-	if (string.find(wordToGuess, "_") ~= nil) then
-		first = string.find(wordToGuess, "_")
-		-- print("1st blank index:" .. first)
-	end
 	local rand = math.random(word:len())
-	-- print("rand: " .. rand .. " first: " .. first)
-	while rand == first do
-		-- print("while")
+	while (get_char(rand, wordToGuess) == "_") or (letterbox:find(get_char(rand, wordToGuess)) ~= nil) do
+		print("char at rand: " .. get_char(rand, wordToGuess))
+		print("curr letterbox: " .. letterbox)
 		rand = math.random(word:len())
 	end
-	-- print("blank at index: " .. rand)
 	letterbox = letterbox .. get_char(rand, wordToGuess)
 	wordToGuess = replace_char(rand, wordToGuess, "_")
 end
