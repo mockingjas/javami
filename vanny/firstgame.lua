@@ -1,6 +1,7 @@
 MultiTouch = require("dmc_multitouch");
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
+local timer = require("timer")
 local scene = storyboard.newScene()
 
 ------- Global variables ---------
@@ -65,10 +66,10 @@ function setword()
 	-- GET LETTERBOX -------
 	for i = 1,word:len()-2 do
 		local rand = math.random(26)
-		local letter = string.char(97+rand)
+		local letter = string.char(96+rand)
 		while (string.find(letterbox, letter) ~= nil) do
 			rand = math.random(26)
-			letter = string.char(97+rand)
+			letter = string.char(96+rand)
 		end
 		letterbox = letterbox .. letter
 	end
@@ -197,10 +198,10 @@ function scene:createScene(event)
 		filename = filename .. "/" .. c .. ".png"
 		-- print(filename)
 		local letter = display.newImage(filename)
-		letterboxGroup:insert(letter)
+		letterboxGroup:insert(i, letter)
 		letterboxGroup[c] = letter
 		x = x + 60
-		letter.x = x 
+		letterboxGroup[i].x = x 
 		letter.y = y
 		MultiTouch.activate(letter, "move", "single")
 		letter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);

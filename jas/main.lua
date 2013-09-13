@@ -59,10 +59,10 @@ print("Word to guess: " .. wordToGuess)
 -- GET LETTERBOX -------
 for i = 1,word:len()-2 do
 	local rand = math.random(26)
-	local letter = string.char(97+rand)
+	local letter = string.char(96+rand)
 	while (string.find(letterbox, letter) ~= nil) do
 		rand = math.random(26)
-		letter = string.char(97+rand)
+		letter = string.char(96+rand)
 	end
 	letterbox = letterbox .. letter
 end
