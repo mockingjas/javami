@@ -48,10 +48,6 @@ local TouchMgr = require( "dmc_touchmanager" )
 
 local MULTITOUCH_EVENT = "multitouch_event"
 
-local DEBUG = true
-
-local debugObjs = {}
-
 
 --===================================================================--
 -- Triggr Class
@@ -554,32 +550,6 @@ end
 --===================================================================--
 
 
-
-if DEBUG then
-
-	local obj
-
-	-- blue spot over center of main object
-	obj = display.newRect( 0, 0, 16, 16 )
-	obj:setFillColor(0,0,255)
-	obj:toFront()
-	debugObjs["objCenter"] = obj
-
-	-- green spot over midpoint center
-	obj = display.newRect( 0, 0, 10, 10 )
-	obj:setFillColor(0,255,0)
-	obj:toFront()
-	debugObjs["touchCenter"] = obj
-
-	-- red spot over calculated center
-	obj = display.newRect( 0, 0, 10, 10 )
-	obj:setFillColor(255,0,0)
-	obj:toFront()
-	debugObjs["calcCenter"] = obj
-
-end
-
-
 -- angle in degrees
 function y_given_x_angle( x, angle )
 	--print( "y_given_x_angle" )
@@ -904,14 +874,6 @@ local function calculateBase( obj )
 	
 	dmc.midpointTouch = midpoint
 
-
-	if DEBUG then
-		-- update touch center point
-		cO = debugObjs["touchCenter"]
-	 	cO.x = dmc.midpointTouch.x ; cO.y = dmc.midpointTouch.y
-		--print( dmc.midpointTouch.x, dmc.midpointTouch.y )
-	end
-
 	-- save current properties
 	dmc.scaleOrig = obj.xScale
 	dmc.angleOrig = -obj.rotation -- convert from Corona to trig angles
@@ -955,12 +917,6 @@ local function calculateBase( obj )
 
 	--print( "objx.y: ", obj.x, obj.y )
 	--print( "x.y: ", x, y )
-
-	if DEBUG then
-		cO = debugObjs["calcCenter"]
-		cO.x = x ; cO.y = y
-	end
-
 	-- pack up results
 	local ret = {
 		scale = dmc.scaleOrig,
@@ -994,14 +950,6 @@ local function calculateDelta( obj )
 	touch, midpoint = dmc.touchFunc()
 	
 	dmc.midpointTouch = midpoint
-
-
-	if DEBUG then
-		-- update touch center point
-		cO = debugObjs["touchCenter"]
-	 	cO.x = dmc.midpointTouch.x ; cO.y = dmc.midpointTouch.y
-		--print( dmc.midpointTouch.x, dmc.midpointTouch.y )
-	end
 
 	dx = touch.x - midpoint.x
 	dy = -( touch.y - midpoint.y )
@@ -1045,11 +993,6 @@ local function calculateDelta( obj )
 	local xDiff = x - dmc.xOrig
 	local yDiff = y - dmc.yOrig
 
-	if DEBUG then
-		cO = debugObjs["calcCenter"]
-		cO.x = x
-		cO.y = y
-	end
 
 
 	-- pack up results
@@ -1190,15 +1133,6 @@ function multitouchTouchHandler( event )
 			if obj.dispatchEvent ~= nil then
 				obj:dispatchEvent( e )
 			end
-
-
-			if DEBUG then
-				cO = debugObjs["touchCenter"]
-				cO.isVisible = true
-				cO = debugObjs["calcCenter"]
-				cO.isVisible = true
-			end
-
 		end
 
 		return true
@@ -1224,12 +1158,6 @@ function multitouchTouchHandler( event )
 
 				if obj.dispatchEvent ~= nil then
 					obj:dispatchEvent( e )
-				end
-
-				if DEBUG then
-					--print( calcs.angleDelta )
-					cO = debugObjs["objCenter"]
-					cO.x = obj.x ; cO.y = obj.y
 				end
 
 			end
@@ -1295,15 +1223,7 @@ function multitouchTouchHandler( event )
 
 			-- process the gesture
 			if dmc.touchFunc then
-				calculateBase( obj )
-
-			else
-				if DEBUG then
-					cO = debugObjs["touchCenter"]
-					cO.isVisible = false
-					cO = debugObjs["calcCenter"]
-					cO.isVisible = false
-				end				
+				calculateBase( obj )		
 			end
 
 			return true
