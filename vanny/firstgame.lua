@@ -103,13 +103,18 @@ local function objectDrag (event)
 	end
 end
 
+-- TIMER
+local gameTimer
+local paused = false
 ------- FUNCTION FOR CHECKING ANSWER --------------
 local checkanswer = function( event )
 	-- check the word
 	-- if right, add score and then,
+
+	-- TIMER
+	timer.pause( gameTimer )
+	paused = true
 	answer = ""
-	submitted = true
-	print(submitted)
 	for i = 1, wordToGuess:len() do
 		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank
 			answer = answer .. get_char(i, wordToGuess)
@@ -131,13 +136,33 @@ local checkanswer = function( event )
 	print("answer: " .. answer)
 	if (answer == word) then
 		print("correct!")
+	else
+		print("wrong!")
 	end
 	storyboard.gotoScene("reload", "fade", 400)
 end
 
+-- TIMER
+local text = display.newText( "0:00", 420, 10, "ArialRoundedMTBold", 30 )
+function text:timer( event )
+		
+	local count = event.count
+	self.text = count
+ 
+ 	if (count % 60 < 10) then self.text = math.floor(count/60) .. ":0" .. (count%60)
+ 	else self.text = math.floor(count/60) .. ":" .. (count%60)
+ 	end
+	if count ==300 then
+		timer.cancel( event.source ) -- after the 20th iteration, cancel timer
+	end
+
+end
+
+
 
 function scene:createScene(event)
 
+	paused = false
 	local screenGroup = self.view
 	setword()
 
@@ -148,22 +173,21 @@ function scene:createScene(event)
 	
 	submit = widget.newButton{
 		id = "submit",
-		defaultFile = "button.png",
-		label = "Submit",
-		fontSize = 20,
+		defaultFile = "button_small.png",
+		label = "OK!",
+		fontSize = 15,
 		emboss = true,
 		onEvent = checkanswer,
 	}
-
-	submit.x = 400; submit.y = 50
+	submit.x = 460; submit.y = 280
 	screenGroup:insert(submit)
 	
 	image = display.newImage( "images/" .. word .. ".png" )
-	image.x = 60; image.y = 150;
+	image.x = 310/2; image.y = 260/2;
 	
 	-- DISPLAY LETTERS -----
-	local x = 100
-	local y = 150
+	local x = -40
+	local y = 270
 	wordGroup = display.newGroup()
 	local a = 1
 	for i = 1, #wordToGuess do
@@ -181,15 +205,15 @@ function scene:createScene(event)
 			c = c .. get_char(i, word)
 		end
 		wordGroup[c] = letter
-		x = x + 60
+		x = x + 55
 		letter.x = x 
 		letter.y = y
 	end
 	-- ---------------------
 	
 	-- DISPLAY LETTERBOX ---
-	x = 100
-	y = 250
+	x = 320
+	y = 90
 	letterboxGroup = display.newGroup()
 
 	for i = 1, #letterbox do
@@ -200,13 +224,23 @@ function scene:createScene(event)
 		local letter = display.newImage(filename)
 		letterboxGroup:insert(i, letter)
 		letterboxGroup[c] = letter
-		x = x + 60
+		if (x - 330 < 120) then
+			x = x + 50
+		else
+			y = y + 60
+			x = 370
+		end
 		letterboxGroup[i].x = x 
 		letter.y = y
 		MultiTouch.activate(letter, "move", "single")
 		letter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
+
+	-- TIMER
 	
+	local timeDelay = 1000;
+	gameTimer = timer.performWithDelay( timeDelay, text, 300 )
+
 	screenGroup:insert(wordGroup)
 	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(image)
