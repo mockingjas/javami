@@ -4,7 +4,7 @@ local widget = require( "widget" )
 
 local scene = storyboard.newScene()
 
-local function startGame ( event )
+local startGame = function( event )
 	storyboard.gotoScene("mainmenu", "fade", 400)
 end
 
@@ -12,20 +12,28 @@ function scene:createScene(event)
 
 	local screenGroup = self.view
 
-	bg = display.newImageRect("bg.png", 570, 320)
+	bg = display.newImageRect("bg_back.png", 570, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
-
+	
+	buildings = display.newImage( "ground.png" )
+	buildings.x = display.contentWidth/2;
+	buildings.y =  display.contentHeight/2;
+	screenGroup:insert(buildings)
+	
 	clouds = display.newImage( "bg2.png" )
 	clouds.x = 0
 	clouds.y =  display.contentHeight/2;
+	clouds.speed = 2
 	screenGroup:insert(clouds)
 
 	clouds2 = display.newImage( "bg2.png" )
-	clouds2.x = 570;
+	clouds2.x = 570
 	clouds2.y = display.contentHeight/2;
+	clouds2.speed = 2
 	screenGroup:insert(clouds2)
+	
 	
 	title = widget.newButton{
 		id = "title",
@@ -34,36 +42,25 @@ function scene:createScene(event)
 		emboss = true,
 		onEvent = startGame,
 	}
-	title.x = display.contentWidth/2;
-	title.y = 230;
+	title.x = (display.contentWidth/2);
+	title.y = (display.contentHeight/2) + 10;
 	screenGroup:insert(title)
 
-	helpText = display.newText("Tap the title to start game", display.contentWidth/6, 270, Arial, 25)
+	helpText = display.newText("Tap the title to start game", 130, 210, Arial, 18)
 	helpText:setTextColor(255, 255, 255)
 	screenGroup:insert(helpText)
-	--[[
-	start = widget.newButton{
-		id = "start",
-		defaultFile = "buttonOrange.png",
-		overFile = "buttonBlue.png",
-		label = "Start Game",
-		fontSize = 20,
-		emboss = true,
-		onEvent = buttonHandler,
-	}
-
-	start.x = 250; start.y = 230
-	screenGroup:insert(start)
-	]]
+	
 end
 
 function moveBG(self,event)
 	if self.x == -300 then
-		self.x = 850
+		self.x = 830
 	else
-		self.x = self.x - 2
+		self.x = self.x - (self.speed)
 	end
 end
+
+
 
 function scene:enterScene(event)
 
@@ -72,7 +69,6 @@ function scene:enterScene(event)
 	
 	clouds2.enterFrame = moveBG
     Runtime:addEventListener("enterFrame", clouds2)
-
 	
 end
 
