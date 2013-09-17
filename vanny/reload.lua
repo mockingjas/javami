@@ -3,17 +3,31 @@ local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
 local text
+local category
 
 function restartLevel(target)
+
+	--Pass category again to first game
+	option = {
+		effect = "fade",
+		time = 250,
+		params = {
+			categ = category,
+		}
+	}
+
 	storyboard.removeScene("firstgame")
-	storyboard.gotoScene("firstgame", "crossFade", 250)
+	storyboard.gotoScene("firstgame", option)
 end
 
 function scene:createScene(event)
 		
+	category = event.params.categ
+   	print( "PARAMETER part 2!!"..category)
+
 	local screenGroup = self.view
 	
-	bg = display.newImageRect("blackboard.png", 550, 320)
+	bg = display.newImageRect("images/firstgame/blackboard.png", 550, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
@@ -32,7 +46,6 @@ function scene:enterScene(event)
 	text.alpha = 1.0
 	transition.to(text, {time = 500, alpha= 0.0, onComplete = restartLevel})
 	
-
 end
 
 function scene:exitScene(event)

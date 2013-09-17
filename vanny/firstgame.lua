@@ -10,8 +10,32 @@ local wordGroup
 local wordToGuess
 local letterbox
 local letterboxGroup
+local wordFromDB
+local category = ""
+local db = sqlite3.open("firstgame_db.sqlite3")
 
 --------- FUNCTIONS FOR STRING MANIPULATIONS ------------
+--db: fetch
+local function fetchByCategory(categ)
+	print("SELECT * FROM Words where category =" ..categ)
+	local words = {}
+	for row in db:nrows("SELECT * FROM Words where category ='"..categ.."'") do
+		local rowData = row.id .. " " .. row.name.." "..row.category.."\n"
+        words[#words+1] = rowData
+	end
+	return words
+end
+
+--db:close
+local function onSystemEvent( event )
+	if event.type == "applicationExit" then
+		if db and db:isopen() then
+			db:close()
+		end
+	end
+end
+Runtime:addEventListener( "system", onSystemEvent )
+
 -- position in str to be replaced with ch
 function replace_char (pos, str, ch)
 	if (pos == 1) then return ch .. str:sub(pos+1)
@@ -34,8 +58,24 @@ end
 
 
 function getwordfromDB()
-	-- Insert function for getting random word from database here
-	word = "apple"
+	print("PASSED VARIABLE:"..category)
+	local words = fetchByCategory(category)	--fetches and stores whole row in "words" array
+	for i=1,#words do
+		print("DB:"..words[i]) 
+	end
+
+	--randomize a word from DB
+	local rand = math.random(#words)
+	print(words[rand])
+	
+	wordFromDB = {}
+	for token in string.gmatch(words[rand], "[^%s]+") do
+		wordFromDB[#wordFromDB+1] = token
+	end
+	
+	-- 	id = wordFromDB[1], name = wordFromDB[2], category = wordFromDB[3]
+	print(wordFromDB[2])
+	word = wordFromDB[2]
 	wordToGuess = word
 	
 end
@@ -139,7 +179,18 @@ local checkanswer = function( event )
 	else
 		print("wrong!")
 	end
-	storyboard.gotoScene("reload", "fade", 400)
+
+	-- pass category para pag nagrestart game alam parin
+	print("HSAKJFHDS"..category)
+	option = {
+		effect = "fade",
+		time = 400,
+		params = {
+			categ = category,
+		}
+	}
+
+	storyboard.gotoScene("reload", option)
 end
 
 -- TIMER
@@ -162,18 +213,22 @@ end
 
 function scene:createScene(event)
 	
+	--get passed parameter from previous scene
+	category = event.params.categ
+   	print( "PARAMETER"..category )
+
 	paused = false
 	local screenGroup = self.view
 	setword()
 
-	bg = display.newImageRect("blackboard.png", 550, 320)
+	bg = display.newImageRect("images/firstgame/blackboard.png", 550, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
 	
 	submit = widget.newButton{
 		id = "submit",
-		defaultFile = "button_small.png",
+		defaultFile = "images/firstgame/button_small.png",
 		label = "OK!",
 		fontSize = 15,
 		emboss = true,
@@ -182,7 +237,7 @@ function scene:createScene(event)
 	submit.x = 460; submit.y = 280
 	screenGroup:insert(submit)
 	
-	image = display.newImage( "images/" .. word .. ".png" )
+	image = display.newImage( "images/firstgame/pictures/" .. word .. ".png" )
 	image.x = 310/2; image.y = 260/2;
 	
 	-- DISPLAY LETTERS -----
@@ -192,11 +247,11 @@ function scene:createScene(event)
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-		local filename = "images"
+		local filename = "images/firstgame/letters/"
 		if (c == "_") then
-			filename = filename .. "/blank.png"
+			filename = filename .. "blank.png"
 		else
-			filename = filename .. "/" .. c .. ".png"
+			filename = filename .. c .. ".png"
 		end
 		--print(filename)
 		local letter = display.newImage(filename)
@@ -218,8 +273,8 @@ function scene:createScene(event)
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
-		local filename = "images"
-		filename = filename .. "/" .. c .. ".png"
+		local filename = "images/firstgame/letters/"
+		filename = filename .. c .. ".png"
 		-- print(filename)
 		local letter = display.newImage(filename)
 		letterboxGroup:insert(i, letter)
@@ -249,7 +304,6 @@ end
 
 function scene:enterScene(event)
 
-	
 
 end
 

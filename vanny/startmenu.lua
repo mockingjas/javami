@@ -12,23 +12,23 @@ function scene:createScene(event)
 
 	local screenGroup = self.view
 
-	bg = display.newImageRect("bg_back.png", 570, 320)
+	bg = display.newImageRect("images/menu/bg_back.png", 570, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
 	
-	buildings = display.newImage( "ground.png" )
+	buildings = display.newImage( "images/menu/ground.png" )
 	buildings.x = display.contentWidth/2;
 	buildings.y =  display.contentHeight/2;
 	screenGroup:insert(buildings)
 	
-	clouds = display.newImage( "bg2.png" )
+	clouds = display.newImage( "images/menu/bg2.png" )
 	clouds.x = 0
 	clouds.y =  display.contentHeight/2;
 	clouds.speed = 2
 	screenGroup:insert(clouds)
 
-	clouds2 = display.newImage( "bg2.png" )
+	clouds2 = display.newImage( "images/menu/bg2.png" )
 	clouds2.x = 570
 	clouds2.y = display.contentHeight/2;
 	clouds2.speed = 2
@@ -37,8 +37,8 @@ function scene:createScene(event)
 	
 	title = widget.newButton{
 		id = "title",
-		defaultFile = "title.png",
-		overFile = "title_over.png",
+		defaultFile = "images/menu/title.png",
+		overFile = "images/menu/title_over.png",
 		emboss = true,
 		onEvent = startGame,
 	}
