@@ -47,9 +47,9 @@ end
 --
 --FILE HANDLING
 --sira pa yung path, pachange nalang muna
-local easyPath = "C:/Users/Maricia/Desktop/vanny/text/easy_populator.txt" 	-- change this -_-
-local medPath = "C:/Users/Maricia/Desktop/vanny/text/med_populator.txt" 	-- change this -_-
-local hardPath = "C:/Users/Maricia/Desktop/vanny/text/hard_populator.txt" 	-- change this -_-
+local easyPath = "C:/Users/Maricia/Documents/GitHub/javami/latest/text/easy_populator.txt" 	-- change this -_-
+local medPath = "C:/Users/Maricia/Documents/GitHub/javami/latest/text/med_populator.txt" 	-- change this -_-
+local hardPath = "C:/Users/Maricia/Documents/GitHub/javami/latest/text/hard_populator.txt" 	-- change this -_-
 
 local easyArray = fileToArray(easyPath)
 local easyWords = {}

@@ -193,6 +193,7 @@ local checkanswer = function(event)
 					score = currScore,
 				}
 			}
+			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
 			print("wrong!")
@@ -216,7 +217,7 @@ function _destroyDialog()
 	round.x = display.contentCenterX
 	round.y = display.contentCenterY + 20
 
-	score= display.newText("SCORE: ", 0, 0, native.systemFont, 20)
+	score= display.newText("SCORE: "..currScore, 0, 0, native.systemFont, 20)
 	score.x = display.contentCenterX
 	score.y = display.contentCenterY + 40
 
