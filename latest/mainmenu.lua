@@ -22,7 +22,7 @@ local button1 = function( event )
 	end
 	-- 
 
-	--PASS PARAMETERS TO NEXT SCENE
+	--PARAMETERS TO PASS TO NEXT SCENE
 	easy =	{
 		effect = "fade",
 		time = 400,

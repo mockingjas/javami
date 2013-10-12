@@ -5,36 +5,39 @@ local timer = require("timer")
 local scene = storyboard.newScene()
 
 ------- Global variables ---------
-local word
-local wordGroup
-local wordToGuess
-local letterbox
-local letterboxGroup
-local wordFromDB
-local category = ""
+local word, wordGroup, wordToGuess, letterbox, letterboxGroup
+local wordFromDB, category
 local boolFirst
-local db = sqlite3.open("firstGameDb.sqlite3")
-local runMode = true
-local gameTimer
-local text
-local currScore
-local option
-local screenGroup
+local db = sqlite3.open("Game1_DB.sqlite3")
+local gameTimer, text, maxTime
+local currScore, option, screenGroup
 
---------- FUNCTIONS FOR STRING MANIPULATIONS ------------
---db: fetch
-local function fetchByCategory(categ)
+--------- FUNCTIONS FOR DATABASE ------------
+--DB: fetch
+function fetchByCategory(categ)
 	print("SELECT * FROM Words where category =" ..categ)
 	local words = {}
 	for row in db:nrows("SELECT * FROM Words where category ='"..categ.."'") do
-		local rowData = row.id .. " " .. row.name.." "..row.category.."\n"
+		local rowData = row.id .. " " .. row.name.." "..row.category.." "..row.isCorrect.."\n"
         words[#words+1] = rowData
 	end
 	return words
 end
 
---db:close
-local function onSystemEvent( event )
+--DB: update if word was guessed
+function updateDB(word)
+	for row in db:nrows("UPDATE Words SET isCorrect ='true' where name ='"..word.."'") do
+	end
+end
+
+--DB: reset all words to un-guessed
+function resetDB()
+	for row in db:nrows("UPDATE Words SET isCorrect ='false'") do
+	end
+end
+
+--DB:close
+function onSystemEvent( event )
 	if event.type == "applicationExit" then
 		if db and db:isopen() then
 			db:close()
@@ -43,6 +46,16 @@ local function onSystemEvent( event )
 end
 Runtime:addEventListener( "system", onSystemEvent )
 
+--DB: check if a word has been answered correctly
+function hasBeenAnswered(wordToGuess)
+	local rowData
+	for row in db:nrows("SELECT * FROM Words WHERE name = '"..wordToGuess.."'") do
+		rowData = row.isCorrect
+	end
+	return rowData
+end
+
+--------- FUNCTIONS FOR STRING MANIPULATIONS ------------
 -- position in str to be replaced with ch
 function replace_char (pos, str, ch)
 	if (pos == 1) then return ch .. str:sub(pos+1)
@@ -63,27 +76,36 @@ function swap_char (pos1, pos2, str)
 	return str
 end
 
-
 function getwordfromDB()
 	print("PASSED VARIABLE:"..category)
-	local words = fetchByCategory(category)	--fetches and stores whole row in "words" array
+	local words = fetchByCategory(category)
 	for i=1,#words do
 		print("DB:"..words[i]) 
 	end
 
-	--randomize a word from DB
-	local rand = math.random(#words)
-	print(words[rand])
-	
-	wordFromDB = {}
-	for token in string.gmatch(words[rand], "[^%s]+") do
-		wordFromDB[#wordFromDB+1] = token
+	--randomize a word from DB that hasn't been correctly answered yet
+	local i = 1 
+	while true do
+		local rand = math.random(#words)
+		wordFromDB = {}
+		for token in string.gmatch(words[rand], "[^%s]+") do
+			wordFromDB[#wordFromDB+1] = token
+		end
+		word = wordFromDB[2]
+		wordToGuess = word
+		if hasBeenAnswered(wordToGuess) == 'false' then
+			break
+		end
+
+		-- if all words have already been correctly answered, reset
+		if i == 10 then -- change to kung ilan words sa DB
+			resetDB()
+		end
+
+		i = i + 1
 	end
-	
-	-- 	id = wordFromDB[1], name = wordFromDB[2], category = wordFromDB[3]
-	print(wordFromDB[2])
-	word = wordFromDB[2]
-	wordToGuess = word
+
+	print(wordToGuess)
 	
 end
 
@@ -121,12 +143,12 @@ function setword()
 		letterbox = letterbox .. letter
 	end
 
-		-- SHUFFLE -------------
-		for i = letterbox:len(), 2, -1 do -- backwards
-			local r = math.random(i) -- select a random number between 1 and i
-			letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
-		end  
-		-- ---------------------
+	-- SHUFFLE -------------
+	for i = letterbox:len(), 2, -1 do -- backwards
+		local r = math.random(i) -- select a random number between 1 and i
+		letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
+	end  
+	-- ---------------------
 
 	print("Letterbox: " .. letterbox)
 	-- ---------------------
@@ -154,7 +176,7 @@ end
 local checkanswer = function(event)
 	-- check the word
 	-- if right, add score and then,
-    local phase = event.phase 
+
 	answer = ""
 	for i = 1, wordToGuess:len() do
 		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank
@@ -165,7 +187,7 @@ local checkanswer = function(event)
 					local s = "_" .. get_char(i, word)
 					distX = math.abs(letterboxGroup[get_char(j, letterbox)].x - wordGroup[s].x)
 					distY = math.abs(letterboxGroup[get_char(j, letterbox)].y - wordGroup[s].y)
-					if (distX < 7) and (distY < 7) then
+					if (distX <= 10) and (distY <= 10) then
 						-- if nasa blank
 						answer = answer .. get_char(j, letterbox)
 						-- print("nasa for ng blank " .. s .. ": " .. answer)
@@ -175,14 +197,13 @@ local checkanswer = function(event)
 		end
 	end
 
-  	if "ended" == phase then
-  	  	print("answer: " .. answer)
-		if (answer == word) then
+  	if event.phase == "ended" then
+		if answer == word then
 			boolFirst = false
 			print("Correct!")
+			updateDB(word) --set isCorrect to true
 			currScore = currScore + 1
 			print("New score:"..currScore)
-			print("reload?")
 			option = {
 				effect = "fade",
 				time = 400,
@@ -205,9 +226,10 @@ function _destroyDialog()
 	wordGroup:removeSelf()
 	letterboxGroup:removeSelf()
 	image:removeSelf()
-	score:removeSelf()
+	scoreToDisplay:removeSelf()
 	submit:removeSelf()
 
+	-- Stuff to display when time's up
 	timesup= display.newText("TIME'S UP!", 0, 0, native.systemFont, 30)
 	timesup.x = display.contentCenterX
 	timesup.y = display.contentCenterY - 10
@@ -217,10 +239,10 @@ function _destroyDialog()
 	round.x = display.contentCenterX
 	round.y = display.contentCenterY + 20
 
-	score= display.newText("SCORE: "..currScore, 0, 0, native.systemFont, 20)
-	score.x = display.contentCenterX
-	score.y = display.contentCenterY + 40
-
+	scoreToDisplay= display.newText("SCORE: "..currScore, 0, 0, native.systemFont, 20)
+	scoreToDisplay.x = display.contentCenterX
+	scoreToDisplay.y = display.contentCenterY + 40
+	--
 end
 
 -- TIMER
@@ -233,8 +255,8 @@ function text:timer( event )
  	if (count % 60 < 10) then self.text = math.floor(count/60) .. ":0" .. (count%60)
  	else self.text = math.floor(count/60) .. ":" .. (count%60)
  	end
-	if count % 60 == 0 then
-		timer.cancel( event.source ) -- after the 20th iteration, cancel timer
+	if count % maxTime == 0 then
+		timer.cancel( event.source )
 		_destroyDialog()
 		print("TIME'S UP!")
 	end
@@ -242,18 +264,28 @@ function text:timer( event )
 end
 
 function scene:createScene(event)
-	--get passed parameter from previous scene
+	--get passed parameters from previous scene
 	gameTimer = event.params.time
 	boolFirst = event.params.first
 	category = event.params.categ
-	currScore = event.params.score
+	if category == 'easy' then
+		maxTime = 60
+	elseif category == 'medium' then
+		maxTime = 120
+	elseif category == 'hard' then
+		maxTime = 180
+	end
+--	maxTime = event.params.time
+
    	print( "CATEGORY:"..category )
+	print( "MAXTIME:"..maxTime )
 
    	-- TIMER & SCORE
 	local timeDelay = 1000;
 	if boolFirst == true then
+		resetDB() --reset all words to un-answered bawat reload
 		text.text = "0:00"
-		gameTimer = timer.performWithDelay( timeDelay, text, 60 )	-- maintain time kahit magreload na
+		gameTimer = timer.performWithDelay( timeDelay, text, maxTime )	-- maintain time kahit magreload na
 		currScore = 0
 	else
 		currScore = event.params.score
@@ -261,7 +293,7 @@ function scene:createScene(event)
 	end
 
 	-- Display score
-	score = display.newText("Score:"..currScore, 5, 20, "Arial", 20 )
+	scoreToDisplay = display.newText("Score:"..currScore, 5, 20, "Arial", 20 )
 
 	screenGroup = self.view
 	setword()
@@ -339,8 +371,21 @@ function scene:createScene(event)
 	screenGroup:insert(wordGroup)
 	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(image)
-	screenGroup:insert(score)
+	screenGroup:insert(scoreToDisplay)
 	
+end
+
+
+function scene:enterScene(event)
+	
+end
+
+function scene:exitScene(event)
+	
+end
+
+function scene:destroyScene(event)
+
 end
 
 

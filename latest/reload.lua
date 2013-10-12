@@ -9,8 +9,6 @@ local gameTimer
 local currScore
 
 function restartLevel(target)
-
-	--Pass category again to first game
 	option = {
 		effect = "fade",
 		time = 250,
@@ -34,7 +32,6 @@ function scene:createScene(event)
 	gameTimer = event.params.time
 	category = event.params.categ
 	currScore = event.params.score
-	print("reload score:"..currScore)
 	
 	bg = display.newImageRect("images/firstgame/blackboard.png", 550, 320)
 	bg.x = display.contentWidth/2;
@@ -54,7 +51,6 @@ function scene:enterScene(event)
 	
 	text.alpha = 1.0
 	transition.to(text, {time = 500, alpha= 0.0, onComplete = restartLevel})
-	
 end
 
 function scene:exitScene(event)

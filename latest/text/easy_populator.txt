@@ -1,3 +1,11 @@
-bed
-cat
-dog
+baby
+ball
+bird
+book
+coat
+feet
+girl
+hand
+home
+ship
+

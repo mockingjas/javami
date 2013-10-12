@@ -6,13 +6,14 @@
 
 require "sqlite3"
 local lfs = require "lfs"
-local db = sqlite3.open("firstGameDb.sqlite3")
+local db = sqlite3.open("Game1_DB.sqlite3")
 local file
 
 local storyboard = require "storyboard"
 storyboard.gotoScene( "startmenu" )
 
 --
+--Function for checking if file exists
 function existsFile(path)
     x = io.open(path)
     if x == nil then
@@ -24,10 +25,11 @@ function existsFile(path)
     end
 end
 
+--Function for copying contents of file to array
 function fileToArray(path)
 	if existsFile(path) then
 		file = io.open(path, "r");
-		local arr=""
+		local arr= ""
 		for line in file:lines() do
 			arr = arr.."\n"..line
 		end
@@ -35,21 +37,22 @@ function fileToArray(path)
 	end
 end
 
+--Function for inserting words to DB
 function insertToDB(array, category)
 	for i=1,#array do
 		local insertQuery = [[INSERT INTO Words VALUES (NULL, ']] .. 
 		array[i] .. [[',']] .. 
-		category .. [['); ]]
+		category .. [[',']] ..
+		"false" .. [['); ]]
 		db:exec(insertQuery)
 	end
 end
 
---
 --FILE HANDLING
 --sira pa yung path, pachange nalang muna
-local easyPath = "C:/Users/Maricia/Documents/GitHub/javami/latest/text/easy_populator.txt" 	-- change this -_-
-local medPath = "C:/Users/Maricia/Documents/GitHub/javami/latest/text/med_populator.txt" 	-- change this -_-
-local hardPath = "C:/Users/Maricia/Documents/GitHub/javami/latest/text/hard_populator.txt" 	-- change this -_-
+local easyPath = "C:/Users/Maricia/Desktop/latest/text/easy_populator.txt" 	-- change this -_-
+local medPath = "C:/Users/Maricia/Desktop/latest/text/med_populator.txt" 	-- change this -_-
+local hardPath = "C:/Users/Maricia/Desktop/latest/text/hard_populator.txt" 	-- change this -_-
 
 local easyArray = fileToArray(easyPath)
 local easyWords = {}
@@ -73,7 +76,7 @@ end
 file:close()
 
 -- CREATE TABLE
-local createTable = [[CREATE TABLE IF NOT EXISTS Words(id INTEGER PRIMARY KEY autoincrement, name, category);]]
+local createTable = [[CREATE TABLE IF NOT EXISTS Words(id INTEGER PRIMARY KEY autoincrement, name, category, isCorrect);]]
 db:exec(createTable)
 
 -- INSERT WORDS TO DB IF EMPTY

@@ -1,3 +1,10 @@
-apple
-paper
-table
+camera
+flower
+kitten
+mirror
+orange
+pillow
+family
+school
+twelve
+yellow
