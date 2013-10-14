@@ -324,22 +324,15 @@ function scene:createScene(event)
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-		local filename = "images/firstgame/letters/"
-		if (c == "_") then
-			filename = filename .. "blank.png"
-		else
-			filename = filename .. c .. ".png"
-		end
-		--print(filename)
-		local letter = display.newImage(filename)
-		wordGroup:insert(letter)
+		local chalkLetter = display.newText( c:upper(), x, y, "Eraser-Regular", 50)
+		wordGroup:insert(chalkLetter)
 		if (c == "_") then
 			c = c .. get_char(i, word)
 		end
-		wordGroup[c] = letter
+		wordGroup[c] = chalkLetter
 		x = x + 55
-		letter.x = x 
-		letter.y = y
+		chalkLetter.x = x 
+		chalkLetter.y = y
 	end
 	-- ---------------------
 	
@@ -350,12 +343,9 @@ function scene:createScene(event)
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
-		local filename = "images/firstgame/letters/"
-		filename = filename .. c .. ".png"
-		-- print(filename)
-		local letter = display.newImage(filename)
-		letterboxGroup:insert(i, letter)
-		letterboxGroup[c] = letter
+		local chalkLetter = display.newText( c:upper(), x, y, "Eraser-Regular", 50)
+		letterboxGroup:insert(i, chalkLetter)
+		letterboxGroup[c] = chalkLetter
 		if (x - 330 < 120) then
 			x = x + 50
 		else
@@ -363,9 +353,9 @@ function scene:createScene(event)
 			x = 370
 		end
 		letterboxGroup[i].x = x 
-		letter.y = y
-		MultiTouch.activate(letter, "move", "single")
-		letter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
+		chalkLetter.y = y
+		MultiTouch.activate(chalkLetter, "move", "single")
+		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
 
 	screenGroup:insert(wordGroup)

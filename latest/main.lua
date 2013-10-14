@@ -50,9 +50,16 @@ end
 
 --FILE HANDLING
 --sira pa yung path, pachange nalang muna
-local easyPath = "C:/Users/Maricia/Desktop/latest/text/easy_populator.txt" 	-- change this -_-
-local medPath = "C:/Users/Maricia/Desktop/latest/text/med_populator.txt" 	-- change this -_-
-local hardPath = "C:/Users/Maricia/Desktop/latest/text/hard_populator.txt" 	-- change this -_-
+
+--CHA
+--local easyPath = "C:/Users/Maricia/Desktop/latest/text/easy_populator.txt" 
+--local medPath = "C:/Users/Maricia/Desktop/latest/text/med_populator.txt"
+--local hardPath = "C:/Users/Maricia/Desktop/latest/text/hard_populator.txt" 
+
+--JAS
+local easyPath = "/Users/joyamendoza/Desktop/00JAS/00ACADS/4A/198 javami/javami/latest/text/easy_populator.txt" 	-- change this -_-
+local medPath = "/Users/joyamendoza/Desktop/00JAS/00ACADS/4A/198 javami/javami/latest/text/med_populator.txt" 	-- change this -_-
+local hardPath = "/Users/joyamendoza/Desktop/00JAS/00ACADS/4A/198 javami/javami/latest/text/hard_populator.txt" 	-- change this -_-
 
 local easyArray = fileToArray(easyPath)
 local easyWords = {}
