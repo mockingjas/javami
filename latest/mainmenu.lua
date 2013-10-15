@@ -10,10 +10,11 @@ local mediumBtn
 local hardBtn
 local easy
 local medium
-local hard
+local instance1, instance2, instance3 
 
-local button1 = function( event )
+local function button1 ( event )
 	-- MODAL 
+	
 	function _destroyDialog()
 		dialog:removeSelf()
 		easyBtn:removeSelf()
@@ -69,41 +70,44 @@ local button1 = function( event )
 	end
 	-- 
 	function showDialog()
+		instance1:removeEventListener("tap", button1) -- make house unclikable
 		physics.pause()
 		isPause = true
 	 	 
-	 	dialog = display.newImage("images/modal/modal_bg.png")
+	 	dialog = display.newImage("images/modal/modal_levels.png")
 	 	dialog.x = display.contentWidth/2;
 	 
 		easyBtn = widget.newButton{
-			defaultFile="images/modal/level_easy2.png",
-			overFile="images/modal/level_easy2.png",
+			defaultFile="images/modal/Easy.png",
+			overFile="images/modal/Easy.png",
 			onRelease = easy_onBtnRelease -- event listener function
 		}
 		easyBtn:setReferencePoint( display.CenterReferencePoint )
-		easyBtn.x = bg.x
-		easyBtn.y = 50
+		easyBtn.x = bg.x - 5
+		easyBtn.y = 115
 
 		mediumBtn = widget.newButton{
-			defaultFile="images/modal/level_medium2.png",
-			overFile="images/modal/level_medium2.png",
+			defaultFile="images/modal/Medium.png",
+			overFile="images/modal/Medium.png",
 			onRelease = medium_onBtnRelease	-- event listener function
 		}
 		mediumBtn:setReferencePoint( display.CenterReferencePoint )
 		mediumBtn.x = bg.x
-		mediumBtn.y = 150
+		mediumBtn.y = 190
 
 		hardBtn = widget.newButton{
-			defaultFile="images/modal/level_hard2.png",
-			overFile="images/modal/level_hard2.png",
+			defaultFile="images/modal/Hard.png",
+			overFile="images/modal/Hard.png",
 			onRelease = hard_onBtnRelease	-- event listener function
 		}
 		hardBtn:setReferencePoint( display.CenterReferencePoint )
-		hardBtn.x = bg.x
-		hardBtn.y = 230
+		hardBtn.x = bg.x - 5
+		hardBtn.y = 250
 	 
 	end
+	
 	showDialog()
+	
 end
 
 function scene:createScene(event)
@@ -117,7 +121,7 @@ function scene:createScene(event)
 	
 	-- an image sheet with purple house
 	local sheet1 = graphics.newImageSheet( "images/menu/purple.png", { width=158, height=212, numFrames=2 } )
-	local instance1 = display.newSprite( sheet1, { name="purple", start=1, count=2, time=1000 } )
+	instance1 = display.newSprite( sheet1, { name="purple", start=1, count=2, time=1000 } )
 	instance1.x = 40
 	instance1.y = 185
 	instance1:play()
@@ -128,7 +132,7 @@ function scene:createScene(event)
 	
 	-- an image sheet with orange house
 	local sheet2 = graphics.newImageSheet( "images/menu/orange.png", { width=188, height=212, numFrames=2 } )
-	local instance2 = display.newSprite( sheet2, { name="orange", start=1, count=2, time=1000 } )
+	instance2 = display.newSprite( sheet2, { name="orange", start=1, count=2, time=1000 } )
 	instance2.x = 220
 	instance2.y = 210
 	instance2:play()
@@ -138,17 +142,46 @@ function scene:createScene(event)
 	
 	-- an image sheet with orange house
 	local sheet3 = graphics.newImageSheet( "images/menu/blue.png", { width=220, height=160, numFrames=2 } )
-	local instance3 = display.newSprite( sheet3, { name="blue", start=1, count=2, time=1000 } )
+	instance3 = display.newSprite( sheet3, { name="blue", start=1, count=2, time=1000 } )
 	instance3.x = 410
 	instance3.y = 240
 	instance3:play()
 	screenGroup:insert(instance3)
 	--instance2:addEventListener("tap", button1)
 	
+	howtoplay = widget.newButton{
+		id = "howtoplay",
+		defaultFile = "images/menu/howtoplay.png",
+		overFile = "images/menu/howtoplay.png",
+		emboss = true,
+	}
+	howtoplay.x = (display.contentWidth/2) + 20;
+	howtoplay.y = (display.contentHeight/2) - 100;
+	screenGroup:insert(howtoplay)
+	
+	scores = widget.newButton{
+		id = "scores",
+		defaultFile = "images/menu/scores.png",
+		overFile = "images/menu/scores.png",
+		emboss = true,
+	}
+	scores.x = (display.contentWidth/2) + 160;
+	scores.y = (display.contentHeight/2) - 65;
+	screenGroup:insert(scores)
+	
+	
+	
+	
 	bg_ground = display.newImageRect("images/menu/ground.png", 570, 320)
 	bg_ground.x = display.contentWidth/2;
 	bg_ground.y = display.contentHeight/2;
 	screenGroup:insert(bg_ground)
+	
+	
+	
+	
+	
+	
 	
 	
 end
