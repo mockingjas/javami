@@ -15,6 +15,15 @@ local currScore, option, screenGroup
 --load your sound effect near the beginning of your file
 local mySoundEffect = audio.loadSound("incorrect.mp3")
 
+local font
+if "Win" == system.getInfo( "platformName" ) then
+    font = "Eraser"
+elseif "Android" == system.getInfo( "platformName" ) then
+    font = "Eraser"
+else
+    -- Mac and iOS
+    font = "Eraser-Regular"
+end 
 --------- FUNCTIONS FOR DATABASE ------------
 --DB: fetch
 function fetchByCategory(categ)
@@ -227,6 +236,17 @@ local checkanswer = function(event)
 	end
 end
 
+-- IM COMING HOME
+local backToMenu = function(event)
+	back:removeSelf()
+	timesup:removeSelf()
+	round:removeSelf()
+	scoreToDisplay:removeSelf()
+  	text:removeSelf()
+  	storyboard.gotoScene("mainmenu", "fade", 400)
+end
+
+
 function _destroyDialog()
 	wordGroup:removeSelf()
 	letterboxGroup:removeSelf()
@@ -254,16 +274,12 @@ function _destroyDialog()
 		label = "HOME",
 		fontSize = 15,
 		emboss = true,
-		onEvent = backToMenu
+		onEvent = backToMenu,
 	}
 	back.x = 460; back.y = 280
 	--
 end
 
--- IM COMING HOME
-local backToMenu = function(event)
-  	storyboard.gotoScene("mainmenu", "fade", 400)
-end
 
 -- TIMER
 text = display.newText( "0:00", 420, 10, "Arial", 30 )
@@ -344,7 +360,7 @@ function scene:createScene(event)
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-		local chalkLetter = display.newText( c:upper(), x, y, "Eraser-Regular", 50)
+		local chalkLetter = display.newText( c:upper(), x, y, font, 50)
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then
 			c = c .. get_char(i, word)
@@ -363,7 +379,7 @@ function scene:createScene(event)
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
-		local chalkLetter = display.newText( c:upper(), x, y, "Eraser-Regular", 50)
+		local chalkLetter = display.newText( c:upper(), x, y, font, 50)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if (x - 330 < 120) then
