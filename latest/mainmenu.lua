@@ -110,6 +110,10 @@ local function button1 ( event )
 	
 end
 
+local goToScoreboard = function(event)
+	storyboard.gotoScene("scoreboard", "fade", 400)
+end
+
 function scene:createScene(event)
 
 	local screenGroup = self.view
@@ -164,25 +168,16 @@ function scene:createScene(event)
 		defaultFile = "images/menu/scores.png",
 		overFile = "images/menu/scores.png",
 		emboss = true,
+		onEvent = goToScoreboard,
 	}
 	scores.x = (display.contentWidth/2) + 160;
 	scores.y = (display.contentHeight/2) - 65;
 	screenGroup:insert(scores)
 	
-	
-	
-	
 	bg_ground = display.newImageRect("images/menu/ground.png", 570, 320)
 	bg_ground.x = display.contentWidth/2;
 	bg_ground.y = display.contentHeight/2;
 	screenGroup:insert(bg_ground)
-	
-	
-	
-	
-	
-	
-	
 	
 end
 

@@ -8,7 +8,7 @@ local scene = storyboard.newScene()
 local word, wordGroup, wordToGuess, letterbox, letterboxGroup
 local wordFromDB, category
 local boolFirst
-local db = sqlite3.open("Game1_DB.sqlite3")
+local db = sqlite3.open("javami_DB.sqlite3")
 local gameTimer, text, maxTime
 local currScore, option, screenGroup
 
@@ -40,6 +40,14 @@ end
 function updateDB(word)
 	for row in db:nrows("UPDATE Words SET isCorrect ='true' where name ='"..word.."'") do
 	end
+end
+
+--DB: insert to first game
+function insertToDB(category, score)
+	local insertQuery = [[INSERT INTO FirstGame VALUES (NULL, ']] .. 
+	category .. [[',']] ..
+	score .. [['); ]]
+	db:exec(insertQuery)
 end
 
 --DB: reset all words to un-guessed
@@ -277,6 +285,7 @@ function _destroyDialog()
 		onEvent = backToMenu,
 	}
 	back.x = 460; back.y = 280
+	insertToDB(category, currScore)
 	--
 end
 

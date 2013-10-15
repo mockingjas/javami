@@ -6,13 +6,15 @@
 
 require "sqlite3"
 local lfs = require "lfs"
-local db = sqlite3.open("Game1_DB.sqlite3")
+--local savePath = system.ResourceDirectory
+--local path = system.pathForFile("javamidb.sqlite3")
+local db = sqlite3.open("javami_DB.sqlite3")
+--db = sqlite3.open( path ) 
 local file
 
 local storyboard = require "storyboard"
 storyboard.gotoScene( "startmenu" )
 
---
 --Function for checking if file exists
 function existsFile(path)
     x = io.open(path)
@@ -83,8 +85,11 @@ end
 file:close()
 
 -- CREATE TABLE
-local createTable = [[CREATE TABLE IF NOT EXISTS Words(id INTEGER PRIMARY KEY autoincrement, name, category, isCorrect);]]
-db:exec(createTable)
+local createTableWords = [[CREATE TABLE IF NOT EXISTS Words(id INTEGER PRIMARY KEY autoincrement, name, category, isCorrect);]]
+db:exec(createTableWords)
+
+local createTableGame1 = [[CREATE TABLE IF NOT EXISTS FirstGame(id INTEGER PRIMARY KEY autoincrement, category, score);]]
+db:exec(createTableGame1)
 
 -- INSERT WORDS TO DB IF EMPTY
 local count
@@ -96,4 +101,9 @@ if count == 0 then
 	insertToDB(medWords, "medium")
 	insertToDB(hardWords, "hard")
 end
+
+for row in db:nrows("SELECT * FROM FirstGame") do
+	print(row.category..row.score)
+end
+
 print("# of db entries:"..count)
