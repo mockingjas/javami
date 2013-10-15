@@ -12,6 +12,9 @@ local db = sqlite3.open("Game1_DB.sqlite3")
 local gameTimer, text, maxTime
 local currScore, option, screenGroup
 
+--load your sound effect near the beginning of your file
+local mySoundEffect = audio.loadSound("incorrect.mp3")
+
 --------- FUNCTIONS FOR DATABASE ------------
 --DB: fetch
 function fetchByCategory(categ)
@@ -218,6 +221,8 @@ local checkanswer = function(event)
 			storyboard.gotoScene("reload", option)
 		else
 			print("wrong!")
+			--To play the sound effect, call this whenever you want to play it
+			audio.play(mySoundEffect)
 		end
 	end
 end
@@ -242,7 +247,22 @@ function _destroyDialog()
 	scoreToDisplay= display.newText("SCORE: "..currScore, 0, 0, native.systemFont, 20)
 	scoreToDisplay.x = display.contentCenterX
 	scoreToDisplay.y = display.contentCenterY + 40
+
+	back = widget.newButton{
+		id = "home",
+		defaultFile = "images/firstgame/button_small.png",
+		label = "HOME",
+		fontSize = 15,
+		emboss = true,
+		onEvent = backToMenu
+	}
+	back.x = 460; back.y = 280
 	--
+end
+
+-- IM COMING HOME
+local backToMenu = function(event)
+  	storyboard.gotoScene("mainmenu", "fade", 400)
 end
 
 -- TIMER
