@@ -8,8 +8,7 @@ local scene = storyboard.newScene()
 local word, wordGroup, wordToGuess, letterbox, letterboxGroup
 local wordFromDB, category
 local boolFirst
-local path = system.pathForFile("Game1_DB.sqlite3", system.ResourceDirectory)
-local db = sqlite3.open( path )
+local db = sqlite3.open("Game1_DB.sqlite3")
 local gameTimer, text, maxTime
 local currScore, option, screenGroup
 
