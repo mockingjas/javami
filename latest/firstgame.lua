@@ -223,7 +223,7 @@ local checkanswer = function(event)
 			print("Correct!")
 			updateDB(word) --set isCorrect to true
 			currScore = currScore + 1
-			print("New score:"..currScore)
+			print("New score: "..currScore)
 			option = {
 				effect = "fade",
 				time = 400,
@@ -263,16 +263,16 @@ function _destroyDialog()
 	submit:removeSelf()
 
 	-- Stuff to display when time's up
-	timesup= display.newText("TIME'S UP!", 0, 0, native.systemFont, 30)
+	timesup= display.newText("TIME'S UP!", 0, 0, font, 30)
 	timesup.x = display.contentCenterX
 	timesup.y = display.contentCenterY - 10
 	timesup:setTextColor(255, 255, 255, 255)
 
-	round= display.newText("ROUND: "..category, 0, 0, native.systemFont, 20)
+	round= display.newText("ROUND: "..category, 0, 0, font, 20)
 	round.x = display.contentCenterX
 	round.y = display.contentCenterY + 20
 
-	scoreToDisplay= display.newText("SCORE: "..currScore, 0, 0, native.systemFont, 20)
+	scoreToDisplay= display.newText("SCORE: "..currScore, 0, 0, font, 20)
 	scoreToDisplay.x = display.contentCenterX
 	scoreToDisplay.y = display.contentCenterY + 40
 
@@ -291,7 +291,7 @@ end
 
 
 -- TIMER
-text = display.newText( "0:00", 420, 10, "Arial", 30 )
+text = display.newText( "0:00", 420, 10, font, 30 )
 function text:timer( event )
 		
 	local count = event.count
@@ -338,7 +338,7 @@ function scene:createScene(event)
 	end
 
 	-- Display score
-	scoreToDisplay = display.newText("Score:"..currScore, 5, 20, "Arial", 20 )
+	scoreToDisplay = display.newText("Score: "..currScore, 5, 20, font, 30 )
 
 	screenGroup = self.view
 	setword()
@@ -386,15 +386,16 @@ function scene:createScene(event)
 	y = 90
 	letterboxGroup = display.newGroup()
 
+
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
 		local chalkLetter = display.newText( c:upper(), x, y, font, 50)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if (x - 330 < 120) then
-			x = x + 50
+			x = x + 40
 		else
-			y = y + 60
+			y = y + 50
 			x = 370
 		end
 		letterboxGroup[i].x = x 
