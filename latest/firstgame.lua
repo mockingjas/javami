@@ -176,8 +176,9 @@ end
 
 ------------ FUNCTION FOR OBJECT DRAG --------------------
 local function objectDrag (event)
+	local distX, distY
 	local t = event.target
-	if event.phase == "moved" then
+	if event.phase == "moved" or event.phase == "ended" then
 		for i = 1, wordToGuess:len() do
 			if ( get_char(i, wordToGuess) == "_" ) then
 				local s = "_" .. get_char(i, word)

@@ -12,6 +12,7 @@ local easy
 local medium
 local instance1, instance2, instance3 
 
+---------------------- GAME 1
 local function button1 ( event )
 	-- MODAL 
 	
@@ -69,45 +70,176 @@ local function button1 ( event )
 		return true
 	end
 	-- 
-	function showDialog()
-		instance1:removeEventListener("tap", button1) -- make house unclikable
-		physics.pause()
-		isPause = true
-	 	 
-	 	dialog = display.newImage("images/modal/modal_levels.png")
-	 	dialog.x = display.contentWidth/2;
-	 
-		easyBtn = widget.newButton{
-			defaultFile="images/modal/Easy.png",
-			overFile="images/modal/Easy.png",
-			onRelease = easy_onBtnRelease -- event listener function
-		}
-		easyBtn:setReferencePoint( display.CenterReferencePoint )
-		easyBtn.x = bg.x - 5
-		easyBtn.y = 115
+	
+	showDialog()
+	
+end
+---------------------- END OF GAME 1
 
-		mediumBtn = widget.newButton{
-			defaultFile="images/modal/Medium.png",
-			overFile="images/modal/Medium.png",
-			onRelease = medium_onBtnRelease	-- event listener function
-		}
-		mediumBtn:setReferencePoint( display.CenterReferencePoint )
-		mediumBtn.x = bg.x
-		mediumBtn.y = 190
+---------------------- GAME 2
+local function button2 ( event )
+	-- MODAL 
+	
+	function _destroyDialog()
+		dialog:removeSelf()
+		easyBtn:removeSelf()
+		mediumBtn:removeSelf()
+		hardBtn:removeSelf()
+	end
+	-- 
 
-		hardBtn = widget.newButton{
-			defaultFile="images/modal/Hard.png",
-			overFile="images/modal/Hard.png",
-			onRelease = hard_onBtnRelease	-- event listener function
+	--PARAMETERS TO PASS TO NEXT SCENE
+	easy =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			categ = "easy",
+			first = true,
 		}
-		hardBtn:setReferencePoint( display.CenterReferencePoint )
-		hardBtn.x = bg.x - 5
-		hardBtn.y = 250
-	 
+	}
+
+	medium =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			categ = "medium",
+			first = true,
+		}
+	}
+
+	hard =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			categ = "hard",
+			first = true,			
+		}
+	}
+
+	function easy_onBtnRelease()
+		_destroyDialog()
+		storyboard.gotoScene("secondgame", easy)
+		return true
+	end
+
+	function medium_onBtnRelease()
+		_destroyDialog()
+		storyboard.gotoScene("secondgame", medium)
+		return true
+	end
+
+	function hard_onBtnRelease()
+		_destroyDialog()
+		storyboard.gotoScene("secondgame", hard)
+		return true
 	end
 	
 	showDialog()
 	
+end
+---------------------- ENF OF GAME 2
+
+
+---------------------- GAME 3
+local function button3 ( event )
+	-- MODAL 
+	
+	function _destroyDialog()
+		dialog:removeSelf()
+		easyBtn:removeSelf()
+		mediumBtn:removeSelf()
+		hardBtn:removeSelf()
+	end
+	-- 
+
+	--PARAMETERS TO PASS TO NEXT SCENE
+	easy =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			categ = "easy",
+			first = true,
+		}
+	}
+
+	medium =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			categ = "medium",
+			first = true,
+		}
+	}
+
+	hard =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			categ = "hard",
+			first = true,			
+		}
+	}
+
+	function easy_onBtnRelease()
+		_destroyDialog()
+		storyboard.gotoScene("thirdgame", easy)
+		return true
+	end
+
+	function medium_onBtnRelease()
+		_destroyDialog()
+		storyboard.gotoScene("thirdgame", medium)
+		return true
+	end
+
+	function hard_onBtnRelease()
+		_destroyDialog()
+		storyboard.gotoScene("thirdgame", hard)
+		return true
+	end
+
+	showDialog()
+	
+end
+---------------------- ENF OF GAME 3
+
+function showDialog()
+	instance1:removeEventListener("tap", button1) -- make house unclikable
+	instance2:removeEventListener("tap", button2) -- make house unclikable
+	instance3:removeEventListener("tap", button3) -- make house unclikable
+	physics.pause()
+	isPause = true
+ 	 
+ 	dialog = display.newImage("images/modal/modal_levels.png")
+ 	dialog.x = display.contentWidth/2;
+ 
+	easyBtn = widget.newButton{
+		defaultFile="images/modal/Easy.png",
+		overFile="images/modal/Easy.png",
+		onRelease = easy_onBtnRelease -- event listener function
+	}
+	easyBtn:setReferencePoint( display.CenterReferencePoint )
+	easyBtn.x = bg.x - 5
+	easyBtn.y = 115
+
+	mediumBtn = widget.newButton{
+		defaultFile="images/modal/Medium.png",
+		overFile="images/modal/Medium.png",
+		onRelease = medium_onBtnRelease	-- event listener function
+	}
+	mediumBtn:setReferencePoint( display.CenterReferencePoint )
+	mediumBtn.x = bg.x
+	mediumBtn.y = 190
+
+	hardBtn = widget.newButton{
+		defaultFile="images/modal/Hard.png",
+		overFile="images/modal/Hard.png",
+		onRelease = hard_onBtnRelease	-- event listener function
+	}
+	hardBtn:setReferencePoint( display.CenterReferencePoint )
+	hardBtn.x = bg.x - 5
+	hardBtn.y = 250
+ 
 end
 
 local goToScoreboard = function(event)
@@ -141,7 +273,7 @@ function scene:createScene(event)
 	instance2.y = 210
 	instance2:play()
 	screenGroup:insert(instance2)
-	--instance2:addEventListener("tap", button1)
+	instance2:addEventListener("tap", button2)
 	
 	
 	-- an image sheet with orange house
@@ -151,7 +283,7 @@ function scene:createScene(event)
 	instance3.y = 240
 	instance3:play()
 	screenGroup:insert(instance3)
-	--instance2:addEventListener("tap", button1)
+	instance3:addEventListener("tap", button3)
 	
 	howtoplay = widget.newButton{
 		id = "howtoplay",
