@@ -2,29 +2,24 @@ require "physics"
 local storyboard = require ("storyboard")
 local widget= require ("widget")
 local scene = storyboard.newScene()
---Modal 
-local dialog
-local msgText
-local easyBtn
-local mediumBtn
-local hardBtn
-local easy
-local medium
-local instance1, instance2, instance3 
 
----------------------- GAME 1
+-- Level Select Modal Variables --
+local dialog, msgText, easyBtn, mediumBtn, hardBtn, exitBtn, easy, medium, rect
+local instance1, instance2, instance3, scores
+
+------ GAME 1 Level Select Modal -------
 local function button1 ( event )
-	-- MODAL 
-	
+
 	function _destroyDialog()
 		dialog:removeSelf()
+		rect:removeSelf()
 		easyBtn:removeSelf()
 		mediumBtn:removeSelf()
 		hardBtn:removeSelf()
+		exitBtn:removeSelf()
 	end
-	-- 
 
-	--PARAMETERS TO PASS TO NEXT SCENE
+	-- PARAMETERS TO PASS TO NEXT SCENE
 	easy =	{
 		effect = "fade",
 		time = 400,
@@ -74,17 +69,18 @@ local function button1 ( event )
 	showDialog()
 	
 end
----------------------- END OF GAME 1
+-------------- END OF GAME 1 ------------
 
----------------------- GAME 2
+------ GAME 2 Level Select Modal -------
 local function button2 ( event )
-	-- MODAL 
-	
+
 	function _destroyDialog()
 		dialog:removeSelf()
+		rect:removeSelf()
 		easyBtn:removeSelf()
 		mediumBtn:removeSelf()
 		hardBtn:removeSelf()
+		exitBtn:removeSelf()
 	end
 	-- 
 
@@ -137,18 +133,19 @@ local function button2 ( event )
 	showDialog()
 	
 end
----------------------- ENF OF GAME 2
+------ END OF GAME 2 -------
 
-
----------------------- GAME 3
+------ GAME 3 Level Select Modal -------
 local function button3 ( event )
 	-- MODAL 
 	
 	function _destroyDialog()
 		dialog:removeSelf()
+		rect:removeSelf()
 		easyBtn:removeSelf()
 		mediumBtn:removeSelf()
 		hardBtn:removeSelf()
+		exitBtn:removeSelf()
 	end
 	-- 
 
@@ -201,18 +198,20 @@ local function button3 ( event )
 	showDialog()
 	
 end
----------------------- ENF OF GAME 3
+-------- END OF GAME 3 ----------
 
 function showDialog()
-	instance1:removeEventListener("tap", button1) -- make house unclikable
-	instance2:removeEventListener("tap", button2) -- make house unclikable
-	instance3:removeEventListener("tap", button3) -- make house unclikable
 	physics.pause()
 	isPause = true
- 	 
- 	dialog = display.newImage("images/modal/modal_levels.png")
+ 	
+	rect = display.newImage("images/modal/gray.png")
+ 	rect.x = display.contentWidth/2;
+ 	rect:addEventListener("touch", function() return true end)
+	rect:addEventListener("tap", function() return true end)
+
+	dialog = display.newImage("images/modal/levelselect_wood.png")
  	dialog.x = display.contentWidth/2;
- 
+
 	easyBtn = widget.newButton{
 		defaultFile="images/modal/Easy.png",
 		overFile="images/modal/Easy.png",
@@ -239,6 +238,16 @@ function showDialog()
 	hardBtn:setReferencePoint( display.CenterReferencePoint )
 	hardBtn.x = bg.x - 5
 	hardBtn.y = 250
+
+	exitBtn = widget.newButton{
+		defaultFile="images/modal/closebutton.png",
+		overFile="images/modal/closebutton.png",
+		onRelease = _destroyDialog	-- event listener function
+	}
+	exitBtn:setReferencePoint( display.CenterReferencePoint )
+	exitBtn.x = bg.x + 115
+	exitBtn.y = 67
+
  
 end
 
@@ -300,7 +309,6 @@ function scene:createScene(event)
 		defaultFile = "images/menu/scores.png",
 		overFile = "images/menu/scores.png",
 		emboss = true,
-		onEvent = goToScoreboard,
 	}
 	scores.x = (display.contentWidth/2) + 160;
 	scores.y = (display.contentHeight/2) - 65;

@@ -10,6 +10,7 @@ function scene:createScene(event)
 	local screenGroup = self.view
 	
 	print("RELOADING....")
+	boolFirst = event.params.first
 	gameTimer = event.params.time
 	category = event.params.categ
 	currScore = event.params.score

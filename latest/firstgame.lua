@@ -11,8 +11,10 @@ local scene = storyboard.newScene()
 local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox
 local wordFromDB, category, submit
 local boolFirst
-local gameTimer, text, maxTime
+local gameTimer, text, maxTime, timeDelay
 local currScore, option, screenGroup
+
+local pausedialog, resumeBtn, restartBtn, exitBtn
 
 ------- Load DB ---------
 local path = system.pathForFile("javami.sqlite3", system.ResourceDirectory)
@@ -252,18 +254,19 @@ local checkanswer = function(event)
 	end
 end
 
--- IM COMING HOME
-local backToMenu = function(event)
+--------------  FUNCTION FOR HOME --------------------
+function backToMenu ()
 	back:removeSelf()
 	timesup:removeSelf()
 	round:removeSelf()
 	scoreToDisplay:removeSelf()
-  	text:removeSelf()
+  	storyboard.removeScene("firstgame")
+  	storyboard.removeScene("mainmenu")
   	storyboard.gotoScene("mainmenu", "fade", 400)
 end
 
-
-function _destroyDialog()
+--------------- FUNCTION FOR END OF GAME ----------------
+function gameover()
 	wordGroup:removeSelf()
 	letterboxGroup:removeSelf()
 	image:removeSelf()
@@ -297,7 +300,7 @@ function _destroyDialog()
 	--
 end
 
--- TIME
+--------------- FUNCTION FOR TIMER --------------
 text = display.newText( "0:00", 440, 20, font, 20 )
 function text:timer( event )
 		
@@ -307,14 +310,14 @@ function text:timer( event )
 	end
 
     if(maxTime == 0)then
+    	text:removeSelf()
 		timer.cancel( event.source )
-		_destroyDialog()
+		gameover()
 		print("TIME'S UP!")
     end
-
 end
 
-------- PAUSE GAME ---------
+---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
     	timer.pause(gameTimer)
@@ -323,24 +326,97 @@ function pauseGame(event)
 			MultiTouch.deactivate(letterboxGroup[i])
 		end
         pauseBtn.isVisible = false
-        playBtn.isVisible = true
+        pause()
         return true
     end
 end
  
-------- RESUME GAME ---------
-function resumeGame(event)
-    if(event.phase == "ended") then
+function pause()
+	function _destroyDialog()
+		pausedialog:removeSelf()
+		restartBtn:removeSelf()
+		resumeBtn:removeSelf()
+		exitBtn:removeSelf()
+	end
+
+	function restart_onBtnRelease()
+		_destroyDialog()
+		text:removeSelf()
+		timer.cancel(gameTimer)
+		-- text.text = maxTime/60 .. ":00"
+    	gameTimer= timer.performWithDelay(1000, text, maxTime )
+		option = {
+				time = 400,
+				params = {
+					categ = category,
+					first = true,
+					time = gameTimer,
+					score = 0,
+				}
+			}
+		storyboard.removeScene("reload")
+		storyboard.gotoScene("reload", option)
+	end
+
+	function resume_onBtnRelease()
+		_destroyDialog()
 		timer.resume(gameTimer)
 		submit:setEnabled(true)
 		for i = 1, #letterbox do
 			MultiTouch.activate(letterboxGroup[i], "move", "single")
 		end
         pauseBtn.isVisible = true
-        playBtn.isVisible = false
-        return true
-    end
+		return true
+	end
+
+
+	function exit_onBtnRelease()
+		_destroyDialog()
+		text:removeSelf()
+		storyboard.removeScene("firstgame")
+  		storyboard.removeScene("mainmenu")
+  		storyboard.gotoScene("mainmenu")
+	end
+	showpauseDialog()
 end
+
+function showpauseDialog()
+
+	pausedialog = display.newImage("images/pause/pause_modal.png")
+ 	pausedialog.x = display.contentWidth/2;
+ 	pausedialog:addEventListener("touch", function() return true end)
+	pausedialog:addEventListener("tap", function() return true end)
+
+	resumeBtn = widget.newButton{
+		defaultFile="images/pause/resume_button.png",
+		overFile="images/pause/resume_button.png",
+		onEvent = resume_onBtnRelease -- event listener function
+	}
+	resumeBtn:setReferencePoint( display.CenterReferencePoint )
+	resumeBtn.x = bg.x - 100
+	resumeBtn.y = 170
+
+
+	restartBtn = widget.newButton{
+		defaultFile="images/pause/restart_button.png",
+		overFile="images/pause/restart_button.png",
+		onEvent = restart_onBtnRelease -- event listener function
+	}
+	restartBtn:setReferencePoint( display.CenterReferencePoint )
+	restartBtn.x = bg.x + 100
+	restartBtn.y = 170
+
+	exitBtn = widget.newButton{
+		defaultFile="images/pause/exit_button.png",
+		overFile="images/pause/exit_button.png",
+		onEvent = exit_onBtnRelease -- event listener function
+	}
+	exitBtn:setReferencePoint( display.CenterReferencePoint )
+	exitBtn.x = bg.x + 5
+	exitBtn.y = 220
+end
+
+-------------------------------------------------------------------
 
 function scene:createScene(event)
 	--get passed parameters from previous scene
@@ -360,8 +436,7 @@ function scene:createScene(event)
 	print( "MAXTIME:"..maxTime )
 
    	-- TIMER & SCORE
-
-	local timeDelay = 1000;
+	timeDelay = 1000;
 	if boolFirst == true then
 		resetDB() --reset all words to un-answered bawat reload
 		text.text = maxTime/60 .. ":00"
@@ -404,19 +479,6 @@ function scene:createScene(event)
     pauseBtn.y = 30
     pauseBtn:addEventListener("touch", pauseGame)
     screenGroup:insert( pauseBtn )
-     
-    --create resume button
-    playBtn = display.newImageRect( "images/firstgame/play.png", 20, 20 )
-     
-    --put it on pause button
-    playBtn.x, playBtn.y = 420, 30
-     
-    --and hide it
-    playBtn.isVisible = false
-     
-    --add event
-    playBtn:addEventListener( "touch", resumeGame )
-    screenGroup:insert( playBtn )
 	
 	-- DISPLAY LETTERS -----
 	local x = -40
