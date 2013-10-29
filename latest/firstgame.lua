@@ -17,7 +17,7 @@ local currScore, option, screenGroup
 local pausedialog, resumeBtn, restartBtn, exitBtn
 
 ------- Load DB ---------
-local path = system.pathForFile("javami.sqlite3", system.ResourceDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )   
 
 ------- Load sounds ---------
@@ -469,7 +469,7 @@ function scene:createScene(event)
 	submit.x = 460; submit.y = 280
 	screenGroup:insert(submit)
 
-	image = display.newImage( "images/firstgame/pictures/" .. word .. ".png" )
+	image = display.newImage( "images/firstgame/pictures/apple.png" )
 	image.x = 310/2; image.y = 260/2;
 
 	-- Pause button
