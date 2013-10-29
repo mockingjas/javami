@@ -13,12 +13,12 @@ local lfs = require "lfs"
 local path = system.pathForFile("javami.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )   
 
---local db = sqlite3.open("javami_DB.sqlite3")
 local gameTimer, text, maxTime
 local currScore, option, screenGroup
 
 --load your sound effect near the beginning of your file
-local mySoundEffect = audio.loadSound("incorrect.mp3")
+local incorrectSound = audio.loadSound("incorrect.mp3")
+local correctSound = audio.loadSound("correct.mp3")
 
 local font
 if "Win" == system.getInfo( "platformName" ) then
@@ -229,7 +229,6 @@ local checkanswer = function(event)
 			currScore = currScore + 1
 			print("New score: "..currScore)
 			option = {
-				effect = "fade",
 				time = 400,
 				params = {
 					categ = category,
@@ -238,12 +237,13 @@ local checkanswer = function(event)
 					score = currScore,
 				}
 			}
+			audio.play(correctSound)
 			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
 			print("wrong!")
 			--To play the sound effect, call this whenever you want to play it
-			audio.play(mySoundEffect)
+			audio.play(incorrectSound)
 		end
 	end
 end
@@ -294,7 +294,7 @@ function _destroyDialog()
 end
 
 -- TIME
-text = display.newText( "0:00", 420, 10, font, 30 )
+text = display.newText( "0:00", 440, 20, font, 20 )
 function text:timer( event )
 		
    	maxTime = maxTime-1
@@ -341,7 +341,7 @@ function scene:createScene(event)
 	end
 
 	-- Display score
-	scoreToDisplay = display.newText("Score: "..currScore, 5, 20, font, 30 )
+	scoreToDisplay = display.newText("Score: "..currScore, 0, 20, font, 20 )
 
 	screenGroup = self.view
 	setword()
