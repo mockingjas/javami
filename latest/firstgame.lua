@@ -3,10 +3,11 @@ local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local timer = require("timer")
 local scene = storyboard.newScene()
+local physics = require("physics")
 
 ------- Global variables ---------
-local word, wordGroup, wordToGuess, letterbox, letterboxGroup
-local wordFromDB, category
+local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox
+local wordFromDB, category, submit
 local boolFirst
 
 local lfs = require "lfs"
@@ -310,6 +311,39 @@ function text:timer( event )
 
 end
 
+--pause game
+function pauseGame(event)
+    --if end of touch event
+    if(event.phase == "ended") then
+    	timer.pause(gameTimer)
+    	submit:setEnabled(false)
+   		for i = 1, #letterbox do
+			MultiTouch.deactivate(chalkLetter)
+		end
+        --make pause button invisible
+        pauseBtn.isVisible = false
+        --make resume button visible
+        playBtn.isVisible = true
+        -- indicates successful touch
+        return true
+    end
+end
+ 
+--resume game
+function resumeGame(event)
+    --if end of touch event
+    if(event.phase == "ended") then
+		timer.resume(gameTimer)
+		submit:setEnabled(true)
+        --make pause button visible
+        pauseBtn.isVisible = true
+        --make resume button invisible
+        playBtn.isVisible = false
+        -- indicates successful touch
+        return true
+    end
+end
+
 function scene:createScene(event)
 	--get passed parameters from previous scene
 	gameTimer = event.params.time
@@ -364,6 +398,27 @@ function scene:createScene(event)
 
 	image = display.newImage( "images/firstgame/pictures/" .. word .. ".png" )
 	image.x = 310/2; image.y = 260/2;
+
+	-- Pause button
+
+	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
+    pauseBtn.x = 420
+    pauseBtn.y = 30
+    pauseBtn:addEventListener("touch", pauseGame)
+    screenGroup:insert( pauseBtn )
+     
+    --create resume button
+    playBtn = display.newImageRect( "images/firstgame/play.png", 20, 20 )
+     
+    --put it on pause button
+    playBtn.x, playBtn.y = 420, 30
+     
+    --and hide it
+    playBtn.isVisible = false
+     
+    --add event
+    playBtn:addEventListener( "touch", resumeGame )
+    screenGroup:insert( playBtn )
 	
 	-- DISPLAY LETTERS -----
 	local x = -40
@@ -372,7 +427,7 @@ function scene:createScene(event)
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-		local chalkLetter = display.newText( c:upper(), x, y, font, 50)
+		chalkLetter = display.newText( c:upper(), x, y, font, 50)
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then
 			c = c .. get_char(i, word)
@@ -392,7 +447,7 @@ function scene:createScene(event)
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
-		local chalkLetter = display.newText( c:upper(), x, y, font, 50)
+		chalkLetter = display.newText( c:upper(), x, y, font, 50)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if (x - 330 < 120) then
@@ -411,6 +466,7 @@ function scene:createScene(event)
 	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(image)
 	screenGroup:insert(scoreToDisplay)
+
 	
 end
 
