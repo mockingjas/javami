@@ -1,26 +1,28 @@
+------- Requirements ---------
 MultiTouch = require("dmc_multitouch");
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local timer = require("timer")
-local scene = storyboard.newScene()
 local physics = require("physics")
+local lfs = require("lfs")
+local scene = storyboard.newScene()
 
 ------- Global variables ---------
 local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox
 local wordFromDB, category, submit
 local boolFirst
-
-local lfs = require "lfs"
-local path = system.pathForFile("javami.sqlite3", system.ResourceDirectory)
-db = sqlite3.open( path )   
-
 local gameTimer, text, maxTime
 local currScore, option, screenGroup
 
---load your sound effect near the beginning of your file
+------- Load DB ---------
+local path = system.pathForFile("javami.sqlite3", system.ResourceDirectory)
+db = sqlite3.open( path )   
+
+------- Load sounds ---------
 local incorrectSound = audio.loadSound("incorrect.mp3")
 local correctSound = audio.loadSound("correct.mp3")
 
+------- Load font ---------
 local font
 if "Win" == system.getInfo( "platformName" ) then
     font = "Eraser"
@@ -29,7 +31,8 @@ elseif "Android" == system.getInfo( "platformName" ) then
 else
     -- Mac and iOS
     font = "Eraser-Regular"
-end 
+end
+
 --------- FUNCTIONS FOR DATABASE ------------
 --DB: fetch
 function fetchByCategory(categ)
@@ -102,6 +105,7 @@ function swap_char (pos1, pos2, str)
 	return str
 end
 
+------- GET WORD FROM DB ---------
 function getwordfromDB()
 	print("PASSED VARIABLE:"..category)
 	local words = fetchByCategory(category)
@@ -206,9 +210,9 @@ local checkanswer = function(event)
 	blanks = math.floor(word:len()/2)
 	count = 0
 	for i = 1, wordToGuess:len() do
-		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank
+		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank, SKIP
 			answer = answer .. get_char(i, wordToGuess)
-		else
+		else -- if BLANK
 			for j = 1, letterbox:len() do
 				distX = math.abs(letterboxGroup[j].x - wordGroup[i].x)
 				distY = math.abs(letterboxGroup[j].y - wordGroup[i].y)
@@ -216,7 +220,6 @@ local checkanswer = function(event)
 					-- if nasa blank
 					count = count + 1
 					answer = answer .. get_char(j, letterbox)
-					-- print("nasa for ng blank " .. s .. ": " .. answer)
 				end
 			end
 		end
@@ -311,35 +314,30 @@ function text:timer( event )
 
 end
 
---pause game
+------- PAUSE GAME ---------
 function pauseGame(event)
-    --if end of touch event
     if(event.phase == "ended") then
     	timer.pause(gameTimer)
     	submit:setEnabled(false)
    		for i = 1, #letterbox do
-			MultiTouch.deactivate(chalkLetter)
+			MultiTouch.deactivate(letterboxGroup[i])
 		end
-        --make pause button invisible
         pauseBtn.isVisible = false
-        --make resume button visible
         playBtn.isVisible = true
-        -- indicates successful touch
         return true
     end
 end
  
---resume game
+------- RESUME GAME ---------
 function resumeGame(event)
-    --if end of touch event
     if(event.phase == "ended") then
 		timer.resume(gameTimer)
 		submit:setEnabled(true)
-        --make pause button visible
+		for i = 1, #letterbox do
+			MultiTouch.activate(letterboxGroup[i], "move", "single")
+		end
         pauseBtn.isVisible = true
-        --make resume button invisible
         playBtn.isVisible = false
-        -- indicates successful touch
         return true
     end
 end
@@ -440,7 +438,7 @@ function scene:createScene(event)
 	-- ---------------------
 	
 	-- DISPLAY LETTERBOX ---
-	x = 320
+	x = 270
 	y = 90
 	letterboxGroup = display.newGroup()
 
@@ -451,10 +449,10 @@ function scene:createScene(event)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if (x - 330 < 120) then
-			x = x + 40
+			x = x + 50
 		else
 			y = y + 50
-			x = 370
+			x = 320
 		end
 		letterboxGroup[i].x = x 
 		letterboxGroup[i].y = y
