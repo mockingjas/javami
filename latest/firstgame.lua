@@ -8,7 +8,12 @@ local scene = storyboard.newScene()
 local word, wordGroup, wordToGuess, letterbox, letterboxGroup
 local wordFromDB, category
 local boolFirst
-local db = sqlite3.open("javami_DB.sqlite3")
+
+local lfs = require "lfs"
+local path = system.pathForFile("javami.sqlite3", system.ResourceDirectory)
+db = sqlite3.open( path )   
+
+--local db = sqlite3.open("javami_DB.sqlite3")
 local gameTimer, text, maxTime
 local currScore, option, screenGroup
 
@@ -290,22 +295,20 @@ function _destroyDialog()
 	--
 end
 
-
--- TIMER
+-- TIME
 text = display.newText( "0:00", 420, 10, font, 30 )
 function text:timer( event )
 		
-	local count = event.count
-	self.text = count
- 
- 	if (count % 60 < 10) then self.text = math.floor(count/60) .. ":0" .. (count%60)
- 	else self.text = math.floor(count/60) .. ":" .. (count%60)
- 	end
-	if count % maxTime == 0 then
+   	maxTime = maxTime-1
+	if (maxTime % 60 < 10) then self.text = math.floor(maxTime/60) .. ":0" .. (maxTime%60)
+	else self.text = math.floor(maxTime/60) .. ":" .. (maxTime%60)
+	end
+
+    if(maxTime == 0)then
 		timer.cancel( event.source )
 		_destroyDialog()
 		print("TIME'S UP!")
-	end
+    end
 
 end
 
@@ -327,10 +330,11 @@ function scene:createScene(event)
 	print( "MAXTIME:"..maxTime )
 
    	-- TIMER & SCORE
+
 	local timeDelay = 1000;
 	if boolFirst == true then
 		resetDB() --reset all words to un-answered bawat reload
-		text.text = "0:00"
+		text.text = maxTime/60 .. ":00"
 		gameTimer = timer.performWithDelay( timeDelay, text, maxTime )	-- maintain time kahit magreload na
 		currScore = 0
 	else
