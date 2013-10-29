@@ -146,8 +146,6 @@ function setword()
 	for i = 1,blanks do
 		local rand = math.random(word:len())
 		while (get_char(rand, wordToGuess) == "_") or (letterbox:find(get_char(rand, wordToGuess)) ~= nil) do
-			print("char at rand: " .. get_char(rand, wordToGuess))
-			print("curr letterbox: " .. letterbox)
 			rand = math.random(word:len())
 		end
 		letterbox = letterbox .. get_char(rand, wordToGuess)
@@ -204,27 +202,27 @@ local checkanswer = function(event)
 	-- if right, add score and then,
 
 	answer = ""
+	blanks = math.floor(word:len()/2)
+	count = 0
 	for i = 1, wordToGuess:len() do
 		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank
 			answer = answer .. get_char(i, wordToGuess)
 		else
 			for j = 1, letterbox:len() do
-				if ( get_char(i, word) == get_char(j, letterbox) ) then -- if same letter, dapat same pos
-					local s = "_" .. get_char(i, word)
-					distX = math.abs(letterboxGroup[get_char(j, letterbox)].x - wordGroup[s].x)
-					distY = math.abs(letterboxGroup[get_char(j, letterbox)].y - wordGroup[s].y)
-					if (distX <= 10) and (distY <= 10) then
-						-- if nasa blank
-						answer = answer .. get_char(j, letterbox)
-						-- print("nasa for ng blank " .. s .. ": " .. answer)
-					end
+				distX = math.abs(letterboxGroup[j].x - wordGroup[i].x)
+				distY = math.abs(letterboxGroup[j].y - wordGroup[i].y)
+				if (distX <= 10) and (distY <= 10) then
+					-- if nasa blank
+					count = count + 1
+					answer = answer .. get_char(j, letterbox)
+					-- print("nasa for ng blank " .. s .. ": " .. answer)
 				end
 			end
 		end
 	end
 
   	if event.phase == "ended" then
-		if answer == word then
+		if answer == word and count == blanks then
 			boolFirst = false
 			print("Correct!")
 			updateDB(word) --set isCorrect to true
@@ -404,7 +402,7 @@ function scene:createScene(event)
 			x = 370
 		end
 		letterboxGroup[i].x = x 
-		chalkLetter.y = y
+		letterboxGroup[i].y = y
 		MultiTouch.activate(chalkLetter, "move", "single")
 		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
