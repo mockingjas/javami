@@ -40,8 +40,8 @@ end
 function fetchByCategory(categ)
 	print("SELECT * FROM Words where category =" ..categ)
 	local words = {}
-	for row in db:nrows("SELECT * FROM Words where category ='"..categ.."'") do
-		local rowData = row.id .. " " .. row.name.." "..row.category.." "..row.isCorrect.."\n"
+	for row in db:nrows("SELECT * FROM Words where firstGameCategory ='"..categ.."'") do
+		local rowData = row.id .. " " .. row.name.." "..row.firstGameCategory.." "..row.isCorrect.."\n"
         words[#words+1] = rowData
 	end
 	return words
