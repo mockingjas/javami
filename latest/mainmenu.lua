@@ -4,20 +4,11 @@ local widget= require ("widget")
 local scene = storyboard.newScene()
 
 -- Level Select Modal Variables --
-local dialog, msgText, easyBtn, mediumBtn, hardBtn, exitBtn, easy, medium, rect
+local levelgroup, easy, medium, hard
 local instance1, instance2, instance3, scores
 
 ------ GAME 1 Level Select Modal -------
 local function button1 ( event )
-
-	function _destroyDialog()
-		dialog:removeSelf()
-		rect:removeSelf()
-		easyBtn:removeSelf()
-		mediumBtn:removeSelf()
-		hardBtn:removeSelf()
-		exitBtn:removeSelf()
-	end
 
 	-- PARAMETERS TO PASS TO NEXT SCENE
 	easy =	{
@@ -26,6 +17,8 @@ local function button1 ( event )
 		params = {
 			categ = "easy",
 			first = true,
+			score = 0,
+			time = 61
 		}
 	}
 
@@ -35,6 +28,8 @@ local function button1 ( event )
 		params = {
 			categ = "medium",
 			first = true,
+			score = 0,
+			time = 121
 		}
 	}
 
@@ -43,30 +38,31 @@ local function button1 ( event )
 		time = 400,
 		params = {
 			categ = "hard",
-			first = true,			
+			first = true,	
+			score = 0,
+			time = 181		
 		}
 	}
-
 	function easy_onBtnRelease()
-		_destroyDialog()
+		levelgroup:removeSelf()
 		storyboard.gotoScene("firstgame", easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
-		_destroyDialog()
+		levelgroup:removeSelf()
 		storyboard.gotoScene("firstgame", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
-		_destroyDialog()
+		levelgroup:removeSelf()
 		storyboard.gotoScene("firstgame", hard)
 		return true
 	end
 	-- 
 	
-	showDialog()
+	showlevelDialog()
 	
 end
 -------------- END OF GAME 1 ------------
@@ -74,17 +70,7 @@ end
 ------ GAME 2 Level Select Modal -------
 local function button2 ( event )
 
-	function _destroyDialog()
-		dialog:removeSelf()
-		rect:removeSelf()
-		easyBtn:removeSelf()
-		mediumBtn:removeSelf()
-		hardBtn:removeSelf()
-		exitBtn:removeSelf()
-	end
-	-- 
-
-	--PARAMETERS TO PASS TO NEXT SCENE
+	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
 	easy =	{
 		effect = "fade",
 		time = 400,
@@ -113,43 +99,32 @@ local function button2 ( event )
 	}
 
 	function easy_onBtnRelease()
-		_destroyDialog()
+		levelgroup:removeSelf()
 		storyboard.gotoScene("secondgame", easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
-		_destroyDialog()
+		levelgroup:removeSelf()
 		storyboard.gotoScene("secondgame", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
-		_destroyDialog()
-		storyboard.gotoScene("secondgame", hard)
+		levelgroup:removeSelf()
+		storyboard.gotoScene("secondgame" , hard)
 		return true
 	end
 	
-	showDialog()
+	showlevelDialog()
 	
 end
 ------ END OF GAME 2 -------
 
 ------ GAME 3 Level Select Modal -------
 local function button3 ( event )
-	-- MODAL 
-	
-	function _destroyDialog()
-		dialog:removeSelf()
-		rect:removeSelf()
-		easyBtn:removeSelf()
-		mediumBtn:removeSelf()
-		hardBtn:removeSelf()
-		exitBtn:removeSelf()
-	end
-	-- 
 
-	--PARAMETERS TO PASS TO NEXT SCENE
+	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
 	easy =	{
 		effect = "fade",
 		time = 400,
@@ -176,43 +151,47 @@ local function button3 ( event )
 			first = true,			
 		}
 	}
-
+	
 	function easy_onBtnRelease()
-		_destroyDialog()
-		storyboard.gotoScene("thirdgame", easy)
+		levelgroup:removeSelf()
+		storyboard.gotoScene("thirdgame" , easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
-		_destroyDialog()
+		levelgroup:removeSelf()
 		storyboard.gotoScene("thirdgame", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
-		_destroyDialog()
+		levelgroup:removeSelf()
 		storyboard.gotoScene("thirdgame", hard)
 		return true
 	end
-
-	showDialog()
+	
+	showlevelDialog()
 	
 end
 -------- END OF GAME 3 ----------
 
-function showDialog()
+function showlevelDialog()
 	physics.pause()
 	isPause = true
  	
-	rect = display.newImage("images/modal/gray.png")
+ 	levelgroup = display.newGroup()
+
+	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentWidth/2;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
+	levelgroup:insert(rect)
 
-	dialog = display.newImage("images/modal/levelselect_wood.png")
+	local dialog = display.newImage("images/modal/levelselect_wood.png")
  	dialog.x = display.contentWidth/2;
+ 	levelgroup:insert(dialog)
 
-	easyBtn = widget.newButton{
+	local easyBtn = widget.newButton{
 		defaultFile="images/modal/Easy.png",
 		overFile="images/modal/Easy.png",
 		onRelease = easy_onBtnRelease -- event listener function
@@ -220,8 +199,9 @@ function showDialog()
 	easyBtn:setReferencePoint( display.CenterReferencePoint )
 	easyBtn.x = bg.x - 5
 	easyBtn.y = 115
+	levelgroup:insert(easyBtn)
 
-	mediumBtn = widget.newButton{
+	local mediumBtn = widget.newButton{
 		defaultFile="images/modal/Medium.png",
 		overFile="images/modal/Medium.png",
 		onRelease = medium_onBtnRelease	-- event listener function
@@ -229,8 +209,9 @@ function showDialog()
 	mediumBtn:setReferencePoint( display.CenterReferencePoint )
 	mediumBtn.x = bg.x
 	mediumBtn.y = 190
+	levelgroup:insert(mediumBtn)
 
-	hardBtn = widget.newButton{
+	local hardBtn = widget.newButton{
 		defaultFile="images/modal/Hard.png",
 		overFile="images/modal/Hard.png",
 		onRelease = hard_onBtnRelease	-- event listener function
@@ -238,8 +219,9 @@ function showDialog()
 	hardBtn:setReferencePoint( display.CenterReferencePoint )
 	hardBtn.x = bg.x - 5
 	hardBtn.y = 250
+	levelgroup:insert(hardBtn)
 
-	exitBtn = widget.newButton{
+	local exitBtn = widget.newButton{
 		defaultFile="images/modal/closebutton.png",
 		overFile="images/modal/closebutton.png",
 		onRelease = _destroyDialog	-- event listener function
@@ -247,8 +229,8 @@ function showDialog()
 	exitBtn:setReferencePoint( display.CenterReferencePoint )
 	exitBtn.x = bg.x + 115
 	exitBtn.y = 67
+	levelgroup:insert(exitBtn)
 
- 
 end
 
 local goToScoreboard = function(event)

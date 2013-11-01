@@ -5,17 +5,21 @@ local widget = require( "widget" )
 local timer = require("timer")
 local physics = require("physics")
 local lfs = require("lfs")
+local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
 
 ------- Global variables ---------
-local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox
-local wordFromDB, category, submit
-local boolFirst
-local timerID, timerText, maxTime, timeDelay
-local currScore, option, screenGroup
-
-local pausedialog, resumeBtn, restartBtn, exitBtn
-local currTime, pauseBtn
+--for the blackboard
+local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox, image
+local wordFromDB, submit, screenGroup
+--for the timer and reloading
+local timer, timerText
+--for reloading params
+local currTime, boolFirst, currScore, category, option
+--for the pause screen
+local pausegroup
+--for the gameover screen, 
+local gameovergroup, round, score
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -30,7 +34,7 @@ local font
 if "Win" == system.getInfo( "platformName" ) then
     font = "Eraser"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "Eraser"
+    font = "EraserRegular"
 else
     -- Mac and iOS
     font = "Eraser-Regular"
@@ -39,7 +43,7 @@ end
 --------- FUNCTIONS FOR DATABASE ------------
 --DB: fetch
 function fetchByCategory(categ)
---	print("SELECT * FROM Words where category =" ..categ)
+	print("SELECT * FROM Words where category =" ..categ)
 	local words = {}
 	for row in db:nrows("SELECT * FROM Words where firstGameCategory ='"..categ.."'") do
 		local rowData = row.id .. " " .. row.name.." "..row.firstGameCategory.." "..row.isCorrect.."\n"
@@ -112,7 +116,9 @@ end
 function getwordfromDB()
 	print("PASSED VARIABLE:"..category)
 	local words = fetchByCategory(category)
---	for i=1,#words do print("DB:"..words[i]) end
+	for i=1,#words do
+		print("DB:"..words[i]) 
+	end
 
 	--randomize a word from DB that hasn't been correctly answered yet
 	local i = 1 
@@ -124,10 +130,10 @@ function getwordfromDB()
 		end
 		word = wordFromDB[2]
 		wordToGuess = word
-
 		if hasBeenAnswered(wordToGuess) == 'false' then
 			break
 		end
+
 		-- if all words have already been correctly answered, reset
 		if i == #words then -- change to kung ilan words sa DB
 			resetDB()
@@ -233,18 +239,19 @@ local checkanswer = function(event)
 			updateDB(word) --set isCorrect to true
 			currScore = currScore + 1
 			print("New score: "..currScore)
+			print(timer:getElapsedSeconds())
 			option = {
 				time = 400,
 				params = {
 					categ = category,
 					first = boolFirst,
-					timeID = timerID,
-					timeText = currTime,
-					score = currScore,
+					time = currTime - timer:getElapsedSeconds(),
+					score = currScore
 				}
 			}
-			audio.play(correctSound)
 			timerText:removeSelf()
+			timer = nil
+			audio.play(correctSound)
 			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
@@ -255,120 +262,180 @@ local checkanswer = function(event)
 	end
 end
 
---------------  FUNCTION FOR HOME --------------------
-function backToMenu ()
-	back:removeSelf()
-	timesup:removeSelf()
-	round:removeSelf()
-	scoreToDisplay:removeSelf()
-  	storyboard.removeScene("firstgame")
-  	storyboard.removeScene("mainmenu")
-  	storyboard.gotoScene("mainmenu", "fade", 400)
+--------------  FUNCTION FOR GO BACK TO MENU --------------------
+function home(event)
+	if(event.phase == "ended") then
+		gameovergroup.isVisible = false
+  		storyboard.removeScene("firstgame")
+  		storyboard.removeScene("mainmenu")
+  		storyboard.gotoScene("mainmenu")
+  		return true
+  	end
+end
+
+--------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
+local function spriteListener( event )
+    print(event.phase)
+    if (event.phase == "ended") then
+
+    	score.isVisible = false
+		round.isVisible = false
+		gameovergroup = display.newGroup()
+
+    	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
+	    playBtn.x = 130
+	    playBtn.y = display.contentCenterY - 80
+	    playBtn:addEventListener("touch", restart_onBtnRelease)
+	    gameovergroup:insert(playBtn)
+
+	    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 85, font, 25) 
+	    gameovergroup:insert(playtext)
+
+	    local homeBtn = display.newImage( "images/firstgame/home_button.png")
+	    homeBtn.x = 130
+	    homeBtn.y = display.contentCenterY - 20
+	    homeBtn:addEventListener("touch", home)
+	    gameovergroup:insert(homeBtn)
+
+	    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 25, font, 25) 
+	    gameovergroup:insert(hometext)
+
+	    local emailBtn = display.newImage( "images/firstgame/email_button.png")
+	    emailBtn.x = 130
+	    emailBtn.y = display.contentCenterY + 42
+	    --email:addEventListener("touch", home)
+	    gameovergroup:insert(emailBtn)
+	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 37, font, 25) 
+	    gameovergroup:insert(emailtext)
+
+	 end
 end
 
 --------------- FUNCTION FOR END OF GAME ----------------
-function gameover()
-	wordGroup:removeSelf()
-	letterboxGroup:removeSelf()
-	image:removeSelf()
-	scoreToDisplay:removeSelf()
-	submit:removeSelf()
-	pauseBtn:removeSelf()
+function gameoverdialog()
 
-	-- Stuff to display when time's up
-	timesup= display.newText("TIME'S UP!", 0, 0, font, 30)
-	timesup.x = display.contentCenterX
-	timesup.y = display.contentCenterY - 10
-	timesup:setTextColor(255, 255, 255, 255)
+	insertToDB(category, currScore)
+	timerText:removeSelf()
+	timer = nil
+
+	scoreToDisplay.isVisible = false
+	image.isVisible = false
+	letterboxGroup.isVisible = false
+	wordGroup.isVisible = false
+	submit.isVisible = false
+	pauseBtn.isVisible = false
+
+	local sheet1 = graphics.newImageSheet( "images/trygameover.png", { width=414, height=74, numFrames=24 } )
+	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
+	instance1.x = display.contentCenterX
+	instance1.y = display.contentCenterY - 20
+	instance1:play()
+	instance1:addEventListener( "sprite", spriteListener )
+	screenGroup:insert(instance1)
 
 	round= display.newText("ROUND: "..category, 0, 0, font, 20)
 	round.x = display.contentCenterX
-	round.y = display.contentCenterY + 20
+	round.y = display.contentCenterY + 25
 
-	scoreToDisplay= display.newText("SCORE: "..currScore, 0, 0, font, 20)
-	scoreToDisplay.x = display.contentCenterX
-	scoreToDisplay.y = display.contentCenterY + 40
+	score= display.newText("SCORE: "..currScore, 0, 0, font, 20)
+	score.x = display.contentCenterX
+	score.y = display.contentCenterY + 45
 
-	back = widget.newButton{
-		id = "home",
-		defaultFile = "images/firstgame/button_small.png",
-		label = "HOME",
-		fontSize = 15,
-		emboss = true,
-		onEvent = backToMenu,
-	}
-	back.x = 460; back.y = 280
-	insertToDB(category, currScore)
-	--
+end
+
+--------------- TIMER: RUNTIME FUNCTION --------------------
+timerText = display.newText("", 453, 25, font, 18) 
+local function onFrame(event)
+	if (timer ~= nil) then
+   		timerText.text = timer:toRemainingString()
+   		local done = timer:isElapsed()
+ 		local secs = timer:getElapsedSeconds()
+ 		print("done:" .. secs)
+
+   		if(done) then
+	   		Runtime:removeEventListener("enterFrame", onFrame)
+	    	gameoverdialog()
+		end
+	end  
+
 end
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
-    	timer.pause(timerID)
+    	timer:pause()
     	submit:setEnabled(false)
    		for i = 1, #letterbox do
 			MultiTouch.deactivate(letterboxGroup[i])
 		end
         pauseBtn.isVisible = false
-        pause()
+        showpauseDialog()
         return true
     end
 end
  
-function pause()
-	function _destroyDialog()
-		pausedialog:removeSelf()
-		restartBtn:removeSelf()
-		resumeBtn:removeSelf()
-		exitBtn:removeSelf()
-	end
-
-	function restart_onBtnRelease()
-		_destroyDialog()
+ --------------- RESTART GAME ----------------------
+function restart_onBtnRelease()
+	if (timer ~= nil) then
+		pausegroup:removeSelf()
 		timerText:removeSelf()
-		option = {
-			time = 400,
-			params = {
-				categ = category,
-				first = true,
-				timeText = maxTime,
-				score = 0,
-			}
+		timer = nil
+	else
+		gameovergroup.isVisible = false
+	end
+	if category == "easy" then
+		currTime = 61
+	elseif category == "medium" then
+		currTime = 121
+	elseif category == "hard" then
+		currTime = 181
+	end
+	option =	{
+		effect = "fade",
+		time = 100,
+		params = {
+			categ = category,
+			first = true,
+			time = currTime,
+			score = 0
 		}
-		storyboard.removeScene("reload")
-		storyboard.gotoScene("reload", option)
-	end
-
-	function resume_onBtnRelease()
-		_destroyDialog()
-		timer.resume(timerID)
-		submit:setEnabled(true)
-		for i = 1, #letterbox do
-			MultiTouch.activate(letterboxGroup[i], "move", "single")
-		end
-        pauseBtn.isVisible = true
-		return true
-	end
-
-
-	function exit_onBtnRelease()
-		_destroyDialog()
-		timerText:removeSelf()
-		storyboard.removeScene("firstgame")
-  		storyboard.removeScene("mainmenu")
-  		storyboard.gotoScene("mainmenu")
-	end
-	showpauseDialog()
+	}
+	storyboard.removeScene("reload")
+	storyboard.gotoScene("reload", option)
 end
 
+--------------- RESUME FROM PAUSE -----------------
+function resume_onBtnRelease()
+	pausegroup:removeSelf()
+	timer:resume()
+	submit:setEnabled(true)
+	for i = 1, #letterbox do
+		MultiTouch.activate(letterboxGroup[i], "move", "single")
+	end
+    pauseBtn.isVisible = true
+	return true
+end
+
+---------------- EXIT FROM PAUSE ----------------
+function exit_onBtnRelease()
+	pausegroup:removeSelf()
+	timerText:removeSelf()
+	timer = nil
+	storyboard.removeScene("firstgame")
+	storyboard.removeScene("mainmenu")
+	storyboard.gotoScene("mainmenu")
+end
+
+----------------- PAUSE DIALOG ------------------
 function showpauseDialog()
 
-	pausedialog = display.newImage("images/pause/pause_modal.png")
+	pausegroup = display.newGroup()
+	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentWidth/2;
  	pausedialog:addEventListener("touch", function() return true end)
 	pausedialog:addEventListener("tap", function() return true end)
+	pausegroup:insert(pausedialog)
 
-	resumeBtn = widget.newButton{
+	local resumeBtn = widget.newButton{
 		defaultFile="images/pause/resume_button.png",
 		overFile="images/pause/resume_button.png",
 		onEvent = resume_onBtnRelease -- event listener function
@@ -376,8 +443,9 @@ function showpauseDialog()
 	resumeBtn:setReferencePoint( display.CenterReferencePoint )
 	resumeBtn.x = bg.x - 100
 	resumeBtn.y = 170
+	pausegroup:insert(resumeBtn)
 
-	restartBtn = widget.newButton{
+	local restartBtn = widget.newButton{
 		defaultFile="images/pause/restart_button.png",
 		overFile="images/pause/restart_button.png",
 		onEvent = restart_onBtnRelease -- event listener function
@@ -385,8 +453,9 @@ function showpauseDialog()
 	restartBtn:setReferencePoint( display.CenterReferencePoint )
 	restartBtn.x = bg.x + 100
 	restartBtn.y = 170
+	pausegroup:insert(restartBtn)
 
-	exitBtn = widget.newButton{
+	local exitBtn = widget.newButton{
 		defaultFile="images/pause/exit_button.png",
 		overFile="images/pause/exit_button.png",
 		onEvent = exit_onBtnRelease -- event listener function
@@ -394,115 +463,78 @@ function showpauseDialog()
 	exitBtn:setReferencePoint( display.CenterReferencePoint )
 	exitBtn.x = bg.x + 5
 	exitBtn.y = 220
+	pausegroup:insert(exitBtn)
 end
 
--------------------------------------------------------------------
-
+------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
-
 	--get passed parameters from previous scene
-	timerID = event.params.timeID
 	boolFirst = event.params.first
 	category = event.params.categ
+	currScore = event.params.score
+	currTime = event.params.time
 
-	if category == 'easy' then
-		maxTime = 60
-	elseif category == 'medium' then
-		maxTime = 120
-	elseif category == 'hard' then
-		maxTime = 180
+	-- Start timer
+	timer = stopwatch.new(currTime)
+	if (boolFirst) then
+		resetDB()
 	end
-
-	--------------- FUNCTION FOR TIMER --------------
-	timerText = display.newText( "0:00", 440, 20, font, 20 )
-	function timerText:timer( event )		
-	   	currTime = currTime - 1
-		if (currTime % 60 < 10) then
-			timerText.text = math.floor(currTime/60) .. ":0" .. (currTime%60)
-		else
-			timerText.text = math.floor(currTime/60) .. ":" .. (currTime%60)
-		end
-	    if(currTime == 0)then
-	    	timerText:removeSelf()
-			timer.cancel( event.source )
-			gameover()
-			print("TIME'S UP!")
-	    end
-	end
-
-   	-- TIMER & SCORE
-	timeDelay = 1000
-	if boolFirst == true then
-		currTime = maxTime
-		resetDB() --reset all words to un-answered bawat reload
-		timerText.text = maxTime/60 .. ":00"
-		currScore = 0
-	else
-		currTime = event.params.timeText
-		currScore = event.params.score
-		if (currTime % 60 < 10) then
-			timerText.text = math.floor(currTime/60) .. ":0" .. (currTime%60)
-		else
-			timerText.text = math.floor(currTime/60) .. ":" .. (currTime%60)
-		end
-
---		timerText:removeSelf()
-	end
-	timerID = timer.performWithDelay( timeDelay, timerText, maxTime )	-- maintain time kahit magreload na
-
-	-- Display score
-	scoreToDisplay = display.newText("Score: "..currScore, 0, 20, font, 20 )
 
 	screenGroup = self.view
 	setword()
 
-	bg = display.newImageRect("images/firstgame/blackboard.png", 550, 320)
+	-- Screen Elements
+	--score
+	scoreToDisplay = display.newText("Score: "..currScore, 0, 25, font, 18 )	
+	
+	--blackboard
+	bg = display.newImageRect("images/firstgame/board.png", 550, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
 	
+	--checkbutton
 	submit = widget.newButton{
 		id = "submit",
-		defaultFile = "images/firstgame/button_small.png",
-		label = "OK!",
+		defaultFile = "images/firstgame/submit_button.png",
 		fontSize = 15,
 		emboss = true,
 		onEvent = checkanswer,
 	}
-	submit.x = 460; submit.y = 280
+	submit.x = 453; submit.y = 262
 	screenGroup:insert(submit)
-
+	
+	--picture of word
 	image = display.newImage( "images/firstgame/pictures/apple.png" )
 	image.x = 310/2; image.y = 260/2;
 
-	-- Pause button
-
+	--pause button
 	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
-    pauseBtn.x = 420
-    pauseBtn.y = 30
+    pauseBtn.x = 410
+    pauseBtn.y = 37
     pauseBtn:addEventListener("touch", pauseGame)
+    pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
 	
-	-- DISPLAY LETTERS -----
-	local x = -40
-	local y = 270
+	-- letters
+	local x = -20
+	local y = 260
 	wordGroup = display.newGroup()
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-		chalkLetter = display.newText( c:upper(), x, y, font, 50)
+		chalkLetter = display.newText( c:upper(), x, y, font, 45)
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then
 			c = c .. get_char(i, word)
 		end
 		wordGroup[c] = chalkLetter
-		x = x + 55
+		x = x + 50
 		chalkLetter.x = x 
 		chalkLetter.y = y
 	end
-	-- ---------------------
 	
-	-- DISPLAY LETTERBOX ---
+	--letters to fill up with
 	x = 270
 	y = 90
 	letterboxGroup = display.newGroup()
@@ -510,11 +542,11 @@ function scene:createScene(event)
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
-		chalkLetter = display.newText( c:upper(), x, y, font, 50)
+		chalkLetter = display.newText( c:upper(), x, y, font, 45)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if (x - 330 < 120) then
-			x = x + 50
+			x = x + 45
 		else
 			y = y + 50
 			x = 320
@@ -525,21 +557,20 @@ function scene:createScene(event)
 		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
 
+	--- add to screen
 	screenGroup:insert(wordGroup)
 	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(image)
 	screenGroup:insert(scoreToDisplay)
-
-	
 end
 
 
 function scene:enterScene(event)
-	
+
 end
 
 function scene:exitScene(event)
-	
+
 end
 
 function scene:destroyScene(event)
@@ -551,5 +582,6 @@ scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
 scene:addEventListener("destroyScene", scene)
+Runtime:addEventListener("enterFrame", onFrame)
 
 return scene
