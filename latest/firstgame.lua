@@ -11,10 +11,11 @@ local scene = storyboard.newScene()
 local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox
 local wordFromDB, category, submit
 local boolFirst
-local gameTimer, text, maxTime, timeDelay
+local timerID, timerText, maxTime, timeDelay
 local currScore, option, screenGroup
 
 local pausedialog, resumeBtn, restartBtn, exitBtn
+local currTime, pauseBtn
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -38,7 +39,7 @@ end
 --------- FUNCTIONS FOR DATABASE ------------
 --DB: fetch
 function fetchByCategory(categ)
-	print("SELECT * FROM Words where category =" ..categ)
+--	print("SELECT * FROM Words where category =" ..categ)
 	local words = {}
 	for row in db:nrows("SELECT * FROM Words where firstGameCategory ='"..categ.."'") do
 		local rowData = row.id .. " " .. row.name.." "..row.firstGameCategory.." "..row.isCorrect.."\n"
@@ -111,9 +112,7 @@ end
 function getwordfromDB()
 	print("PASSED VARIABLE:"..category)
 	local words = fetchByCategory(category)
-	for i=1,#words do
-		print("DB:"..words[i]) 
-	end
+--	for i=1,#words do print("DB:"..words[i]) end
 
 	--randomize a word from DB that hasn't been correctly answered yet
 	local i = 1 
@@ -125,12 +124,12 @@ function getwordfromDB()
 		end
 		word = wordFromDB[2]
 		wordToGuess = word
+
 		if hasBeenAnswered(wordToGuess) == 'false' then
 			break
 		end
-
 		-- if all words have already been correctly answered, reset
-		if i == 10 then -- change to kung ilan words sa DB
+		if i == #words then -- change to kung ilan words sa DB
 			resetDB()
 		end
 
@@ -239,11 +238,13 @@ local checkanswer = function(event)
 				params = {
 					categ = category,
 					first = boolFirst,
-					time = gameTimer,
+					timeID = timerID,
+					timeText = currTime,
 					score = currScore,
 				}
 			}
 			audio.play(correctSound)
+			timerText:removeSelf()
 			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
@@ -272,6 +273,7 @@ function gameover()
 	image:removeSelf()
 	scoreToDisplay:removeSelf()
 	submit:removeSelf()
+	pauseBtn:removeSelf()
 
 	-- Stuff to display when time's up
 	timesup= display.newText("TIME'S UP!", 0, 0, font, 30)
@@ -299,28 +301,10 @@ function gameover()
 	insertToDB(category, currScore)
 	--
 end
-
---------------- FUNCTION FOR TIMER --------------
-text = display.newText( "0:00", 440, 20, font, 20 )
-function text:timer( event )
-		
-   	maxTime = maxTime-1
-	if (maxTime % 60 < 10) then self.text = math.floor(maxTime/60) .. ":0" .. (maxTime%60)
-	else self.text = math.floor(maxTime/60) .. ":" .. (maxTime%60)
-	end
-
-    if(maxTime == 0)then
-    	text:removeSelf()
-		timer.cancel( event.source )
-		gameover()
-		print("TIME'S UP!")
-    end
-end
-
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
-    	timer.pause(gameTimer)
+    	timer.pause(timerID)
     	submit:setEnabled(false)
    		for i = 1, #letterbox do
 			MultiTouch.deactivate(letterboxGroup[i])
@@ -341,26 +325,23 @@ function pause()
 
 	function restart_onBtnRelease()
 		_destroyDialog()
-		text:removeSelf()
-		timer.cancel(gameTimer)
-		-- text.text = maxTime/60 .. ":00"
-    	gameTimer= timer.performWithDelay(1000, text, maxTime )
+		timerText:removeSelf()
 		option = {
-				time = 400,
-				params = {
-					categ = category,
-					first = true,
-					time = gameTimer,
-					score = 0,
-				}
+			time = 400,
+			params = {
+				categ = category,
+				first = true,
+				timeText = maxTime,
+				score = 0,
 			}
+		}
 		storyboard.removeScene("reload")
 		storyboard.gotoScene("reload", option)
 	end
 
 	function resume_onBtnRelease()
 		_destroyDialog()
-		timer.resume(gameTimer)
+		timer.resume(timerID)
 		submit:setEnabled(true)
 		for i = 1, #letterbox do
 			MultiTouch.activate(letterboxGroup[i], "move", "single")
@@ -372,7 +353,7 @@ function pause()
 
 	function exit_onBtnRelease()
 		_destroyDialog()
-		text:removeSelf()
+		timerText:removeSelf()
 		storyboard.removeScene("firstgame")
   		storyboard.removeScene("mainmenu")
   		storyboard.gotoScene("mainmenu")
@@ -396,7 +377,6 @@ function showpauseDialog()
 	resumeBtn.x = bg.x - 100
 	resumeBtn.y = 170
 
-
 	restartBtn = widget.newButton{
 		defaultFile="images/pause/restart_button.png",
 		overFile="images/pause/restart_button.png",
@@ -419,10 +399,12 @@ end
 -------------------------------------------------------------------
 
 function scene:createScene(event)
+
 	--get passed parameters from previous scene
-	gameTimer = event.params.time
+	timerID = event.params.timeID
 	boolFirst = event.params.first
 	category = event.params.categ
+
 	if category == 'easy' then
 		maxTime = 60
 	elseif category == 'medium' then
@@ -430,22 +412,43 @@ function scene:createScene(event)
 	elseif category == 'hard' then
 		maxTime = 180
 	end
---	maxTime = event.params.time
 
-   	print( "CATEGORY:"..category )
-	print( "MAXTIME:"..maxTime )
+	--------------- FUNCTION FOR TIMER --------------
+	timerText = display.newText( "0:00", 440, 20, font, 20 )
+	function timerText:timer( event )		
+	   	currTime = currTime - 1
+		if (currTime % 60 < 10) then
+			timerText.text = math.floor(currTime/60) .. ":0" .. (currTime%60)
+		else
+			timerText.text = math.floor(currTime/60) .. ":" .. (currTime%60)
+		end
+	    if(currTime == 0)then
+	    	timerText:removeSelf()
+			timer.cancel( event.source )
+			gameover()
+			print("TIME'S UP!")
+	    end
+	end
 
    	-- TIMER & SCORE
-	timeDelay = 1000;
+	timeDelay = 1000
 	if boolFirst == true then
+		currTime = maxTime
 		resetDB() --reset all words to un-answered bawat reload
-		text.text = maxTime/60 .. ":00"
-		gameTimer = timer.performWithDelay( timeDelay, text, maxTime )	-- maintain time kahit magreload na
+		timerText.text = maxTime/60 .. ":00"
 		currScore = 0
 	else
+		currTime = event.params.timeText
 		currScore = event.params.score
-		text:removeSelf()
+		if (currTime % 60 < 10) then
+			timerText.text = math.floor(currTime/60) .. ":0" .. (currTime%60)
+		else
+			timerText.text = math.floor(currTime/60) .. ":" .. (currTime%60)
+		end
+
+--		timerText:removeSelf()
 	end
+	timerID = timer.performWithDelay( timeDelay, timerText, maxTime )	-- maintain time kahit magreload na
 
 	-- Display score
 	scoreToDisplay = display.newText("Score: "..currScore, 0, 20, font, 20 )

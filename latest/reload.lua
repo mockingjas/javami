@@ -2,8 +2,7 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore
-
+local text, category, boolFirst, timerText, timerID, currScore
 
 function scene:createScene(event)
 	
@@ -11,9 +10,12 @@ function scene:createScene(event)
 	
 	print("RELOADING....")
 	boolFirst = event.params.first
-	gameTimer = event.params.time
+	timerID = event.params.timeID
+	timerText = event.params.timeText
 	category = event.params.categ
 	currScore = event.params.score
+
+	print("TIME"..timerText)
 	
 	bg = display.newImageRect("images/firstgame/blackboard.png", 550, 320)
 	bg.x = display.contentWidth/2;
@@ -30,11 +32,11 @@ function scene:enterScene(event)
 		params = {
 			categ = category,
 			first = boolFirst,
-			time = gameTimer,
+			timeID = timerID,
+			timeText = timerText,
 			score = currScore,
 		}
 	}
-
 	storyboard.removeScene("firstgame")
 	storyboard.gotoScene("firstgame", option)
 end
