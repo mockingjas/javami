@@ -60,6 +60,11 @@ local function button1 ( event )
 		storyboard.gotoScene("firstgame", hard)
 		return true
 	end
+
+	function exit_onBtnRelease()
+		levelgroup:removeSelf()
+		return true
+	end
 	-- 
 	
 	showlevelDialog()
@@ -113,6 +118,11 @@ local function button2 ( event )
 	function hard_onBtnRelease()
 		levelgroup:removeSelf()
 		storyboard.gotoScene("secondgame" , hard)
+		return true
+	end
+
+	function exit_onBtnRelease()
+		levelgroup:removeSelf()
 		return true
 	end
 	
@@ -170,6 +180,11 @@ local function button3 ( event )
 		return true
 	end
 	
+	function exit_onBtnRelease()
+		levelgroup:removeSelf()
+		return true
+	end
+	
 	showlevelDialog()
 	
 end
@@ -224,7 +239,7 @@ function showlevelDialog()
 	local exitBtn = widget.newButton{
 		defaultFile="images/modal/closebutton.png",
 		overFile="images/modal/closebutton.png",
-		onRelease = _destroyDialog	-- event listener function
+		onRelease = exit_onBtnRelease	-- event listener function
 	}
 	exitBtn:setReferencePoint( display.CenterReferencePoint )
 	exitBtn.x = bg.x + 115
