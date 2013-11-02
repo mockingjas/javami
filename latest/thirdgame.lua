@@ -2,10 +2,21 @@ MultiTouch = require("dmc_multitouch");
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local timer = require("timer")
+local Gesture = require("lib_gesture")
 local scene = storyboard.newScene()
 
 ------- Global variables ---------
 local screenGroup
+-- 1 up, 2 down, 3 right, 4 left, 5 cw, 6 ccw, 7 shake
+local instructionSet = display.newGroup()
+local rand, maxSeq, maxSprite
+local instructionOrder = ""
+local spriteOrder = ""
+local instruction
+local curr = 0 -- kung ilan na yung nasagot
+
+local incorrectSound = audio.loadSound("incorrect.mp3")
+local correctSound = audio.loadSound("correct.mp3")
 
 --------- FUNCTIONS FOR STRING MANIPULATIONS ------------
 function replace_char (pos, str, ch)
@@ -26,8 +37,184 @@ end
 function get_char (pos, str)
 	return str:sub(pos, pos)
 end
-----------------------------------------------------------
+---------------------------------------------------------
 
+--------- FUNCTIONS FOR SWIPING ------------
+
+local answer = ""
+local answer2 = "" -- temp lang kasi di pa ok yung circle
+
+local beginX = 0
+local beginY = 0
+local endX = 0
+local endY = 0
+ 
+local xDistance  
+local yDistance
+	
+function checkDirection()
+    -- 1 up, 2 down, 3 right, 4 left, 5 cw, 6 ccw, 7 shake
+    g = Gesture.GestureResult()
+    xDistance =  math.abs(endX - beginX) -- math.abs will return the absolute, or non-negative value, of a given value. 
+    yDistance =  math.abs(endY - beginY)
+
+    if(g == "O" or g == "G" or g == "C") then -- CIRCULAR GESTURE
+		print("circle")
+		answer = answer .. "5"
+		answer2 = answer2 .. "6"
+		curr = curr + 1
+
+    elseif xDistance > yDistance then -- SWIPE LEFT OR RIGHT
+    	
+        if beginX > endX then
+                print("swipe left")
+                answer = answer .. "4"
+                answer2 = answer2 .. "4"
+				curr = curr + 1
+        else 
+                print("swipe right")
+                answer = answer .. "3"
+                answer2 = answer2 .. "3"
+				curr = curr + 1
+        end
+    else 
+        if beginY > endY then -- SWIPE UP OR DOWN
+                print("swipe up")
+                answer = answer .. "1"
+                answer2 = answer2 .. "1"
+				curr = curr + 1
+        else 
+                print("swipe down")
+                answer = answer .. "2"
+                answer2 = answer2 .. "2"
+				curr = curr + 1
+        end
+    end
+    
+end
+
+	local pointsTable = {}
+	local line
+
+	local myText = display.newText("Result: ", 50, 50, native.systemFont, 32)
+	myText:setTextColor(255, 255, 255)
+
+	local function drawLine ()
+
+	    if line then 
+	            line:removeSelf() 
+	    end
+	    
+	    local numPoints = #pointsTable
+	    local nl = {}
+	    local  j, p
+	             
+	    nl[1] = pointsTable[1]
+	             
+	    j = 2
+	    p = 1
+	             
+	    for  i = 2, numPoints, 1  do
+	            nl[j] = pointsTable[i]
+	            j = j+1
+	            p = i 
+	    end
+	    
+	    if ( p  < numPoints -1 ) then
+	            nl[j] = pointsTable[numPoints-1]
+	    end
+	    
+	    if #nl > 2 then
+	                    line = display.newLine(nl[1].x,nl[1].y,nl[2].x,nl[2].y)
+	                    for i = 3, #nl, 1 do 
+	                            line:append( nl[i].x,nl[i].y);
+	                    end
+	                    line:setColor(255,255,0)
+	                    line.width=5
+	    end
+	end
+
+function gestures(event)
+
+	if event.isShake then
+		print("shake")
+		answer = answer .. "7"
+		answer2 = answer2 .. "7"
+		curr = curr + 1
+		if( #answer ~= #instructionOrder ) then
+        	print("ANSWER: " .. answer)
+        	print("ANSWER2: " .. answer2)
+        	print("CURR: " .. curr)
+        	if( get_char(curr, answer) ~= get_char(curr, instructionOrder) and get_char(curr, answer2) ~= get_char(curr, instructionOrder) ) then
+        		print("wrong!")
+        		curr = 0
+        		answer = ""
+        		answer2 = ""
+        		audio.play(incorrectSound)
+        	end
+        elseif (answer == instructionOrder or answer2 == instructionOrder) then
+        	print("ANSWER: " .. answer)
+        	print("ANSWER2: " .. answer2)
+        	print("CURR: " .. curr)
+        	print("correct!")
+        	audio.play(correctSound)
+
+        end
+	end
+
+    if event.phase == "began" then
+
+    	pointsTable = nil
+        pointsTable = {}
+        local pt = {}
+        pt.x = event.x
+        pt.y = event.y
+        table.insert(pointsTable,pt)
+
+        beginX = event.x
+        beginY = event.y
+    end
+    
+    if "moved" == event.phase then
+    
+            local pt = {}
+            pt.x = event.x
+            pt.y = event.y
+            table.insert(pointsTable,pt)
+    end
+    
+    if event.phase == "ended"  then
+        endX = event.x
+        endY = event.y
+        checkDirection();
+
+        drawLine ()
+        myText.text = Gesture.GestureResult()
+
+        if( #answer ~= #instructionOrder ) then
+        	print("ANSWER: " .. answer)
+        	print("ANSWER2: " .. answer2)
+        	print("CURR: " .. curr)
+        	if( get_char(curr, answer) ~= get_char(curr, instructionOrder) and get_char(curr, answer2) ~= get_char(curr, instructionOrder) ) then
+        		print("wrong!")
+        		curr = 0
+        		answer = ""
+        		answer2 = ""
+        		audio.play(incorrectSound)
+        	end
+        elseif (answer == instructionOrder or answer2 == instructionOrder) then
+        	print("ANSWER: " .. answer)
+        	print("ANSWER2: " .. answer2)
+        	print("CURR: " .. curr)
+        	print("correct!")
+        	audio.play(correctSound)
+
+        end
+
+    end
+end
+
+--------------------------------------------
 
 function _destroyDialog()
 	
@@ -37,11 +224,6 @@ function scene:createScene(event)
 	
 	screenGroup = self.view
 	-- 1 up, 2 down, 3 right, 4 left, 5 cw, 6 ccw, 7 shake
-	local instructionSet = display.newGroup()
-	local rand, maxSeq, maxSprite
-	local instructionOrder = ""
-	local spriteOrder = ""
-	local instruction
 	local x, y
 
 	category = event.params.categ
@@ -121,6 +303,10 @@ function scene:createScene(event)
 	end
 
 	screenGroup:insert(instructionSet)
+
+	Runtime:addEventListener("touch", gestures)
+	Runtime:addEventListener("accelerometer", gestures)
+
 end
 
 
