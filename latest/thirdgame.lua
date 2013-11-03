@@ -53,18 +53,11 @@ local xDistance
 local yDistance
 	
 function checkDirection()
-    -- 1 up, 2 down, 3 right, 4 left, 5 cw, 6 ccw, 7 shake
-    g = Gesture.GestureResult()
+    -- 1 up, 2 down, 3 right, 4 left, 5 shake
     xDistance =  math.abs(endX - beginX) -- math.abs will return the absolute, or non-negative value, of a given value. 
     yDistance =  math.abs(endY - beginY)
 
-    if(g == "O" or g == "G" or g == "C") then -- CIRCULAR GESTURE
-		print("circle")
-		answer = answer .. "5"
-		answer2 = answer2 .. "6"
-		curr = curr + 1
-
-    elseif xDistance > yDistance then -- SWIPE LEFT OR RIGHT
+    if xDistance > yDistance then -- SWIPE LEFT OR RIGHT
     	
         if beginX > endX then
                 print("swipe left")
@@ -93,53 +86,12 @@ function checkDirection()
     
 end
 
-	local pointsTable = {}
-	local line
-
-	local myText = display.newText("Result: ", 50, 50, native.systemFont, 32)
-	myText:setTextColor(255, 255, 255)
-
-	local function drawLine ()
-
-	    if line then 
-	            line:removeSelf() 
-	    end
-	    
-	    local numPoints = #pointsTable
-	    local nl = {}
-	    local  j, p
-	             
-	    nl[1] = pointsTable[1]
-	             
-	    j = 2
-	    p = 1
-	             
-	    for  i = 2, numPoints, 1  do
-	            nl[j] = pointsTable[i]
-	            j = j+1
-	            p = i 
-	    end
-	    
-	    if ( p  < numPoints -1 ) then
-	            nl[j] = pointsTable[numPoints-1]
-	    end
-	    
-	    if #nl > 2 then
-	                    line = display.newLine(nl[1].x,nl[1].y,nl[2].x,nl[2].y)
-	                    for i = 3, #nl, 1 do 
-	                            line:append( nl[i].x,nl[i].y);
-	                    end
-	                    line:setColor(255,255,0)
-	                    line.width=5
-	    end
-	end
-
 function gestures(event)
 
 	if event.isShake then
 		print("shake")
-		answer = answer .. "7"
-		answer2 = answer2 .. "7"
+		answer = answer .. "5"
+		answer2 = answer2 .. "5"
 		curr = curr + 1
 		if( #answer ~= #instructionOrder ) then
         	print("ANSWER: " .. answer)
@@ -164,32 +116,14 @@ function gestures(event)
 
     if event.phase == "began" then
 
-    	pointsTable = nil
-        pointsTable = {}
-        local pt = {}
-        pt.x = event.x
-        pt.y = event.y
-        table.insert(pointsTable,pt)
-
         beginX = event.x
         beginY = event.y
-    end
-    
-    if "moved" == event.phase then
-    
-            local pt = {}
-            pt.x = event.x
-            pt.y = event.y
-            table.insert(pointsTable,pt)
     end
     
     if event.phase == "ended"  then
         endX = event.x
         endY = event.y
         checkDirection();
-
-        drawLine ()
-        myText.text = Gesture.GestureResult()
 
         if( #answer ~= #instructionOrder ) then
         	print("ANSWER: " .. answer)
@@ -257,12 +191,16 @@ function scene:createScene(event)
 
 
 	-- CHOOSE FROM SPRITES ONLY
-	for i = 1, maxSprite do
-		rand = math.random(7)
-		while (spriteOrder:find(rand) ~= nil) do
-			rand = math.random(7)
+	if (maxSprite < 5) then
+		for i = 1, maxSprite do
+			rand = math.random(5)
+			while (spriteOrder:find(rand) ~= nil) do
+				rand = math.random(5)
+			end
+			spriteOrder = spriteOrder .. rand
 		end
-		spriteOrder = spriteOrder .. rand
+	else
+		spriteOrder = "12345"
 	end
 
 	-- SHUFFLE -------------
