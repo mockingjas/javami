@@ -82,6 +82,7 @@ local function button2 ( event )
 		params = {
 			categ = "easy",
 			first = true,
+			time = 61
 		}
 	}
 
@@ -91,6 +92,7 @@ local function button2 ( event )
 		params = {
 			categ = "medium",
 			first = true,
+			time = 121
 		}
 	}
 
@@ -99,7 +101,8 @@ local function button2 ( event )
 		time = 400,
 		params = {
 			categ = "hard",
-			first = true,			
+			first = true,
+			time = 181			
 		}
 	}
 
@@ -141,6 +144,7 @@ local function button3 ( event )
 		params = {
 			categ = "easy",
 			first = true,
+			time = 61
 		}
 	}
 
@@ -150,6 +154,7 @@ local function button3 ( event )
 		params = {
 			categ = "medium",
 			first = true,
+			time = 121
 		}
 	}
 
@@ -158,7 +163,8 @@ local function button3 ( event )
 		time = 400,
 		params = {
 			categ = "hard",
-			first = true,			
+			first = true,
+			time = 181			
 		}
 	}
 	
