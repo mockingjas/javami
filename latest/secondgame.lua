@@ -6,14 +6,9 @@ local scene = storyboard.newScene()
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )   
 
-local numberOfCategories
-local gameCategories
-local images
-local word
-local categories
-local length
-local correctWords
-local answers
+local numberOfCategories, gameCategories
+local images, word, categories, length
+local correctWords, answers
 local incorrectSound = audio.loadSound("incorrect.mp3")
 local correctSound = audio.loadSound("correct.mp3")
 local currScore = 0
@@ -29,19 +24,33 @@ function scene:createScene(event)
 	values = {"1", "0", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "1", "1"}
 
 	level = event.params.categ
+	if level == 'easy' then
+		maxTime = 60
+	elseif level == 'medium' then
+		maxTime = 120
+	else
+		maxTime = 180
+	end
+
 	screenGroup = self.view
 
 	--BACKGROUND
 	width = 550; height = 320
 
 	--HEADER
+	-- Score
 	score = display.newText("SCORE: ", -30, 0, font, 20)
 	scoreNumber = display.newText(currScore, 50, 0, font, 20)
-	-- Display score
-	timerLabel = display.newText("TIME: ", 400, 0, font, 20)
 	screenGroup:insert(score)
-	screenGroup:insert(timerLabel)
+	-- Pause button
+	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
+    pauseBtn.x = 445
+    pauseBtn.y = 10
+--    pauseBtn:addEventListener("touch", pauseGame)
+--    pauseBtn:addEventListener("tap", pauseGame)
+    screenGroup:insert( pauseBtn )
 
+    -- Timer
 	timerText = display.newText( "0:00", 460, 0, font, 20 )
 	function timerText:timer( event )
 	   	maxTime = maxTime-1
@@ -57,7 +66,6 @@ function scene:createScene(event)
 	end
 
 	timeDelay = 1000
-	maxTime = 60
 	timerText.text = maxTime/60 .. ":00"
 	gameTimer = timer.performWithDelay( timeDelay, timerText, maxTime )	-- maintain time kahit magreload na
 
@@ -85,7 +93,6 @@ function scene:createScene(event)
 		end
 
 		--query database:correct words
-
 		answers = {}
 		correctWords = {}
 		for i = 1, #dbFields do
@@ -97,7 +104,7 @@ function scene:createScene(event)
 			end
 		end
 
-		-- all correct answers, no duplicates
+		-- remove duplicates
 		correctWords[1] = answers[1][1]
 		for i = 1, #dbFields do
 			for j = 1, 127 do
@@ -183,8 +190,9 @@ function scene:createScene(event)
 		return rand
 	end
 
+	-- FUNCTION FOR RANDOMIZING ARRAY CONTENTS
 	function shuffle(array)
-		for i = 1, #array*2 do -- repeat this for twice the amount of elements in the table, to make sure everything is shuffled well
+		for i = 1, #array*2 do
 			a = math.random(#array)
 			b = math.random(#array)
 			array[a], array[b] = array[b], array[a]
@@ -268,6 +276,7 @@ function scene:createScene(event)
 						break
 					end
 				end
+				-- If wrong, snap back to original position
 				if isCorrect == false then
 					print("WRONG!")
 					audio.play(incorrectSound)
@@ -408,7 +417,7 @@ function scene:createScene(event)
 		photos = {}
 		length = 32
 		for i = 1, length do
-			photos[i] = "images/secondgame/.png"
+			photos[i] = "images/secondgame/game1.png"
 		end
 
 		-- labels

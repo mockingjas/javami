@@ -324,6 +324,7 @@ function gameoverdialog()
 	wordGroup.isVisible = false
 	submit.isVisible = false
 	pauseBtn.isVisible = false
+	hintBtn.isVisible = false
 
 	local sheet1 = graphics.newImageSheet( "images/trygameover.png", { width=414, height=74, numFrames=24 } )
 	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
@@ -350,7 +351,7 @@ local function onFrame(event)
    		timerText.text = timer:toRemainingString()
    		local done = timer:isElapsed()
  		local secs = timer:getElapsedSeconds()
- 		print("done:" .. secs)
+-- 		print("done:" .. secs)
 
    		if(done) then
 	   		Runtime:removeEventListener("enterFrame", onFrame)
@@ -466,6 +467,21 @@ function showpauseDialog()
 	pausegroup:insert(exitBtn)
 end
 
+-- hint sound
+local function networkListener( event )
+	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
+	if speech == nil then
+		print("ERROR!")
+--		errorMsg = display.newText("No internet connection found!", 250, 200, font, 10 )
+	end
+   	audio.play( speech )
+end
+
+function play()
+	network.download( "http://www.translate.google.com/translate_tts?tl=en&q='"..word.."'", "GET", networkListener, word..".mp3", system.TemporaryDirectory )	
+end
+
+
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	--get passed parameters from previous scene
@@ -507,6 +523,17 @@ function scene:createScene(event)
 	--picture of word
 	image = display.newImage( "images/firstgame/pictures/apple.png" )
 	image.x = 310/2; image.y = 260/2;
+
+	-- hint
+	hintBtn = widget.newButton{
+		id = "hint",
+		defaultFile = "images/firstgame/play_button.png",
+		fontSize = 15,
+		emboss = true,
+	}
+	hintBtn.x = 453; hintBtn.y = 200
+	screenGroup:insert(hintBtn)
+	hintBtn:addEventListener("tap", play)
 
 	--pause button
 	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
