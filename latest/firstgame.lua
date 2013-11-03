@@ -308,6 +308,14 @@ local function spriteListener( event )
 	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 37, font, 25) 
 	    gameovergroup:insert(emailtext)
 
+	    round= display.newText("ROUND: "..category, 0, 0, font, 20)
+		round.x = display.contentCenterX
+		round.y = display.contentCenterY + 85
+
+		score= display.newText("SCORE: "..currScore, 0, 0, font, 20)
+		score.x = display.contentCenterX
+		score.y = display.contentCenterY + 110
+
 	 end
 end
 
@@ -350,7 +358,7 @@ local function onFrame(event)
    		timerText.text = timer:toRemainingString()
    		local done = timer:isElapsed()
  		local secs = timer:getElapsedSeconds()
- 		print("done:" .. secs)
+ 		--print("done:" .. secs)
 
    		if(done) then
 	   		Runtime:removeEventListener("enterFrame", onFrame)
