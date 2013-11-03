@@ -42,7 +42,6 @@ end
 --------- FUNCTIONS FOR SWIPING ------------
 
 local answer = ""
-local answer2 = "" -- temp lang kasi di pa ok yung circle
 
 local beginX = 0
 local beginY = 0
@@ -62,24 +61,20 @@ function checkDirection()
         if beginX > endX then
                 print("swipe left")
                 answer = answer .. "4"
-                answer2 = answer2 .. "4"
 				curr = curr + 1
         else 
                 print("swipe right")
                 answer = answer .. "3"
-                answer2 = answer2 .. "3"
 				curr = curr + 1
         end
     else 
         if beginY > endY then -- SWIPE UP OR DOWN
                 print("swipe up")
                 answer = answer .. "1"
-                answer2 = answer2 .. "1"
 				curr = curr + 1
         else 
                 print("swipe down")
                 answer = answer .. "2"
-                answer2 = answer2 .. "2"
 				curr = curr + 1
         end
     end
@@ -91,22 +86,18 @@ function gestures(event)
 	if event.isShake then
 		print("shake")
 		answer = answer .. "5"
-		answer2 = answer2 .. "5"
 		curr = curr + 1
 		if( #answer ~= #instructionOrder ) then
         	print("ANSWER: " .. answer)
-        	print("ANSWER2: " .. answer2)
         	print("CURR: " .. curr)
-        	if( get_char(curr, answer) ~= get_char(curr, instructionOrder) and get_char(curr, answer2) ~= get_char(curr, instructionOrder) ) then
+        	if( get_char(curr, answer) ~= get_char(curr, instructionOrder) ) then
         		print("wrong!")
         		curr = 0
         		answer = ""
-        		answer2 = ""
         		audio.play(incorrectSound)
         	end
-        elseif (answer == instructionOrder or answer2 == instructionOrder) then
+        elseif (answer == instructionOrder) then
         	print("ANSWER: " .. answer)
-        	print("ANSWER2: " .. answer2)
         	print("CURR: " .. curr)
         	print("correct!")
         	audio.play(correctSound)
@@ -127,18 +118,15 @@ function gestures(event)
 
         if( #answer ~= #instructionOrder ) then
         	print("ANSWER: " .. answer)
-        	print("ANSWER2: " .. answer2)
         	print("CURR: " .. curr)
-        	if( get_char(curr, answer) ~= get_char(curr, instructionOrder) and get_char(curr, answer2) ~= get_char(curr, instructionOrder) ) then
+        	if( get_char(curr, answer) ~= get_char(curr, instructionOrder) ) then
         		print("wrong!")
         		curr = 0
         		answer = ""
-        		answer2 = ""
         		audio.play(incorrectSound)
         	end
-        elseif (answer == instructionOrder or answer2 == instructionOrder) then
+        elseif (answer == instructionOrder) then
         	print("ANSWER: " .. answer)
-        	print("ANSWER2: " .. answer2)
         	print("CURR: " .. curr)
         	print("correct!")
         	audio.play(correctSound)
