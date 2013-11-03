@@ -286,8 +286,8 @@ function restart_onBtnRelease()
 			score = 0
 		}
 	}
-	storyboard.removeScene("reload")
-	storyboard.gotoScene("reload", option)
+	storyboard.removeScene("reloadthird")
+	storyboard.gotoScene("reloadthird", option)
 end
 
 --------------- RESUME FROM PAUSE -----------------
