@@ -6,9 +6,14 @@ local scene = storyboard.newScene()
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )   
 
-local numberOfCategories, gameCategories
-local images, word, categories, length
-local correctWords, answers
+local numberOfCategories
+local gameCategories
+local images
+local word
+local categories
+local length
+local correctWords
+local answers
 local incorrectSound = audio.loadSound("incorrect.mp3")
 local correctSound = audio.loadSound("correct.mp3")
 local currScore = 0
@@ -24,34 +29,41 @@ function scene:createScene(event)
 	values = {"1", "0", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "1", "1"}
 
 	level = event.params.categ
+	print(level)
+
 	if level == 'easy' then
 		maxTime = 60
+		bgImage = "images/secondgame/room1.jpg"
 	elseif level == 'medium' then
 		maxTime = 120
+		bgImage = "images/secondgame/room2.jpg"
 	else
 		maxTime = 180
+		bgImage = "images/secondgame/room3.jpg"
 	end
 
 	screenGroup = self.view
 
 	--BACKGROUND
 	width = 550; height = 320
+	bg = display.newImageRect(bgImage, 550, 320)
+	bg.x = display.contentWidth/2;
+	bg.y = display.contentHeight/2;
+	screenGroup:insert(bg)
 
 	--HEADER
-	-- Score
 	score = display.newText("SCORE: ", -30, 0, font, 20)
+	score:setTextColor(0,0,0)
 	scoreNumber = display.newText(currScore, 50, 0, font, 20)
+	scoreNumber:setTextColor(0,0,0)
+	-- Display score
 	screenGroup:insert(score)
-	-- Pause button
-	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
-    pauseBtn.x = 445
-    pauseBtn.y = 10
---    pauseBtn:addEventListener("touch", pauseGame)
---    pauseBtn:addEventListener("tap", pauseGame)
-    screenGroup:insert( pauseBtn )
+	screenGroup:insert(scoreNumber)
 
-    -- Timer
 	timerText = display.newText( "0:00", 460, 0, font, 20 )
+	timerText:setTextColor(0,0,0)
+	screenGroup:insert(timerText)
+
 	function timerText:timer( event )
 	   	maxTime = maxTime-1
 		if (maxTime % 60 < 10) then timerText.text = math.floor(maxTime/60) .. ":0" .. (maxTime%60)
@@ -67,7 +79,112 @@ function scene:createScene(event)
 
 	timeDelay = 1000
 	timerText.text = maxTime/60 .. ":00"
-	gameTimer = timer.performWithDelay( timeDelay, timerText, maxTime )	-- maintain time kahit magreload na
+	timerID = timer.performWithDelay( timeDelay, timerText, maxTime )	-- maintain time kahit magreload na
+
+	---------PAUSE FUNCTIONS
+	function pauseGame(event)
+	    if(event.phase == "ended") then
+--	    	timer:pause()
+	    	timer.pause(timerID)
+	        pauseBtn.isVisible = false
+	        showpauseDialog()
+	        return true
+	    end
+	end
+
+--------------- RESUME FROM PAUSE -----------------
+function resume_onBtnRelease()
+	pausegroup:removeSelf()
+	timer.resume(timerID)
+    pauseBtn.isVisible = true
+	return true
+end
+
+---------------- EXIT FROM PAUSE ----------------
+function exit_onBtnRelease()
+	pausegroup:removeSelf()
+	timerText:removeSelf()
+	boxGroup:removeSelf()
+	gameBoard:removeSelf()
+--	timer = nil
+	storyboard.removeScene("secondgame")
+	storyboard.removeScene("mainmenu")
+	storyboard.gotoScene("mainmenu")
+end
+
+ --------------- RESTART GAME ----------------------
+function restart_onBtnRelease()
+--	if (timer ~= nil) then
+	pausegroup:removeSelf()
+	timerText:removeSelf()
+	boxGroup:removeSelf()
+	gameBoard:removeSelf()
+--		timer = nil
+--	end
+	option =	{
+		effect = "fade",
+		time = 50,
+		params = {
+			categ = level,
+			time = maxTime,
+		}
+	}
+
+	storyboard.removeScene("secondgame")
+	storyboard.gotoScene("reloadsecond", option)
+end
+
+
+	----------------- PAUSE DIALOG ------------------
+function showpauseDialog()
+
+	pausegroup = display.newGroup()
+	local pausedialog = display.newImage("images/pause/pause_modal.png")
+ 	pausedialog.x = display.contentWidth/2;
+ 	pausedialog:addEventListener("touch", function() return true end)
+	pausedialog:addEventListener("tap", function() return true end)
+	pausegroup:insert(pausedialog)
+
+	local resumeBtn = widget.newButton{
+		defaultFile="images/pause/resume_button.png",
+		overFile="images/pause/resume_button.png",
+		onEvent = resume_onBtnRelease -- event listener function
+	}
+	resumeBtn:setReferencePoint( display.CenterReferencePoint )
+	resumeBtn.x = bg.x - 100
+	resumeBtn.y = 170
+	pausegroup:insert(resumeBtn)
+
+	local restartBtn = widget.newButton{
+		defaultFile="images/pause/restart_button.png",
+		overFile="images/pause/restart_button.png",
+		onEvent = restart_onBtnRelease -- event listener function
+	}
+	restartBtn:setReferencePoint( display.CenterReferencePoint )
+	restartBtn.x = bg.x + 100
+	restartBtn.y = 170
+	pausegroup:insert(restartBtn)
+
+	local exitBtn = widget.newButton{
+		defaultFile="images/pause/exit_button.png",
+		overFile="images/pause/exit_button.png",
+		onEvent = exit_onBtnRelease -- event listener function
+	}
+	exitBtn:setReferencePoint( display.CenterReferencePoint )
+	exitBtn.x = bg.x + 5
+	exitBtn.y = 220
+	pausegroup:insert(exitBtn)
+end
+
+
+	--PAUSE
+	pauseBtn = display.newImageRect( "images/secondgame/pause.png", 20, 20)
+    pauseBtn.x = 445
+    pauseBtn.y = 12
+	pauseBtn:addEventListener("touch", pauseGame)
+	pauseBtn:addEventListener("tap", pauseGame)
+    screenGroup:insert( pauseBtn )
+
 
 	-- FUNCTION FOR GETTING WORDS FROM DB
 	local function getWords(type)
@@ -93,6 +210,7 @@ function scene:createScene(event)
 		end
 
 		--query database:correct words
+
 		answers = {}
 		correctWords = {}
 		for i = 1, #dbFields do
@@ -104,7 +222,7 @@ function scene:createScene(event)
 			end
 		end
 
-		-- remove duplicates
+		-- all correct answers, no duplicates
 		correctWords[1] = answers[1][1]
 		for i = 1, #dbFields do
 			for j = 1, 127 do
@@ -190,9 +308,8 @@ function scene:createScene(event)
 		return rand
 	end
 
-	-- FUNCTION FOR RANDOMIZING ARRAY CONTENTS
 	function shuffle(array)
-		for i = 1, #array*2 do
+		for i = 1, #array*2 do -- repeat this for twice the amount of elements in the table, to make sure everything is shuffled well
 			a = math.random(#array)
 			b = math.random(#array)
 			array[a], array[b] = array[b], array[a]
@@ -276,7 +393,6 @@ function scene:createScene(event)
 						break
 					end
 				end
-				-- If wrong, snap back to original position
 				if isCorrect == false then
 					print("WRONG!")
 					audio.play(incorrectSound)
@@ -297,6 +413,7 @@ function scene:createScene(event)
 		local currentX = gridX
 		local currentY = gridY
 		images = {}
+		gameBoard = display.newGroup()
 
 		for i = 1, #photoArray do
 			local fontSize = 12
@@ -306,10 +423,12 @@ function scene:createScene(event)
 			images[i].y = currentY + 20
 			images[i].initialX = images[i].x
 			images[i].initialY = images[i].y
+			gameBoard:insert(images[i])
 
 			local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2
 			textObject = display.newText( photoTextArray[i], currentX + textPosX, currentY + photoHeight - 50, native.systemFontBold, fontSize )
-			textObject:setTextColor( 255,255,255 )
+			textObject:setTextColor( 0,0,0 )
+			gameBoard:insert(textObject)
 
 			--Update the position of the next item
 			currentX = currentX + photoWidth + paddingX
@@ -334,15 +453,18 @@ function scene:createScene(event)
 
 		-- boxes
 		box = {}
+		boxLabel = {}
 		for i = 1, numberOfCategories do
-			box[i] = display.newImageRect("images/secondgame/box.png", 80, 80)
+			box[i] = display.newImageRect("images/secondgame/box.png", 80, 110)
 		end
-		box[1].x = width/4; box[1].y = 290
-		box[2].x = width/4 + (4*boxSize); box[2].y = 290
+		box[1].x = width/4; box[1].y = 280
+		box[2].x = width/4 + (4*boxSize); box[2].y = 280
+
 
 		for i = 1, numberOfCategories do
-			display.newText(categories[gameCategories[i]], box[i].x-20, box[i].y, font, 20)
+			boxLabel[i] = display.newText(categories[gameCategories[i]], box[i].x-20, box[i].y-5, 50, 50, font, 15)
 			boxGroup:insert(box[i])
+			boxGroup:insert(boxLabel[i])
 		end
 
 		allWords = getWords("correct")
@@ -361,7 +483,7 @@ function scene:createScene(event)
 		photos = {}
 		length = 24
 		for i = 1, length do
-			photos[i] = "images/secondgame/game1.png"
+			photos[i] = "images/secondgame/image.png"
 		end
 
 		-- labels
@@ -382,19 +504,20 @@ function scene:createScene(event)
 		numberOfCategories = 3
 		gameCategories = randomizeCategory()
 		box = {}
-
+		boxLabel = {}
 		--BOXES
 		for i = 1, numberOfCategories do
-			box[i] = display.newImageRect("images/secondgame/box.png", 80, 80)
+			box[i] = display.newImageRect("images/secondgame/box.png", 80, 110)
 		end
 
-		box[1].x = width/3 - boxSize; box[1].y = 290
-		box[2].x = width/3 + boxSize; box[2].y = 290
-		box[3].x = width/3 + (3*boxSize); box[3].y = 290
+		box[1].x = width/3 - boxSize; box[1].y = 280
+		box[2].x = width/3 + boxSize; box[2].y = 280
+		box[3].x = width/3 + (3*boxSize); box[3].y = 280
 
 		for i = 1, numberOfCategories do
-			display.newText(categories[gameCategories[i]], box[i].x-20, box[i].y, font, 20)
+			boxLabel[i] = display.newText(categories[gameCategories[i]], box[i].x-20, box[i].y-5, 50, 50, font, 15)
 			boxGroup:insert(box[i])
+			boxGroup:insert(boxLabel[i])
 		end
 
 		-- * CHOOSE WORDS  * --
@@ -417,7 +540,7 @@ function scene:createScene(event)
 		photos = {}
 		length = 32
 		for i = 1, length do
-			photos[i] = "images/secondgame/game1.png"
+			photos[i] = "images/secondgame/image.png"
 		end
 
 		-- labels
@@ -435,19 +558,23 @@ function scene:createScene(event)
 		gameCategories = randomizeCategory()
 
 		box = {}
+		boxLabel = {}
+
+
 		--BOXES
 		for i = 1, numberOfCategories do
-			box[i] = display.newImageRect("images/secondgame/box.png", 80, 80)
+			box[i] = display.newImageRect("images/secondgame/box.png", 80, 110)
 		end
 
-		box[1].x = width/4 - boxSize; box[1].y = 290
-		box[2].x = width/4 + boxSize; box[2].y = 290
-		box[3].x = width/4 + (3*boxSize); box[3].y = 290
-		box[4].x = width/4 + (5*boxSize); box[4].y = 290
+		box[1].x = width/4 - boxSize; box[1].y = 280
+		box[2].x = width/4 + boxSize; box[2].y = 280
+		box[3].x = width/4 + (3*boxSize); box[3].y = 280
+		box[4].x = width/4 + (5*boxSize); box[4].y = 280
 
 		for i = 1, numberOfCategories do
-			display.newText(categories[gameCategories[i]], box[i].x-20, box[i].y, font, 20)			
+			boxLabel[i] = display.newText(categories[gameCategories[i]], box[i].x-20, box[i].y-5, 50, 50, font, 15)			
 			boxGroup:insert(box[i])
+			boxGroup:insert(boxLabel[i])
 		end
 
 		-- * CHOOSE WORDS  * --
@@ -472,7 +599,7 @@ function scene:createScene(event)
 		photos = {}
 		length = 40
 		for i = 1, length do
-			photos[i] = "images/secondgame/game1.png"
+			photos[i] = "images/secondgame/image.png"
 		end
 
 		-- labels
