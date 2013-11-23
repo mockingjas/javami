@@ -80,7 +80,6 @@ end
 local function button2 ( event )
 
 	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
-	howtoplay:setEnabled(false)
 	scores:setEnabled(false)
 
 	easy =	{

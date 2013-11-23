@@ -52,7 +52,7 @@ function displayGame3()
 end
 
 function scene:createScene( event )
-	tabGroup = display.newGroup()
+	--[[ tabGroup = display.newGroup()
 
 	local tabButtons = 
 	{
@@ -96,7 +96,17 @@ function scene:createScene( event )
 	}
 	tabGroup:insert(demoTabs)
 
-	displayGame1()
+	displayGame1() ]]
+
+	local slideView = require("slideView")
+	
+	local myImages = {
+		"images/menu/howtoplay1.png",
+		"images/menu/howtoplay2.png",
+		"images/menu/howtoplay3.png",
+	}		
+
+	slideView.new( myImages )
 
 end
 

@@ -538,7 +538,7 @@ function scene:createScene(event)
 	-- hint
 	hintBtn = widget.newButton{
 		id = "hint",
-		defaultFile = "images/firstgame/play_button.png",
+		defaultFile = "images/firstgame/hint.png",
 		fontSize = 15,
 		emboss = true,
 	}
