@@ -19,6 +19,7 @@ local currTime, boolFirst, currScore, category, option
 local pausegroup
 --for the gameover screen, 
 local gameovergroup, round, score
+local dialog, msgText, startTime
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -368,7 +369,7 @@ local function onFrame(event)
 	   		Runtime:removeEventListener("enterFrame", onFrame)
 	    	gameoverdialog()
 		end
-	end  
+	end 
 
 end
 ---------------- PAUSE GAME ---------------------------
@@ -479,13 +480,29 @@ function showpauseDialog()
 end
 
 -- hint sound
+function errorMsg(startTime)
+	print(startTime)
+	physics.pause()
+	isPause = true
+	
+	dialog = display.newRoundedRect(240, 175, 180, 50, 12)
+	dialog:setFillColor( 96 )
+	dialog.alpha = 0.7
+	
+	msgText = display.newText("Device must be connected\nto the internet.", 260, 185, 320, 160, native.systemFont, 12, "center")
+end
+
 local function networkListener( event )
 	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
+
 	if speech == nil then
 		print("ERROR!")
---		errorMsg = display.newText("No internet connection found!", 250, 200, font, 10 )
 	end
+
    	audio.play( speech )
+
+--   	errorMsg(timer:getElapsedSeconds())
+
 end
 
 function play()
@@ -496,6 +513,7 @@ end
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	--get passed parameters from previous scene
+
 	boolFirst = event.params.first
 	category = event.params.categ
 	currScore = event.params.score
@@ -532,7 +550,11 @@ function scene:createScene(event)
 	screenGroup:insert(submit)
 	
 	--picture of word
-	image = display.newImage( "images/firstgame/pictures/apple.png" )
+	image = display.newImage( "images/firstgame/pictures/"..word..".png" )
+	if image == nil then
+		image = display.newImage( "images/firstgame/pictures/apple.png" )
+	end
+
 	image.x = 310/2; image.y = 260/2;
 
 	-- hint
@@ -545,6 +567,7 @@ function scene:createScene(event)
 	hintBtn.x = 453; hintBtn.y = 200
 	screenGroup:insert(hintBtn)
 	hintBtn:addEventListener("tap", play)
+
 
 	--pause button
 	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
@@ -561,7 +584,17 @@ function scene:createScene(event)
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-		chalkLetter = display.newText( c:upper(), x, y, font, 45)
+
+		local filename = "images/firstgame/"
+		if (c == "_") then
+			filename = filename .. "blank.png"
+			chalkLetter = display.newImage(filename)
+		else
+--			filename = filename .. c .. ".png"
+			chalkLetter = display.newText( c:upper(), x, y, font, 45)
+		end		
+
+--		chalkLetter = display.newText( c:upper(), x, y, font, 45)
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then
 			c = c .. get_char(i, word)

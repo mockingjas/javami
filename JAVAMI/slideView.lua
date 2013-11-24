@@ -22,6 +22,8 @@
 -- DEALINGS IN THE SOFTWARE.
 
 module(..., package.seeall)
+local storyboard = require ("storyboard")
+local scene = storyboard.newScene()
 
 local screenW, screenH = display.contentWidth, display.contentHeight
 local viewableScreenW, viewableScreenH = display.viewableContentWidth, display.viewableContentHeight
@@ -32,13 +34,21 @@ local images = nil
 local touchListener, nextImage, prevImage, cancelMove, initImage
 local background
 local imageNumberText, imageNumberTextShadow
+local g
+
+--------------  FUNCTION FOR GO BACK TO MENU --------------------
+function home(event)
+	g.isVisible = false
+	storyboard.removeScene("reloadinstructions")
+	storyboard.gotoScene("reloadinstructions")
+end
 
 function new( imageSet, slideBackground, top, bottom )	
 	local pad = 20
 	local top = top or 0 
 	local bottom = bottom or 0
 
-	local g = display.newGroup()
+	g = display.newGroup()
 	background = display.newRect( 0, 0, 570, 320)
 	background:setFillColor(0, 0, 0)
 	g:insert(background)
@@ -58,6 +68,13 @@ function new( imageSet, slideBackground, top, bottom )
 	end
 	
 	imgNum = 1
+
+	-- home button
+	homeBtn = display.newImage( "images/firstgame/home_button.png")
+	homeBtn.x = 0
+	homeBtn.y = 30
+	homeBtn:addEventListener("touch", home)
+	g:insert(homeBtn)
 	
 	function touchListener (self, touch) 
 		local phase = touch.phase
