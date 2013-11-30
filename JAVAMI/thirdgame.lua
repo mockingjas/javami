@@ -21,7 +21,7 @@ local pausegroup
 local gameovergroup, round, score
 
 -- 1 up, 2 down, 3 right, 4 left, 5 shake
-local instructionSet
+local instructionSet, glowSet
 local rand, maxSeq, maxSprite
 local instructionOrder = ""
 local spriteOrder = ""
@@ -102,6 +102,44 @@ function checkDirection(beginX, beginY, endX, endY)
     
 end
 
+local pointsTable = {}
+local line
+
+local function drawLine ()
+
+    if line then 
+            line:removeSelf() 
+    end
+    
+    local numPoints = #pointsTable
+    local nl = {}
+    local  j, p
+             
+    nl[1] = pointsTable[1]
+             
+    j = 2
+    p = 1
+             
+    for  i = 2, numPoints, 1  do
+            nl[j] = pointsTable[i]
+            j = j+1
+            p = i 
+    end
+    
+    if ( p  < numPoints -1 ) then
+            nl[j] = pointsTable[numPoints-1]
+    end
+    
+    if #nl > 2 then
+                    line = display.newLine(nl[1].x,nl[1].y,nl[2].x,nl[2].y)
+                    for i = 3, #nl, 1 do 
+                            line:append( nl[i].x,nl[i].y);
+                    end
+                    line:setColor(255,255,0)
+                    line.width=5
+    end
+end
+
 function gestures(event)
 
 	if event.isShake then
@@ -116,6 +154,22 @@ function gestures(event)
         beginX = event.x
         beginY = event.y
         print("begin")
+
+        pointsTable = nil
+        pointsTable = {}
+        local pt = {}
+        pt.x = event.x
+        pt.y = event.y
+        table.insert(pointsTable,pt)
+    end
+
+    if "moved" == event.phase then
+        
+        local pt = {}
+        pt.x = event.x
+        pt.y = event.y
+        table.insert(pointsTable,pt)
+
     end
     
     if event.phase == "ended"  then
@@ -124,7 +178,9 @@ function gestures(event)
 
         print("ended")
         print ("###asdfgsdzg## " .. beginX .. " " .. beginY)
-    print ("##### " .. endX .. " " .. endY)
+        print ("##### " .. endX .. " " .. endY)
+
+    	drawLine()
 
         checkDirection(beginX, beginY, endX, endY);
 
@@ -170,6 +226,7 @@ function checkanswer()
 			}
 		}
 		timerText:removeSelf()
+		line:removeSelf() 
     	timer = nil
 		Runtime:removeEventListener("touch", gestures)
 		Runtime:removeEventListener("accelerometer", gestures)
@@ -410,6 +467,13 @@ function showpauseDialog()
 	pausegroup:insert(exitBtn)
 end
 
+local function spriteListener( event )
+    print(event.phase)
+    if (event.phase == "ended") then
+
+	 end
+end
+
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	--get passed parameters from previous scene
@@ -424,6 +488,7 @@ function scene:createScene(event)
 	curr = 0 -- kung ilan na yung nasagot
 
 	instructionSet = display.newGroup()
+	glowSet = display.newGroup()
 --	rand = 0
 --	maxSeq = 0
 --	maxSprite = 0
@@ -433,25 +498,19 @@ function scene:createScene(event)
 
 	if category == 'easy' then
 		maxSeq = 3
-		maxSprite = 3
-		x = 175
-		y = 280
+		--maxSprite = 3
 		--3 in a sequence
 		--3 sprites
 
 	elseif category == 'medium' then
 		maxSeq = 5
-		maxSprite = 4
-		x = 110
-		y = 280
+		--maxSprite = 4
 		--5 in a sequence
 		--4 sprites
 
 	elseif category == 'hard' then
 		maxSeq = 7
-		maxSprite = 5
-		x = 45
-		y = 280
+		--maxSprite = 5
 		--7 in a sequence
 		--5 sprites
 	end
@@ -460,45 +519,26 @@ function scene:createScene(event)
 	timer = stopwatch.new(currTime)
 
 	-- CHOOSE FROM SPRITES ONLY
-	if (maxSprite < 5) then
-		for i = 1, maxSprite do
+	--if (maxSprite < 5) then
+		for i = 1, maxSeq do
 			rand = math.random(5)
-			while (spriteOrder:find(rand) ~= nil) do
-				rand = math.random(5)
-			end
-			spriteOrder = spriteOrder .. rand
+		--	while (spriteOrder:find(rand) ~= nil) do
+		--		rand = math.random(5)
+		--	end
+			instructionOrder = instructionOrder .. rand
 		end
-	else
-		spriteOrder = "12345"
-	end
+	--else
+		--spriteOrder = "12345"
+	--end
 
 	-- SHUFFLE -------------
-	for i = #spriteOrder, 2, -1 do -- backwards
-		local r = math.random(i) -- select a random number between 1 and i
-		spriteOrder = swap_char(i, r, spriteOrder) -- swap the randomly selected item to position i
-	end  
+	--for i = #spriteOrder, 2, -1 do -- backwards
+	--	local r = math.random(i) -- select a random number between 1 and i
+	--	spriteOrder = swap_char(i, r, spriteOrder) -- swap the randomly selected item to position i
+	--end  
 	-- ---------------------
 
-	print("sprites: " .. spriteOrder)
-
-	--easy, tatlo lang rin
-	instructionOrder = spriteOrder
-
-	if (maxSprite ~= maxSeq) then --medium and hard, magdadagdag
-		for i = #spriteOrder+1, maxSeq do
-			rand = math.random(#spriteOrder)
-			instructionOrder = instructionOrder .. get_char(rand, spriteOrder)
-		end
-		print("instructions: " .. instructionOrder)
-	end
-
-	-- SHUFFLE -------------
-	for i = #instructionOrder, 2, -1 do -- backwards
-		local r = math.random(i) -- select a random number between 1 and i
-		instructionOrder = swap_char(i, r, instructionOrder) -- swap the randomly selected item to position i
-	end 
-	-- ---------------------
-	print("shuffled ins: "..instructionOrder)
+	print("instructions: " .. instructionOrder)
 
 	-----------------------------------------------------------------------------------------------
 
@@ -527,17 +567,59 @@ function scene:createScene(event)
 
 	-----------------------------------------------------------------------------------------------
 
+	x = 130
+	y = display.viewableContentHeight-60
+
+	local upSheet = graphics.newImageSheet("images/thirdgame/1.png", { width=50, height=100, numFrames=3 } )
+	local up = display.newSprite( upSheet, { name="up", start=1, count=3, time=1000, loopCount=3} ) 	
+	up.x = x
+	up.y = y
+	x = x + 35
+
+	local downSheet = graphics.newImageSheet("images/thirdgame/2.png", { width=50, height=100, numFrames=3 } )
+	local down = display.newSprite( downSheet, { name="down", start=1, count=3, time=1000, loopCount=1} ) 	
+	down.x = x
+	down.y = y
+	x = x + 45
+
+	local rightSheet = graphics.newImageSheet("images/thirdgame/3.png", { width=90, height=100, numFrames=3 } )
+	local right = display.newSprite( rightSheet, { name="right", start=1, count=3, time=1000, loopCount=1} ) 	
+	right.x = x
+	right.y = y
+	x = x + 70
+
+	local leftSheet = graphics.newImageSheet("images/thirdgame/4.png", { width=90, height=100, numFrames=3 } )
+	local left = display.newSprite( leftSheet, { name="left", start=1, count=3, time=1000, loopCount=1} ) 	
+	left.x = x
+	left.y = y
+	x = x + 70
+
+	local shakeSheet = graphics.newImageSheet("images/thirdgame/5.png", { width=90, height=100, numFrames=3 } )
+	local shake = display.newSprite( shakeSheet, { name="shake", start=1, count=3, time=1000, loopCount=1} ) 	
+	shake.x = x
+	shake.y = y
+
+	--screenGroup:insert(glowSet)
+
+	-- instructionSet[i]:play()
 	for i = 1, #instructionOrder do
-		local instruction = display.newImage("images/thirdgame/white/" .. get_char(i, instructionOrder) .. ".png")
-		instructionSet:insert(i, instruction)
-		instruction.x = x
-		instruction.y = y
-		x = x + 65
-
+		if (instructionOrder:sub(i,i) == "1") then
+			up:play()
+			print("up")
+		elseif (instructionOrder:sub(i,i) == "2") then
+			down:play()
+			print("down")
+		elseif (instructionOrder:sub(i,i) == "3") then
+			right:play()
+			print("right")
+		elseif (instructionOrder:sub(i,i) == "4") then
+			left:play()
+			print("left")
+		else
+			shake:play()
+			print("shake")
+		end
 	end
-
-	screenGroup:insert(instructionSet)
-
 
 end
 
