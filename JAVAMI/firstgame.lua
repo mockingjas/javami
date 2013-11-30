@@ -6,6 +6,7 @@ local physics = require("physics")
 local lfs = require("lfs")
 local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
+local toast = require("toast");
 
 ------- Global variables ---------
 --for the blackboard
@@ -20,6 +21,7 @@ local pausegroup
 --for the gameover screen, 
 local gameovergroup, round, score
 local dialog, msgText, startTime
+local muteBtn, unmuteBtn
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -28,6 +30,8 @@ db = sqlite3.open( path )
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("incorrect.mp3")
 local correctSound = audio.loadSound("correct.mp3")
+local firstGameMusic = audio.loadSound("Fluffing a Duck.mp3")
+local game1MusicChannel
 
 ------- Load font ---------
 local font
@@ -234,6 +238,8 @@ local checkanswer = function(event)
 
   	if event.phase == "ended" then
 		if answer == word and count == blanks then
+			audio.pause(game1MusicChannel)
+			audio.play(correctSound)
 			boolFirst = false
 			print("Correct!")
 			updateDB(word) --set isCorrect to true
@@ -246,12 +252,12 @@ local checkanswer = function(event)
 					categ = category,
 					first = boolFirst,
 					time = currTime - timer:getElapsedSeconds(),
-					score = currScore
+					score = currScore,
+					music = game1MusicChannel
 				}
 			}
 			timerText:removeSelf()
 			timer = nil
-			audio.play(correctSound)
 			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
@@ -268,7 +274,19 @@ function home(event)
 		gameovergroup.isVisible = false
   		storyboard.removeScene("firstgame")
   		storyboard.removeScene("mainmenu")
-  		storyboard.gotoScene("mainmenu")
+
+  		audio.stop(game1MusicChannel)
+  		mainMusic = audio.loadSound("Happy Boy.mp3")
+		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
+
+		option =	{
+			effect = "fade",
+			time = 100,
+			params = {
+				music = backgroundMusicChannel
+			}
+		}
+		storyboard.gotoScene("mainmenu", option)
   		return true
   	end
 end
@@ -372,6 +390,27 @@ local function onFrame(event)
 	end 
 
 end
+
+---------------- UNMUTE GAME ---------------------------
+function unmuteGame(event)
+	audio.resume(game1MusicChannel)
+	unmuteBtn.isVisible = false
+	muteBtn.isVisible = true
+end
+
+---------------- MUTE GAME ---------------------------
+function muteGame(event)
+	audio.pause(game1MusicChannel)
+	muteBtn.isVisible = false
+	unmuteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
+    unmuteBtn.x = 380
+    unmuteBtn.y = 37
+	unmuteBtn:addEventListener("touch", unmuteGame)
+    unmuteBtn:addEventListener("tap", unmuteGame)
+    screenGroup:insert( unmuteBtn )
+
+end
+
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
@@ -435,7 +474,20 @@ function exit_onBtnRelease()
 	timer = nil
 	storyboard.removeScene("firstgame")
 	storyboard.removeScene("mainmenu")
-	storyboard.gotoScene("mainmenu")
+
+	audio.stop(game1MusicChannel)
+
+	mainMusic = audio.loadSound("Happy Boy.mp3")
+	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
+
+	option =	{
+		effect = "fade",
+		time = 100,
+		params = {
+			music = backgroundMusicChannel
+		}
+	}
+	storyboard.gotoScene("mainmenu", option)
 end
 
 ----------------- PAUSE DIALOG ------------------
@@ -479,29 +531,15 @@ function showpauseDialog()
 	pausegroup:insert(exitBtn)
 end
 
--- hint sound
-function errorMsg(startTime)
-	print(startTime)
-	physics.pause()
-	isPause = true
-	
-	dialog = display.newRoundedRect(240, 175, 180, 50, 12)
-	dialog:setFillColor( 96 )
-	dialog.alpha = 0.7
-	
-	msgText = display.newText("Device must be connected\nto the internet.", 260, 185, 320, 160, native.systemFont, 12, "center")
-end
-
 local function networkListener( event )
 	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
 
 	if speech == nil then
 		print("ERROR!")
+		toast.new("Device must be connected\nto the internet!", 3000)
+	else
+	   	audio.play( speech )
 	end
-
-   	audio.play( speech )
-
---   	errorMsg(timer:getElapsedSeconds())
 
 end
 
@@ -522,7 +560,11 @@ function scene:createScene(event)
 	-- Start timer
 	timer = stopwatch.new(currTime)
 	if (boolFirst) then
+		game1MusicChannel = audio.play( firstGameMusic, { loops=-1}  )
 		resetDB()
+	else
+		game1MusicChannel = event.params.music
+		audio.resume(game1MusicChannel)
 	end
 
 	screenGroup = self.view
@@ -552,7 +594,7 @@ function scene:createScene(event)
 	--picture of word
 	image = display.newImage( "images/firstgame/pictures/"..word..".png" )
 	if image == nil then
-		image = display.newImage( "images/firstgame/pictures/apple.png" )
+		image = display.newImage( "images/firstgame/pictures/blank.png" )
 	end
 
 	image.x = 310/2; image.y = 260/2;
@@ -576,6 +618,14 @@ function scene:createScene(event)
     pauseBtn:addEventListener("touch", pauseGame)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
+
+    --mute button
+	muteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
+    muteBtn.x = 380
+    muteBtn.y = 37
+    muteBtn:addEventListener("touch", muteGame)
+    muteBtn:addEventListener("tap", muteGame)
+    screenGroup:insert( muteBtn )
 	
 	-- letters
 	local x = -20

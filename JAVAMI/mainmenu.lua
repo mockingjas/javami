@@ -5,7 +5,7 @@ local scene = storyboard.newScene()
 
 -- Level Select Modal Variables --
 local levelgroup, easy, medium, hard
-local instance1, instance2, instance3, scores, howtoplay
+local instance1, instance2, instance3, scores, howtoplay, bgMusic
 
 ------ GAME 1 Level Select Modal -------
 local function button1 ( event )
@@ -47,18 +47,21 @@ local function button1 ( event )
 	}
 	function easy_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )
 		storyboard.gotoScene("firstgame", easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )
 		storyboard.gotoScene("firstgame", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )
 		storyboard.gotoScene("firstgame", hard)
 		return true
 	end
@@ -117,18 +120,21 @@ local function button2 ( event )
 
 	function easy_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )
 		storyboard.gotoScene("secondgame", easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )
 		storyboard.gotoScene("secondgame", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )		
 		storyboard.gotoScene("secondgame" , hard)
 		return true
 	end
@@ -187,18 +193,21 @@ local function button3 ( event )
 	
 	function easy_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )
 		storyboard.gotoScene("thirdgame" , easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )		
 		storyboard.gotoScene("thirdgame", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
 		levelgroup:removeSelf()
+		audio.stop( bgMusic )		
 		storyboard.gotoScene("thirdgame", hard)
 		return true
 	end
@@ -277,6 +286,8 @@ function scene:createScene(event)
 
 	local screenGroup = self.view
 
+	bgMusic = event.params.music
+
 	bg = display.newImageRect("images/menu/bg_back.png", 570, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
@@ -323,12 +334,20 @@ function scene:createScene(event)
 	howtoplay.y = (display.contentHeight/2) - 100;
 	screenGroup:insert(howtoplay)
 	
+	option =	{
+		effect = "fade",
+		time = 100,
+		params = {
+			music = bgMusic
+		}
+	}
+
 	scores = widget.newButton{
 		id = "scores",
 		defaultFile = "images/menu/scores.png",
 		overFile = "images/menu/scores.png",
 		emboss = true,
-		onEvent = function() storyboard.gotoScene( "scoreboard", "fade", 400 ); end,
+		onEvent = function() storyboard.gotoScene( "scoreboard", option); end,
 	}
 	scores.x = (display.contentWidth/2) + 160;
 	scores.y = (display.contentHeight/2) - 65;

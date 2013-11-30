@@ -2,7 +2,7 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore
+local text, category, boolFirst, gameTimer, currScore, game1music
 
 
 function scene:createScene(event)
@@ -13,6 +13,7 @@ function scene:createScene(event)
 	gameTimer = event.params.time
 	category = event.params.categ
 	currScore = event.params.score
+	game1music = event.params.music
 
 end
 
@@ -25,7 +26,8 @@ function scene:enterScene(event)
 			categ = category,
 			first = boolFirst,
 			time = gameTimer,
-			score = currScore
+			score = currScore,
+			music = game1music
 		}
 	}
 

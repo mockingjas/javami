@@ -44,7 +44,7 @@ function home(event)
 end
 
 function new( imageSet, slideBackground, top, bottom )	
-	local pad = 20
+	local pad = 25
 	local top = top or 0 
 	local bottom = bottom or 0
 

@@ -3,14 +3,24 @@ local storyboard = require ("storyboard")
 local widget = require( "widget" )
 
 local scene = storyboard.newScene()
+local bgMusic = audio.loadSound("Happy Boy.mp3")
+local backgroundMusicChannel
 
 local startGame = function( event )
-	storyboard.gotoScene("mainmenu", "fade", 400)
+	option =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			music = backgroundMusicChannel
+		}
+	}
+	storyboard.gotoScene("mainmenu", option)
 end
 
 function scene:createScene(event)
 
 	local screenGroup = self.view
+	backgroundMusicChannel = audio.play( bgMusic, { loops=-1}  )
 
 	bg = display.newImageRect("images/menu/bg_back.png", 570, 320)
 	bg.x = display.contentWidth/2;

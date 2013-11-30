@@ -9,7 +9,17 @@ end
 
 function scene:enterScene(event)
 	storyboard.removeScene("scoreboard")
-	storyboard.gotoScene("mainmenu", "fade", 400)
+
+	mainMusic = audio.loadSound("Happy Boy.mp3")
+	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
+	option =	{
+		effect = "fade",
+		time = 400,
+		params = {
+			music = backgroundMusicChannel
+		}
+	}
+	storyboard.gotoScene("mainmenu", option)
 end
 
 function scene:exitScene(event)

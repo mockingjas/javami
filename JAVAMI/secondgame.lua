@@ -46,7 +46,18 @@ function home(event)
 		gameovergroup.isVisible = false
   		storyboard.removeScene("secondgame")
   		storyboard.removeScene("mainmenu")
-  		storyboard.gotoScene("mainmenu")
+
+  		mainMusic = audio.loadSound("Happy Boy.mp3")
+		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
+
+		option =	{
+			effect = "fade",
+			time = 100,
+			params = {
+				music = backgroundMusicChannel
+			}
+		}
+		storyboard.gotoScene("mainmenu", option)
   		return true
   	end
 end
@@ -207,7 +218,18 @@ function exit_onBtnRelease()
 	timer = nil
 	storyboard.removeScene("secondgame")
 	storyboard.removeScene("mainmenu")
-	storyboard.gotoScene("mainmenu")
+
+	mainMusic = audio.loadSound("Happy Boy.mp3")
+	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
+
+	option =	{
+		effect = "fade",
+		time = 100,
+		params = {
+			music = backgroundMusicChannel
+		}
+	}
+	storyboard.gotoScene("mainmenu", option)	
 end
 
 ----------------- PAUSE DIALOG ------------------

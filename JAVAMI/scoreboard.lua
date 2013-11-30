@@ -7,6 +7,7 @@ display.setDefault( "background", 255, 255, 255 )
 local homeBtn, tabGroup, scrollView, scores
 
 local db = sqlite3.open("javami_DB.sqlite3")
+local bgMusic
 
 --[[local game1scores = function(event)
 	i = 70
@@ -47,6 +48,7 @@ function home(event)
 	scrollView.isVisible = false
 	storyboard.removeScene("mainmenu")
 	storyboard.removeScene("reloadscores")
+	audio.stop(bgMusic)
 	storyboard.gotoScene("reloadscores")
 	return true
 end
@@ -77,6 +79,8 @@ function displayGame3()
 end
 
 function scene:createScene( event )
+
+	bgMusic = event.params.music
 
 	--Scrollbar
 	display.setStatusBar( display.HiddenStatusBar ) 
