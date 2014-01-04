@@ -11,7 +11,7 @@ local scene = storyboard.newScene()
 --for the game
 local numberOfCategories, selectedCategories
 local images, labels, answers
-local gameBoard, boxGroup, boxes
+local gameBoard, boxGroup, boxes, checks
 --for the timer and reloading
 local timer, timerText
 --for reloading params
@@ -492,18 +492,33 @@ function imageDrag (event)
 	local imagePosX = {}
 	local imagePosY = {}
 	isMoved = false
---	target = event.target
+	local t = event.target
 
 	if event.phase == "moved" or event.phase == "ended" then
+
+		---------- BOUNDARIES ----------
+		if t.x > display.viewableContentWidth then
+			t.x = display.viewableContentWidth
+		elseif t.x < 0 then
+			t.x = 0
+		end
+
+		if t.y > display.viewableContentHeight - 30 then
+			t.y = display.viewableContentHeight - 30
+		elseif t.y < 30 then
+			t.y = 30
+		end	
+		---------- BOUNDARIES ----------
+
 		for i = 1, numberOfCategories do
-			imagePosX[i] = math.abs(event.target.x - boxes[i].x)
-			imagePosY[i] = math.abs(event.target.y - boxes[i].y)
+			imagePosX[i] = math.abs(t.x - boxes[i].x)
+			imagePosY[i] = math.abs(t.y - boxes[i].y)
 		end
 		-- Snap to middle
 		for i = 1, numberOfCategories do
 			if (imagePosX[i] <= 50) and (imagePosY[i] <= 50) then
-				event.target.x = boxes[i].x;
-				event.target.y = boxes[i].y;
+				t.x = boxes[i].x;
+				t.y = boxes[i].y;
 				isMoved = true
 			end
 		end
@@ -512,7 +527,7 @@ function imageDrag (event)
 	if event.phase == "ended" then
 		-- Check answer
 		if isMoved == true then
-			checkanswer(event.target)
+			checkanswer(t)
 		end
 	end
 
@@ -583,20 +598,17 @@ function scene:createScene(event)
 	if category == 'easy' then
 		correctCtr = 10
 		numberOfCategories = 2
-		bgImage = "images/secondgame/game2bg.png"
 	elseif category == 'medium' then
 		correctCtr = 15
 		numberOfCategories = 3
-		bgImage = "images/secondgame/game2bg.png"
 	else
 		correctCtr = 20
 		numberOfCategories = 4
-		bgImage = "images/secondgame/game2bg.png"
 	end
 
 	--bg
 	width = 550; height = 320;
-	bg = display.newImageRect(bgImage, width, height)
+	bg = display.newImageRect("images/secondgame/game2bg.png", width, height)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
@@ -626,15 +638,26 @@ function scene:createScene(event)
 	boxes = {}
 	boxLabels = {}
 
+	--checks
+	checks = {}
+	
+
 	selectedCategories = randomizeCategory(categories)
 	for i = 1, numberOfCategories do
 		boxes[i] = display.newImageRect("images/secondgame/"..categories[selectedCategories[i]].. ".png", 150, 100)
 		boxGroup:insert(boxes[i])
+		checks[i] = display.newImageRect("images/secondgame/full.png", 50, 50)
+		boxGroup:insert(checks[i])
+		checks[i].isVisible = false
 	end
 
 	if category == 'easy' then
 		boxes[1].x = width/4; boxes[1].y = 290
-		boxes[2].x = width/4 + (4*boxSize); boxes[2].y = 290		
+		boxes[2].x = width/4 + (4*boxSize); boxes[2].y = 290
+		
+		checks[1].x = width/4 - 35; checks[1].y = 255
+		checks[2].x = width/4 + (4*boxSize) - 35; checks[2].y = 255
+
 		numberOfCorrectAnswers = 14
 		numberOfIncorrectAnswers = 10
 		gridX = width/7
@@ -642,6 +665,11 @@ function scene:createScene(event)
 		boxes[1].x = width/3 - (2*boxSize) + 20; boxes[1].y = 290
 		boxes[2].x = width/3 + boxSize + 10; boxes[2].y = 290
 		boxes[3].x = width/3 + (3*boxSize) + 40; boxes[3].y = 290
+
+		checks[1].x = width/3 - (2*boxSize) - 15; checks[1].y = 255
+		checks[2].x = width/3 + boxSize - 25 ; checks[2].y = 255
+		checks[3].x = width/3 + (3*boxSize) + 5; checks[3].y = 255
+
 		numberOfCorrectAnswers = 17
 		numberOfIncorrectAnswers = 15
 		gridX = width/22
@@ -650,6 +678,12 @@ function scene:createScene(event)
 		boxes[2].x = width/4 + boxSize - 15; boxes[2].y = 290
 		boxes[3].x = width/4 + (3*boxSize) + 10; boxes[3].y = 290
 		boxes[4].x = width/4 + (5*boxSize) + 30; boxes[4].y = 290
+
+		checks[1].x = width/4 - (2*boxSize) - 25; checks[1].y = 255
+		checks[2].x = width/4 + boxSize - 50; checks[2].y = 255
+		checks[3].x = width/4 + (3*boxSize) - 25; checks[3].y = 255
+		checks[4].x = width/4 + (5*boxSize) - 5; checks[4].y = 255
+
 		numberOfCorrectAnswers = 24
 		numberOfIncorrectAnswers = 16
 		gridX = -30

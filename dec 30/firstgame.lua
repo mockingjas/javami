@@ -198,14 +198,29 @@ local function objectDrag (event)
 	local distX, distY
 	local t = event.target
 	if event.phase == "moved" or event.phase == "ended" then
+
+		---------- BOUNDARIES ----------
+		if t.x > display.viewableContentWidth then
+			t.x = display.viewableContentWidth
+		elseif t.x < 0 then
+			t.x = 0
+		end
+
+		if t.y > display.viewableContentHeight - 30 then
+			t.y = display.viewableContentHeight - 30
+		elseif t.y < 30 then
+			t.y = 30
+		end	
+		---------- BOUNDARIES ----------
+		
 		for i = 1, wordToGuess:len() do
 			if ( get_char(i, wordToGuess) == "_" ) then
 				local s = "_" .. get_char(i, word)
-				distX = math.abs(event.target.x - wordGroup[s].x);
-				distY = math.abs(event.target.y - wordGroup[s].y);
+				distX = math.abs(t.x - wordGroup[s].x);
+				distY = math.abs(t.y - wordGroup[s].y);
 				if (distX <= 10) and (distY <= 10) then
-					event.target.x = wordGroup[s].x;
-					event.target.y = wordGroup[s].y;
+					t.x = wordGroup[s].x;
+					t.y = wordGroup[s].y;
 				end
 			end
 		end
@@ -378,6 +393,8 @@ function gameoverdialog()
 	submit.isVisible = false
 	pauseBtn.isVisible = false
 	hintBtn.isVisible = false
+	unmuteBtn.isVisible = false
+	muteBtn.isVisible = false
 
 	local sheet1 = graphics.newImageSheet( "images/trygameover.png", { width=414, height=74, numFrames=24 } )
 	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
@@ -425,13 +442,7 @@ end
 function muteGame(event)
 	audio.pause(game1MusicChannel)
 	muteBtn.isVisible = false
-	unmuteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
-    unmuteBtn.x = 380
-    unmuteBtn.y = 37
-	unmuteBtn:addEventListener("touch", unmuteGame)
-    unmuteBtn:addEventListener("tap", unmuteGame)
-    screenGroup:insert( unmuteBtn )
-
+	unmuteBtn.isVisible = true
 end
 
 ---------------- PAUSE GAME ---------------------------
@@ -646,7 +657,14 @@ function scene:createScene(event)
     screenGroup:insert( pauseBtn )
 
     --mute button
-	muteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
+    unmuteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
+    unmuteBtn.x = 380
+    unmuteBtn.y = 37
+	unmuteBtn:addEventListener("touch", unmuteGame)
+    unmuteBtn:addEventListener("tap", unmuteGame)
+    screenGroup:insert( unmuteBtn )
+
+	muteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
     muteBtn.x = 380
     muteBtn.y = 37
     muteBtn:addEventListener("touch", muteGame)
