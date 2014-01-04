@@ -2,23 +2,23 @@ require "physics"
 local storyboard = require ("storyboard")
 local widget= require ("widget")
 local scene = storyboard.newScene()
-
-display.setDefault( "background", 255, 255, 255 )
-local homeBtn, tabGroup, scrollView, scores
-
-local db = sqlite3.open("javami_DB.sqlite3")
+--DB
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
+db = sqlite3.open( path )
+--Game
 local bgMusic
-
---[[local game1scores = function(event)
-	i = 70
-	for row in db:nrows("SELECT * FROM FirstGame") do
-		scores = display.newText(row.category.." "..row.score, 0, 0, native.systemFont, 20)
-		scores.x = 380; scores.y = i
-		scores:setTextColor(0,0,0)
-		screenGroup:insert(scores)
-		i = i + 20
-	end
-end]]
+local game1flag = false
+local homeBtn, tabGroup, scrollView, scores
+-- Font
+local font
+if "Win" == system.getInfo( "platformName" ) then
+    font = "Bebas"
+elseif "Android" == system.getInfo( "platformName" ) then
+    font = "Bebas"
+else
+    -- Mac and iOS
+    font = "Bebas"
+end
 
 --------------  FUNCTION FOR SCROLLVIEW --------------------
 local function scrollListener( event )
@@ -54,28 +54,55 @@ function home(event)
 end
 
 --------------  FUNCTIONS FOR DISPLAYING SCORES --------------------
+function displayByCategory(category)
+	
+	local count = 0
+	local text = nil
+	y = y + 20
 
-function displayScores(text)
-	if scores ~= nil then
-		scores:removeSelf()
+	for row in db:nrows("SELECT * FROM FirstGame where category = '"..category.."'") do
+		count = row.count
 	end
-	scores = display.newText(text, 0, 0, font, 15)
-	scores.x = display.contentCenterX 
-	scores.y = display.contentCenterY - 130
-	scores:setTextColor(0,0,0)
-	scrollView:insert(scores)
+
+	if count ~= 0 then
+		text = display.newText(string.upper(category), 0, 0, font, 20)
+		text.x = x
+		text.y = y
+		scrollView:insert(text)
+		game1flag = true
+	end
+
+	for row in db:nrows("SELECT * FROM FirstGame where category = '"..category.."' order by CAST(score AS integer) desc") do
+		scores = display.newText(row.name.. " : " .. row.score, 0, 0, font, 20)
+		scores.x = x
+		scores.y = y + 20
+		scores:setTextColor(0,0,0)
+		scrollView:insert(scores)
+		y = y + 20
+		game1flag = true
+	end
+
 end
 
 function displayGame1()
-	displayScores("Scores1")
+
+	x = display.contentCenterX 
+	y = 10
+
+	if game1flag == false then
+		displayByCategory("easy")
+		displayByCategory("medium")
+		displayByCategory("hard")
+	end
+
 end
 
 function displayGame2()
-	displayScores("Scores2")
+
 end
 
 function displayGame3()
-	displayScores("Scores3")
+
 end
 
 function scene:createScene( event )
@@ -84,6 +111,7 @@ function scene:createScene( event )
 
 	--Scrollbar
 	display.setStatusBar( display.HiddenStatusBar ) 
+	display.setDefault( "background", 176, 224, 230)
 
 	-- Create a ScrollView
 	scrollView = widget.newScrollView
@@ -100,24 +128,6 @@ function scene:createScene( event )
 		listener = scrollListener,
 	}
 
-	--Create a text object for the scrollViews title
-	local titleText = display.newText("Move Up to Scroll", 0, 0, native.systemFontBold, 16)
-	titleText:setTextColor(0, 0, 0)
-	titleText.x = display.contentCenterX
-	titleText.y = 48
-	scrollView:insert( titleText )
-
-	--Create a large text string
-	local lotsOfText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur imperdiet consectetur euismod. Phasellus non ipsum vel eros vestibulum consequat. Integer convallis quam id urna tristique eu viverra risus eleifend.\n\nAenean suscipit placerat venenatis. Pellentesque faucibus venenatis eleifend. Nam lorem felis, rhoncus vel rutrum quis, tincidunt in sapien. Proin eu elit tortor. Nam ut mauris pellentesque justo vulputate convallis eu vitae metus. Praesent mauris eros, hendrerit ac convallis vel, cursus quis sem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque fermentum, dui in vehicula dapibus, lorem nisi placerat turpis, quis gravida elit lectus eget nibh. Mauris molestie auctor facilisis.\n\nCurabitur lorem mi, molestie eget tincidunt quis, blandit a libero. Cras a lorem sed purus gravida rhoncus. Cras vel risus dolor, at accumsan nisi. Morbi sit amet sem purus, ut tempor mauris.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur imperdiet consectetur euismod. Phasellus non ipsum vel eros vestibulum consequat. Integer convallis quam id urna tristique eu viverra risus eleifend.\n\nAenean suscipit placerat venenatis. Pellentesque faucibus venenatis eleifend. Nam lorem felis, rhoncus vel rutrum quis, tincidunt in sapien. Proin eu elit tortor. Nam ut mauris pellentesque justo vulputate convallis eu vitae metus. Praesent mauris eros, hendrerit ac convallis vel, cursus quis sem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque fermentum, dui in vehicula dapibus, lorem nisi placerat turpis, quis gravida elit lectus eget nibh. Mauris molestie auctor facilisis.\n\nCurabitur lorem mi, molestie eget tincidunt quis, blandit a libero. Cras a lorem sed purus gravida rhoncus. Cras vel risus dolor, at accumsan nisi. Morbi sit amet sem purus, ut tempor mauris. "
-
-	--Create a text object containing the large text string and insert it into the scrollView
-	local lotsOfTextObject = display.newText( lotsOfText, 0, 0, 300, 0, "Helvetica", 14)
-	lotsOfTextObject:setTextColor( 0 ) 
-	lotsOfTextObject:setReferencePoint( display.TopCenterReferencePoint )
-	lotsOfTextObject.x = display.contentCenterX
-	lotsOfTextObject.y = titleText.y + titleText.contentHeight + 10
-	scrollView:insert( lotsOfTextObject )	
-
 	-- back to home
 	homeBtn = display.newImage( "images/firstgame/home_button.png")
 	homeBtn.x = display.contentWidth
@@ -125,6 +135,7 @@ function scene:createScene( event )
 	homeBtn:addEventListener("touch", home)
 
 	tabGroup = display.newGroup()
+	scoresGroup = display.newGroup()
 
 	local tabButtons = 
 	{
@@ -141,14 +152,14 @@ function scene:createScene( event )
 			defaultFile = "assets/tabIcon.png",
 			overFile = "assets/tabIcon-down.png",
 			label = "Game 2",
-			onPress = displayGame2,
+--			onPress = displayGame2,
 		},
 		{
 			width = 32, height = 32,
 			defaultFile = "assets/tabIcon.png",
 			overFile = "assets/tabIcon-down.png",
 			label = "Game 3",
-			onPress = displayGame3,
+--			onPress = displayGame3,
 		}
 	}
 	--tabGroup:insert(tabButtons)
@@ -192,5 +203,3 @@ scene:addEventListener("exitScene", scene)
 scene:addEventListener("destroyScene", scene)
 
 return scene
-
-

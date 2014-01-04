@@ -8,6 +8,7 @@ local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
 local toast = require("toast");
 local toast2 = require("toast2");
+local profileName
 
 ------- Global variables ---------
 --for the blackboard
@@ -71,10 +72,11 @@ function updateDB(word)
 end
 
 --DB: insert to first game
-function insertToDB(category, score)
+function insertToDB(category, score, name)
 	local insertQuery = [[INSERT INTO FirstGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
-	score .. [['); ]]
+	score .. [[',']] ..
+	name .. [[');]]
 	db:exec(insertQuery)
 end
 
@@ -412,7 +414,7 @@ end
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
 
-	insertToDB(category, currScore)
+	insertToDB(category, currScore, profileName)
 	timerText:removeSelf()
 	timer = nil
 
@@ -663,6 +665,7 @@ function scene:createScene(event)
 	category = event.params.categ
 	currScore = event.params.score
 	currTime = event.params.time
+	profileName = "Cha" --temp
 
 	-- analytics
 	item = {}
