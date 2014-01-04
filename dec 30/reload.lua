@@ -2,18 +2,24 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore, game1music
+local text, category, boolFirst, gameTimer, currScore, game1music, itemSpeed, pauseCtr, totalHint, totalTries, item
 
 
 function scene:createScene(event)
 	
 	local screenGroup = self.view
 	print("RELOADING....")
+
 	boolFirst = event.params.first
 	gameTimer = event.params.time
 	category = event.params.categ
 	currScore = event.params.score
 	game1music = event.params.music
+	itemSpeed = event.params.speed
+	pauseCtr = event.params.pause
+	item = event.params.itemWord
+	totalTries = event.params.tries
+	totalHint = event.params.hint
 
 end
 
@@ -27,7 +33,12 @@ function scene:enterScene(event)
 			first = boolFirst,
 			time = gameTimer,
 			score = currScore,
-			music = game1music
+			music = game1music,
+			speed = itemSpeed,
+			pause = pauseCtr,
+			itemWord = item,
+			tries = totalTries,
+			hint = totalHint
 		}
 	}
 

@@ -7,6 +7,7 @@ local lfs = require("lfs")
 local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
 local toast = require("toast");
+local toast2 = require("toast2");
 
 ------- Global variables ---------
 --for the blackboard
@@ -21,7 +22,15 @@ local pausegroup
 --for the gameover screen, 
 local gameovergroup, round, score
 local dialog, msgText, startTime
-local muteBtn, unmuteBtn
+local muteBtn, unmuteBtn, clearBtn
+local origx, origy
+
+-------- Analytics------------
+-- *per item
+local item, itemSpeed, itemHint, itemTries
+
+-- *per game
+local pauseCtr
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -47,7 +56,6 @@ end
 --------- FUNCTIONS FOR DATABASE ------------
 --DB: fetch
 function fetchByCategory(categ)
-	print("SELECT * FROM Words where category =" ..categ)
 	local words = {}
 	for row in db:nrows("SELECT * FROM Words where firstGameCategory ='"..categ.."'") do
 		local rowData = row.id .. " " .. row.name.." "..row.firstGameCategory.." "..row.isCorrect.."\n"
@@ -118,11 +126,9 @@ end
 
 ------- GET WORD FROM DB ---------
 function getwordfromDB()
-	print("PASSED VARIABLE:"..category)
+--	print("PASSED VARIABLE:"..category)
 	local words = fetchByCategory(category)
-	for i=1,#words do
-		print("DB:"..words[i]) 
-	end
+--	for i=1,#words do print("DB:"..words[i]) end
 
 	--randomize a word from DB that hasn't been correctly answered yet
 	local i = 1 
@@ -147,6 +153,8 @@ function getwordfromDB()
 	end
 
 	print(wordToGuess)
+	--analytics
+	item[currScore+1] = word
 	
 end
 
@@ -154,7 +162,7 @@ end
 function setword()
 
 	getwordfromDB()
-	print("String length: " .. word:len())
+--	print("String length: " .. word:len())
 	local blanks = math.floor(word:len()/2)
 
 	letterbox = ""
@@ -168,7 +176,7 @@ function setword()
 		wordToGuess = replace_char(rand, wordToGuess, "_")
 	end
 
-	print("Word to guess: " .. wordToGuess)
+--	print("Word to guess: " .. wordToGuess)
 	-- ---------------------
 
 	-- GET LETTERBOX -------
@@ -189,7 +197,7 @@ function setword()
 	end  
 	-- ---------------------
 
-	print("Letterbox: " .. letterbox)
+--	print("Letterbox: " .. letterbox)
 	-- ---------------------
 end
 
@@ -252,6 +260,9 @@ local checkanswer = function(event)
 	end
 
   	if event.phase == "ended" then
+  	  	--analytics
+	  	itemTries[currScore+1] = itemTries[currScore+1] + 1
+
 		if answer == word and count == blanks then
 			audio.pause(game1MusicChannel)
 			audio.play(correctSound)
@@ -259,8 +270,18 @@ local checkanswer = function(event)
 			print("Correct!")
 			updateDB(word) --set isCorrect to true
 			currScore = currScore + 1
-			print("New score: "..currScore)
-			print(timer:getElapsedSeconds())
+--			print("New score: "..currScore)
+--			print(timer:getElapsedSeconds())
+
+			-- ANALYTICS PER ITEM
+			print("\n\n***ANALYTICS PER ITEM*** ")
+			itemSpeed[currScore] = timer:getElapsedSeconds()
+			print("WORD: "..item[currScore])
+			print("speed: " .. itemSpeed[currScore])
+			print("hint: " .. itemHint[currScore])
+			print("tries: " .. itemTries[currScore])
+			print("\n\n")
+
 			option = {
 				time = 400,
 				params = {
@@ -268,9 +289,16 @@ local checkanswer = function(event)
 					first = boolFirst,
 					time = currTime - timer:getElapsedSeconds(),
 					score = currScore,
-					music = game1MusicChannel
+					music = game1MusicChannel,
+					--analytics
+					speed = itemSpeed,
+					pause = pauseCtr,
+					itemWord = item,
+					tries = itemTries,
+					hint = itemHint,
 				}
 			}
+
 			timerText:removeSelf()
 			timer = nil
 			storyboard.removeScene("reload")
@@ -278,6 +306,8 @@ local checkanswer = function(event)
 		else
 			print("wrong!")
 			--To play the sound effect, call this whenever you want to play it
+			-- new: wrong toast
+			toast2.new("", 500)
 			audio.play(incorrectSound)
 		end
 	end
@@ -331,7 +361,7 @@ end
 
 --------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
 local function spriteListener( event )
-    print(event.phase)
+--    print(event.phase)
     if (event.phase == "ended") then
 
     	score.isVisible = false
@@ -395,6 +425,7 @@ function gameoverdialog()
 	hintBtn.isVisible = false
 	unmuteBtn.isVisible = false
 	muteBtn.isVisible = false
+	clearBtn.isVisible = false
 
 	local sheet1 = graphics.newImageSheet( "images/trygameover.png", { width=414, height=74, numFrames=24 } )
 	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
@@ -411,6 +442,20 @@ function gameoverdialog()
 	score= display.newText("SCORE: "..currScore, 0, 0, font, 20)
 	score.x = display.contentCenterX
 	score.y = display.contentCenterY + 45
+
+	--- GAME ANALYTICS ---
+	print("\n**GAME ANALYTICS** ")
+
+	for i = 1, #item do
+		print("\n("..i..") "..item[i])
+		print("speed: ".. itemSpeed[i])
+		print("# of hints: ".. itemHint[i])
+		print("# of tries: ".. itemTries[i])
+	end
+
+	print("\nFINAL SCORE: " .. currScore)
+	print("TOTAL # of pauses: " .. pauseCtr)
+
 
 end
 
@@ -429,6 +474,25 @@ local function onFrame(event)
 		end
 	end 
 
+end
+
+---------------- new: CLEAR ---------------------------
+function clear(event)
+	local newx = origx
+	local newy = origy
+
+	for i = 1, #letterbox do
+		if (newx - 330 < 120) then
+			newx = newx + 45
+		else
+			newy = newy + 50
+			newx = 320
+		end
+		letterboxGroup[i].x = newx 
+		letterboxGroup[i].y = newy
+		MultiTouch.activate(chalkLetter, "move", "single")
+		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
+	end
 end
 
 ---------------- UNMUTE GAME ---------------------------
@@ -483,7 +547,13 @@ function restart_onBtnRelease()
 			categ = category,
 			first = true,
 			time = currTime,
-			score = 0
+			score = 0,
+			--analytics
+			speed = itemSpeed,
+			pause = pauseCtr,
+			itemWord = item,
+			tries = itemTries,
+			hint = itemHint,
 		}
 	}
 	audio.stop(game1MusicChannel)
@@ -594,14 +664,35 @@ function scene:createScene(event)
 	currScore = event.params.score
 	currTime = event.params.time
 
+	-- analytics
+	item = {}
+	itemTries = {0}
+	itemHint = {0}
+	itemSpeed = {}
+
 	-- Start timer
 	timer = stopwatch.new(currTime)
 	if (boolFirst) then
 		game1MusicChannel = audio.play( firstGameMusic, { loops=-1}  )
 		resetDB()
+		-- analytics
+		itemSpeed[1] = 0
+		item[1] = ""
+		itemTries[1] = 0
+		itemHint[1] = 0
+		pauseCtr = 0
 	else
 		game1MusicChannel = event.params.music
 		audio.resume(game1MusicChannel)
+		itemSpeed = event.params.speed
+		pauseCtr = event.params.pause
+		item = event.params.itemWord
+		itemTries = event.params.tries
+		itemHint = event.params.hint
+		item[currScore+1] = ""
+		itemTries[currScore+1] = 0
+		itemHint[currScore+1] = 0
+		itemSpeed[currScore+1] = 0
 	end
 
 	screenGroup = self.view
@@ -698,11 +789,21 @@ function scene:createScene(event)
 		chalkLetter.x = x 
 		chalkLetter.y = y
 	end
+
+	--new: clear button
+	clearBtn = display.newImageRect( "images/firstgame/clear.png", 50, 50)
+    clearBtn.x = x + 50
+    clearBtn.y = y
+    clearBtn:addEventListener("touch", clear)
+    clearBtn:addEventListener("tap", clear)
+    screenGroup:insert( clearBtn )
 	
 	--letters to fill up with
 	x = 270
 	y = 90
 	letterboxGroup = display.newGroup()
+	origx = x
+	origy = y
 
 
 	for i = 1, #letterbox do
