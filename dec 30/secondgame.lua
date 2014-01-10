@@ -41,6 +41,12 @@ else
     font = "Eraser-Regular"
 end
 
+-------- Analytics------------
+-- *per item
+local item, itemSpeed, itemCheck, itemCtr
+-- *per game
+local pauseCtr
+
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
 function home(event)
 	if(event.phase == "ended") then
@@ -65,7 +71,7 @@ end
 
 --------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
 local function spriteListener( event )
-    print(event.phase)
+--    print(event.phase)
     if (event.phase == "ended") then
 
     	score.isVisible = false
@@ -218,7 +224,10 @@ function restart_onBtnRelease()
 			categ = category,
 			first = true,
 			time = currTime,
-			score = 0
+			score = 0,
+			ctr = itemCtr,
+			check = itemCheck,
+			speed = itemSpeed
 		}
 	}
 	audio.stop(game2MusicChannel)
@@ -391,10 +400,10 @@ local function getWords(type, limit)
 
 	-- Shuffle and select n words
 	wordsCopy = shuffle(words)
-	print("SHUFFLED "..type.." ANSWERS:")
+--	print("SHUFFLED "..type.." ANSWERS:")
 	for i = 1, limit do
 		words[i] = wordsCopy[i]
-		print(words[i])
+--		print(words[i])
 	end
 
 	return words
@@ -434,7 +443,10 @@ function generateNew()
 			categ = category,
 			first = boolFirst,
 			time = currTime - timer:getElapsedSeconds(),
-			score = currScore
+			score = currScore,
+			ctr = itemCtr,
+			check = itemCheck,
+			speed = itemSpeed
 		}
 	}
 	gameBoard:removeSelf()
@@ -450,22 +462,16 @@ function checkanswer(target)
 	for i = 1, numberOfCategories do
 		if target.x == boxes[i].x then
 			boxNumber = i
-			print("box# "..boxNumber)
+--			print("box# "..boxNumber)
 			break
 		end
 	end
 
-	for i = 1, #images do
-		if target == images[i] then
-			wordToCheck = labels[i]
-			print(wordToCheck)
-			break
-		end
-	end
-
+--	print(target.label)
 	isCorrect = false
 	for j = 1, 127 do
-		if answers[boxNumber][j] == wordToCheck then
+		if answers[boxNumber][j] == target.label then
+			itemCheck[itemCtr] = 1
 			currScore = currScore + 1
 			scoreToDisplay.text = "Score: "..currScore
 			isCorrect = true
@@ -475,16 +481,28 @@ function checkanswer(target)
 			break
 		end
 	end
-	if correctCtr == 0 then
-		generateNew()
-	end
+
 	if isCorrect == false then
-		print("WRONG!")
+--		print("WRONG!")
+		itemCheck[itemCtr] = 0
 		audio.play(incorrectSound)
 		-- snap to original position
 		target.x = target.initialX
 		target.y = target.initialY
 	end	
+
+	-- ANALYTICS PER ITEM
+--[[	print("\nITEM #"..itemCtr)
+	print("WORD: "..item[itemCtr])
+	print("CHECKER: "..itemCheck[itemCtr])
+	itemSpeed[itemCtr] = timer:getElapsedSeconds()
+	print("Speed: "..itemSpeed[itemCtr] - itemSpeed[itemCtr-1])
+	itemCtr = itemCtr + 1 ]]
+
+	if correctCtr == 0 then
+		generateNew()
+	end
+
 end
 
 -- FUNCTION FOR DRAGGING IMAGES
@@ -495,7 +513,7 @@ function imageDrag (event)
 	local t = event.target
 
 	if event.phase == "moved" or event.phase == "ended" then
-
+--	print(t.label)
 		---------- BOUNDARIES ----------
 		if t.x > display.viewableContentWidth then
 			t.x = display.viewableContentWidth
@@ -526,6 +544,8 @@ function imageDrag (event)
 
 	if event.phase == "ended" then
 		-- Check answer
+		item[itemCtr] = t.label
+
 		if isMoved == true then
 			checkanswer(t)
 		end
@@ -550,6 +570,7 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		images[i].y = currentY + 20
 		images[i].initialX = images[i].x
 		images[i].initialY = images[i].y
+		images[i].label = photoTextArray[i]
 		gameBoard:insert(images[i])
 
 		local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2
@@ -579,10 +600,34 @@ function scene:createScene(event)
 	currScore = event.params.score
 	currTime = event.params.time
 
+	-- analytics
+	item = {}
+	itemCheck = {0}
+	itemSpeed = {}
+
 	-- Start timer
 	timer = stopwatch.new(currTime)
 	screenGroup = self.view
 
+	if (boolFirst) then
+		itemCtr = 1
+		itemCheck[1] = 0
+		itemSpeed[0] = 0
+--[[		item[1] = ""
+		itemTries[1] = 0
+		pauseCtr = 0 ]]
+	else
+		itemCtr = event.params.ctr
+		itemCheck[itemCtr] = event.params.check
+		itemSpeed = event.params.speed
+--			itemSpeed[itemCtr+1] = 0
+--[[		pauseCtr = event.params.pause
+		item = event.params.itemWord
+		itemTries = event.params.tries
+		item[itemCtr+1] = ""
+		itemTries[itemCtr+1] = 0
+		itemSpeed[itemCtr+1] = 0 ]]
+	end
 
 	game2MusicChannel = audio.play( secondGameMusic, { loops=-1}  )
 

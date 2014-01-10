@@ -805,8 +805,8 @@ function scene:createScene(event)
 	x = 270
 	y = 90
 	letterboxGroup = display.newGroup()
-	origx = x
-	origy = y
+	origx = 
+	origy = yx
 
 
 	for i = 1, #letterbox do
