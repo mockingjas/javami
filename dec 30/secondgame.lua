@@ -24,6 +24,8 @@ local gameovergroup, round, score, x, y, i
 --for sounds
 local muted 
 local muteBtn, unmuteBtn
+local profileName
+local boolNew = false
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -145,6 +147,12 @@ end
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
 
+	--SCORING
+	local date = os.date( "*t" )
+	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
+	insertToDB(category, currScore, profileName, timeStamp)
+	--
+
 	timerText:removeSelf()
 	maintimer = nil
 
@@ -256,7 +264,8 @@ function restart_onBtnRelease()
 			score = 0,
 			ctr = itemCtr,
 			check = itemCheck,
-			speed = itemSpeed
+			speed = itemSpeed,
+			new = boolNew
 		}
 	}
 	audio.stop(game2MusicChannel)
@@ -338,6 +347,16 @@ function showpauseDialog()
 	exitBtn.x = bg.x + 5
 	exitBtn.y = 220
 	pausegroup:insert(exitBtn)
+end
+
+--- SCORING
+function insertToDB(category, score, name, timestamp)
+	local insertQuery = [[INSERT INTO SecondGame VALUES (NULL, ']] .. 
+	category .. [[',']] ..
+	score .. [[',']] ..
+	name .. [[',']] ..
+	timestamp .. [[');]]
+	db:exec(insertQuery)
 end
 
 ----------------------- GET WORDS FROM DB -----------------------------
@@ -466,6 +485,7 @@ end
 
 -- FUNCTION FOR RELOADING GAME
 function generateNew()
+	boolNew = true
 	boolFirst = false
 	option = {
 		time = 400,
@@ -476,7 +496,8 @@ function generateNew()
 			score = currScore,
 			ctr = itemCtr,
 			check = itemCheck,
-			speed = itemSpeed
+			speed = itemSpeed,
+			new = boolNew
 		}
 	}
 	gameBoard:removeSelf()
@@ -525,17 +546,25 @@ function checkanswer(target)
 	end	
 
 	-- ANALYTICS PER ITEM
---[[	print("\nITEM #"..itemCtr)
+	print("\nITEM #"..itemCtr)
 	print("WORD: "..item[itemCtr])
 	print("CHECKER: "..itemCheck[itemCtr])
-	itemSpeed[itemCtr] = timer:getElapsedSeconds()
-	print("Speed: "..itemSpeed[itemCtr] - itemSpeed[itemCtr-1])
-	itemCtr = itemCtr + 1 ]]
+	print("prev " .. maintimer:getElapsedSeconds())
+	print(boolNew)
+	if (boolNew) then
+		itemSpeed[itemCtr] = maintimer:getElapsedSeconds()		
+		print("Speed: "..itemSpeed[itemCtr])
+	else
+		itemSpeed[itemCtr] = maintimer:getElapsedSeconds()
+		print("Speed: "..itemSpeed[itemCtr] - itemSpeed[itemCtr-1])
+	end
+	itemCtr = itemCtr + 1
 
 	if correctCtr == 0 then
 		generateNew()
 	end
-
+	boolNew = false
+	--
 end
 
 -- FUNCTION FOR DRAGGING IMAGES
@@ -634,6 +663,9 @@ function scene:createScene(event)
 	category = event.params.categ
 	currScore = event.params.score
 	currTime = event.params.time
+	boolNew = event.params.new
+
+	profileName = "Cha" --temp
 
 	-- analytics
 	item = {}
@@ -645,6 +677,7 @@ function scene:createScene(event)
 	screenGroup = self.view
 
 	if (boolFirst) then
+		boolNew = false --analytics
 		itemCtr = 1
 		itemCheck[1] = 0
 		itemSpeed[0] = 0

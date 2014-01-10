@@ -74,11 +74,12 @@ function updateDB(word)
 end
 
 --DB: insert to first game
-function insertToDB(category, score, name)
+function insertToDB(category, score, name, timestamp)
 	local insertQuery = [[INSERT INTO FirstGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
-	name .. [[');]]
+	name .. [[',']] ..
+	timestamp .. [[');]]
 	db:exec(insertQuery)
 end
 
@@ -416,7 +417,13 @@ end
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
 
-	insertToDB(category, currScore, profileName)
+	-- SCORING: Timestamp
+	local date = os.date( "*t" )
+	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
+	print( "time"..timeStamp )
+	insertToDB(category, currScore, profileName, timeStamp)
+	--
+
 	timerText:removeSelf()
 	timer = nil
 

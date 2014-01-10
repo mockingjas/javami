@@ -54,7 +54,7 @@ function replace_char (pos, str, ch)
 end
 
 function get_char (pos, str)
-	return str:sub(pos, pos
+	return str:sub(pos, pos)
 end
 
 function swap_char (pos1, pos2, str)

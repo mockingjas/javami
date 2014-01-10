@@ -2,7 +2,7 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore, itemCtr, itemCheck, itemSpeed
+local text, category, boolFirst, gameTimer, currScore, itemCtr, itemCheck, itemSpeed, boolNew
 
 function scene:createScene(event)
 	local screenGroup = self.view
@@ -14,6 +14,7 @@ function scene:createScene(event)
 	itemCtr = event.params.ctr
 	itemCheck = event.params.check
 	itemSpeed = event.params.speed
+	boolNew = event.params.new
 end
 
 function scene:enterScene(event)
@@ -28,7 +29,8 @@ function scene:enterScene(event)
 			score = currScore,
 			ctr = itemCtr,
 			check = itemCheck,
-			speed = itemSpeed
+			speed = itemSpeed,
+			new = boolNew
 		}
 	}
 
