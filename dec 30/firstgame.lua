@@ -28,7 +28,6 @@ local muted
 local muteBtn, unmuteBtn, clearBtn
 local origx, origy
 
-
 -------- Analytics------------
 -- *per item
 local item, itemSpeed, itemHint, itemTries
@@ -505,6 +504,7 @@ function unmuteGame(event)
 	audio.resume(game1MusicChannel)
 	unmuteBtn.isVisible = false
 	muteBtn.isVisible = true
+	muteBtn.isVisible = true
 	muted = 0
 	print("unmuteGame " .. muted)
 end
@@ -514,8 +514,6 @@ function muteGame(event)
 	audio.pause(game1MusicChannel)
 	muteBtn.isVisible = false
 	unmuteBtn.isVisible = true
-	muted = 1
-	print("muteGame " .. muted)
 end
 
 ---------------- PAUSE GAME ---------------------------
@@ -729,7 +727,7 @@ function scene:createScene(event)
 		emboss = true,
 		onEvent = checkanswer,
 	}
-	submit.x = 453; submit.y = 262
+	submit.x = 453; submit.y = 180
 	screenGroup:insert(submit)
 	
 	--picture of word
@@ -743,11 +741,11 @@ function scene:createScene(event)
 	-- hint
 	hintBtn = widget.newButton{
 		id = "hint",
-		defaultFile = "images/firstgame/hint.png",
+		defaultFile = "images/firstgame/hint_button.png",
 		fontSize = 15,
 		emboss = true,
 	}
-	hintBtn.x = 453; hintBtn.y = 200
+	hintBtn.x = 400; hintBtn.y = 180
 	screenGroup:insert(hintBtn)
 	hintBtn:addEventListener("tap", play)
 
@@ -764,15 +762,14 @@ function scene:createScene(event)
     unmuteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
     unmuteBtn.x = 380
     unmuteBtn.y = 37
-	--unmuteBtn:addEventListener("touch", unmuteGame)
+	unmuteBtn:addEventListener("touch", unmuteGame)
     unmuteBtn:addEventListener("tap", unmuteGame)
     screenGroup:insert( unmuteBtn )
-    unmuteBtn.isVisible = false
 
 	muteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
     muteBtn.x = 380
     muteBtn.y = 37
-    --muteBtn:addEventListener("touch", muteGame)
+    muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
     screenGroup:insert( muteBtn )
 	
@@ -789,7 +786,7 @@ function scene:createScene(event)
 			filename = filename .. "newblank.png"
 			chalkLetter = display.newImage(filename)
 		else
---			filename = filename .. c .. ".png"	
+--			filename = filename .. c .. ".png"
 			chalkLetter = display.newText( c:upper(), x, y, font, 35)
 		end		
 
@@ -806,7 +803,7 @@ function scene:createScene(event)
 
 	--new: clear button
 	clearBtn = display.newImageRect( "images/firstgame/clear.png", 50, 50)
-    clearBtn.x = x + 50
+    clearBtn.x = x + 55
     clearBtn.y = y
     clearBtn:addEventListener("touch", clear)
     clearBtn:addEventListener("tap", clear)

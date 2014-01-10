@@ -7,19 +7,20 @@ local lfs = require("lfs")
 local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
 
+
 ------- Global variables ---------
 --for the game
 local numberOfCategories, selectedCategories
 local images, labels, answers
 local gameBoard, boxGroup, boxes
 --for the timer and reloading
-local timer, timerText
+local maintimer, timerText
 --for reloading params
 local currTime, boolFirst, currScore, category, option, correctCtr, corrects
 --for the pause screen
 local pausegroup
 --for the gameover screen, 
-local gameovergroup, round, score
+local gameovergroup, round, score, x, y, i
 --for sounds
 local muted 
 local muteBtn, unmuteBtn
@@ -32,7 +33,7 @@ db = sqlite3.open( path )
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
 local secondGameMusic = audio.loadSound("music/SecondGame.mp3")
-local game2MusicChannel 
+local game2MusicChannel
 ------- Load font ---------
 local font
 if "Win" == system.getInfo( "platformName" ) then
@@ -54,9 +55,11 @@ local pauseCtr
 function home(event)
 	if(event.phase == "ended") then
 		gameovergroup.isVisible = false
+		gameover.isVisible = false
   		storyboard.removeScene("secondgame")
   		storyboard.removeScene("mainmenu")
 
+  		audio.stop(game2MusicChannel)
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
@@ -73,59 +76,77 @@ function home(event)
 end
 
 --------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
-local function spriteListener( event )
+local function finalmenu( )
 --    print(event.phase)
-    if (event.phase == "ended") then
-
-    	score.isVisible = false
-		round.isVisible = false
-
-		gameovergroup = display.newGroup()
+   		
+   		gameovergroup = display.newGroup()
 
 	    round= display.newText("ROUND: "..category, 0, 0, font, 15)
 		round.x = 150
-		round.y = display.contentCenterY - 100
+		round.y = display.contentCenterY - 120
+		round:setTextColor(0,0,0)
 		gameovergroup:insert(round)
 
 		score= display.newText("SCORE: "..currScore, 0, 0, font, 15)
 		score.x = 300
-		score.y = display.contentCenterY - 100
+		score.y = display.contentCenterY - 120
+		score:setTextColor(0,0,0)
 		gameovergroup:insert(score)
 
     	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
 	    playBtn.x = 130
-	    playBtn.y = display.contentCenterY - 60
+	    playBtn.y = display.contentCenterY - 80
 	    playBtn:addEventListener("touch", restart_onBtnRelease)
 	    gameovergroup:insert(playBtn)
 
-	    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 70, font, 25) 
+	    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 90, font, 25) 
+	    playtext:setTextColor(0,0,0)
 	    gameovergroup:insert(playtext)
 
 	    local homeBtn = display.newImage( "images/firstgame/home_button.png")
 	    homeBtn.x = 130
-	    homeBtn.y = display.contentCenterY
+	    homeBtn.y = display.contentCenterY - 25
 	    homeBtn:addEventListener("touch", home)
 	    gameovergroup:insert(homeBtn)
 
-	    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 10, font, 25) 
+	    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 30, font, 25) 
+	    hometext:setTextColor(0,0,0)
 	    gameovergroup:insert(hometext)
 
 	    local emailBtn = display.newImage( "images/firstgame/email_button.png")
 	    emailBtn.x = 130
-	    emailBtn.y = display.contentCenterY + 60
+	    emailBtn.y = display.contentCenterY + 30
 	    --email:addEventListener("touch", home)
 	    gameovergroup:insert(emailBtn)
-	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 50, font, 25) 
+	    
+	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
+	    emailtext:setTextColor(0,0,0)
 	    gameovergroup:insert(emailtext)
 
-	 end
+end
+
+
+--------------- FUNCTION FOR FALLING LETTERS -------------
+local fallover = function(event)
+	if (i < 9) then
+		local crate1 = display.newImage( "images/secondgame/" .. game[i].. ".png" )
+		crate1.x = x; crate1.y = 10
+		physics.addBody( crate1, { density=0.6, friction=0.6, bounce=0.3, radius= 19 } )
+		crate1.isFixedRotation= true
+		crate1.isSleepingAllowed = true
+		i = i + 1
+		x = x + 60
+		gameover:insert(crate1)
+	else
+		finalmenu()
+	end
 end
 
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
 
 	timerText:removeSelf()
-	timer = nil
+	maintimer = nil
 
 	scoreToDisplay.isVisible = false
 	pauseBtn.isVisible = false
@@ -133,22 +154,28 @@ function gameoverdialog()
 	gameBoard.isVisible = false
 	unmuteBtn.isVisible = false
 	muteBtn.isVisible = false
+	progressBar.isVisible = false
+	progressBarFill.isVisible = false
 
-	local sheet1 = graphics.newImageSheet( "images/trygameover.png", { width=414, height=74, numFrames=24 } )
-	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
-	instance1.x = display.contentCenterX
-	instance1.y = display.contentCenterY - 20
-	instance1:play()
-	instance1:addEventListener( "sprite", spriteListener )
-	screenGroup:insert(instance1)
+	gameover = display.newGroup()
 
-	round= display.newText("ROUND: "..category, 0, 0, font, 20)
-	round.x = display.contentCenterX
-	round.y = display.contentCenterY + 25
+	physics.start()
+	local rect = display.newRect( 0, 0, 570, 50)
+	rect:setFillColor( 255, 255, 255, 100 )
+	rect.isVisible = false -- optional
+	rect.x = display.contentWidth/2;
+	rect.y = display.contentHeight - 5
+	physics.addBody( rect, "static" )
+	gameover:insert(rect)
 
-	score= display.newText("SCORE: "..currScore, 0, 0, font, 20)
-	score.x = display.contentCenterX
-	score.y = display.contentCenterY + 45
+	i = 1
+	x = 20
+
+	getmetatable('').__index = function(str,i) return string.sub(str,i,i) end
+	game = 'GAMEOVER'
+
+	timer.performWithDelay( 500, fallover, 9)
+	print("hello")
 
 end
 
@@ -156,10 +183,10 @@ end
 timerText = display.newText("", 480, 0, font, 18) 
 timerText:setTextColor(0,0,0)
 local function onFrame(event)
-	if (timer ~= nil) then
-   		timerText.text = timer:toRemainingString()
-   		local done = timer:isElapsed()
- 		local secs = timer:getElapsedSeconds()
+	if (maintimer ~= nil) then
+   		timerText.text = maintimer:toRemainingString()
+   		local done = maintimer:isElapsed()
+ 		local secs = maintimer:getElapsedSeconds()
 -- 		print("done:" .. secs)
 
    		if(done) then
@@ -191,7 +218,7 @@ end
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
-    	timer:pause()
+    	maintimer:pause()
     	audio.pause(game2MusicChannel)
         pauseBtn.isVisible = false
         showpauseDialog()
@@ -201,15 +228,16 @@ end
  
  --------------- RESTART GAME ----------------------
 function restart_onBtnRelease()
-	if (timer ~= nil) then
+	if (maintimer ~= nil) then
 		pausegroup:removeSelf()
 		timerText:removeSelf()
 		gameBoard:removeSelf()
 		boxGroup:removeSelf()
 		scoreToDisplay.isVisible = false
-		timer = nil
+		maintimer = nil
 	else
 		gameovergroup.isVisible = false
+		gameover.isVisible = false
 	end
 	if category == "easy" then
 		currTime = 61
@@ -246,7 +274,6 @@ function resume_onBtnRelease()
     pauseBtn.isVisible = true
 	return true
 end
-
 ---------------- EXIT FROM PAUSE ----------------
 function exit_onBtnRelease()
 	pausegroup:removeSelf()
@@ -254,7 +281,7 @@ function exit_onBtnRelease()
 	boxGroup:removeSelf()
 	gameBoard:removeSelf()
 	scoreToDisplay.isVisible = false
-	timer = nil
+	maintimer = nil
 	storyboard.removeScene("secondgame")
 	storyboard.removeScene("mainmenu")
 
@@ -445,7 +472,7 @@ function generateNew()
 		params = {
 			categ = category,
 			first = boolFirst,
-			time = currTime - timer:getElapsedSeconds(),
+			time = currTime - maintimer:getElapsedSeconds(),
 			score = currScore,
 			ctr = itemCtr,
 			check = itemCheck,
@@ -455,7 +482,7 @@ function generateNew()
 	gameBoard:removeSelf()
 	boxGroup:removeSelf()
 	timerText:removeSelf()
-	timer = nil
+	maintimer = nil
 	storyboard.removeScene("reloadsecond")
 	storyboard.gotoScene("reloadsecond", option)
 end
@@ -600,6 +627,7 @@ end
 
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
+
 	muted = 0
 	--get passed parameters from previous scene
 	boolFirst = event.params.first
@@ -613,7 +641,7 @@ function scene:createScene(event)
 	itemSpeed = {}
 
 	-- Start timer
-	timer = stopwatch.new(currTime)
+	maintimer = stopwatch.new(currTime)
 	screenGroup = self.view
 
 	if (boolFirst) then
@@ -674,9 +702,8 @@ function scene:createScene(event)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
 
-
-    --mute button
-    unmuteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
+     --mute button
+    unmuteBtn = display.newImageRect( "images/secondgame/mute_button.png", 20, 20)
     unmuteBtn.x = 420
     unmuteBtn.y = 10
 	unmuteBtn:addEventListener("touch", unmuteGame)
@@ -684,15 +711,17 @@ function scene:createScene(event)
     screenGroup:insert( unmuteBtn )
     unmuteBtn.isVisible = false
 
-    muteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
+
+    --mute button
+	muteBtn = display.newImageRect( "images/secondgame/unmute_button.png", 20, 20)
     muteBtn.x = 420
     muteBtn.y = 10
     muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
     screenGroup:insert( muteBtn )
 
-    --outer rectangle
-    progressBar = display.newRect(display.viewableContentWidth/6 - 2, 5, 322, 15)
+      --outer rectangle
+    progressBar = display.newRect(display.viewableContentWidth/6 - 2, 3, 322, 15)
     progressBar:setReferencePoint(display.BottomLeftReferencePoint)
     progressBar.strokeWidth = 1
     progressBar:setStrokeColor( 0, 0, 0) 
@@ -700,11 +729,12 @@ function scene:createScene(event)
     screenGroup:insert( progressBar )
 
     --inner rectangle which fills up
-    progressBarFill = display.newRect(display.viewableContentWidth/6,8,0,10)
+    progressBarFill = display.newRect(display.viewableContentWidth/6,5,0,10)
     progressBarFill:setFillColor(50,205,30)  
     progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
     screenGroup:insert( progressBarFill )
     
+
     -------------------------------------------- GAME --------------------
 
     --boxes
@@ -712,6 +742,8 @@ function scene:createScene(event)
 	boxSize = 50
 	boxes = {}
 	boxLabels = {}
+
+	
 
 	selectedCategories = randomizeCategory(categories)
 	for i = 1, numberOfCategories do
@@ -722,7 +754,7 @@ function scene:createScene(event)
 	if category == 'easy' then
 		boxes[1].x = width/4; boxes[1].y = 290
 		boxes[2].x = width/4 + (4*boxSize); boxes[2].y = 290
-
+		
 		numberOfCorrectAnswers = 14
 		numberOfIncorrectAnswers = 10
 		gridX = width/7
@@ -731,6 +763,7 @@ function scene:createScene(event)
 		boxes[2].x = width/3 + boxSize + 10; boxes[2].y = 290
 		boxes[3].x = width/3 + (3*boxSize) + 40; boxes[3].y = 290
 
+		
 		numberOfCorrectAnswers = 17
 		numberOfIncorrectAnswers = 15
 		gridX = width/22
