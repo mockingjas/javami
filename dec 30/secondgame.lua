@@ -15,7 +15,7 @@ local gameBoard, boxGroup, boxes
 --for the timer and reloading
 local timer, timerText
 --for reloading params
-local currTime, boolFirst, currScore, category, option, correctCtr
+local currTime, boolFirst, currScore, category, option, correctCtr, corrects
 --for the pause screen
 local pausegroup
 --for the gameover screen, 
@@ -481,6 +481,9 @@ function checkanswer(target)
 			audio.play(correctSound)
 			correctCtr = correctCtr - 1
 			target:removeSelf()
+
+			progressBarFill.width = progressBarFill.width + (320/corrects)
+			progressBarFill.x = progressBarFill.x + (320/corrects) / 2
 			break
 		end
 	end
@@ -655,6 +658,7 @@ function scene:createScene(event)
 		numberOfCategories = 4
 	end
 
+	corrects = correctCtr
 	--bg
 	width = 550; height = 320;
 	bg = display.newImageRect("images/secondgame/game2bg.png", width, height)
@@ -686,6 +690,21 @@ function scene:createScene(event)
     muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
     screenGroup:insert( muteBtn )
+
+    --outer rectangle
+    progressBar = display.newRect(display.viewableContentWidth/6 - 2, 5, 322, 15)
+    progressBar:setReferencePoint(display.BottomLeftReferencePoint)
+    progressBar.strokeWidth = 1
+    progressBar:setStrokeColor( 0, 0, 0) 
+    progressBar:setFillColor( 0, 0, 0 )  
+    screenGroup:insert( progressBar )
+
+    --inner rectangle which fills up
+    progressBarFill = display.newRect(display.viewableContentWidth/6,8,0,10)
+    progressBarFill:setFillColor(50,205,30)  
+    progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
+    screenGroup:insert( progressBarFill )
+    
     -------------------------------------------- GAME --------------------
 
     --boxes
