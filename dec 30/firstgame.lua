@@ -23,8 +23,11 @@ local pausegroup
 --for the gameover screen, 
 local gameovergroup, round, score
 local dialog, msgText, startTime
+--for sounds
+local muted 
 local muteBtn, unmuteBtn, clearBtn
 local origx, origy
+
 
 -------- Analytics------------
 -- *per item
@@ -182,7 +185,7 @@ function setword()
 	-- ---------------------
 
 	-- GET LETTERBOX -------
-	for i = 1,word:len()-2 do
+	for i = 1,10 - blanks do
 		local rand = math.random(26)
 		local letter = string.char(96+rand)
 		while (string.find(letterbox, letter) ~= nil) do
@@ -484,11 +487,11 @@ function clear(event)
 	local newy = origy
 
 	for i = 1, #letterbox do
-		if (newx - 330 < 120) then
-			newx = newx + 45
+		if(i == 6) then
+			newx = (display.viewableContentWidth/2) + 65
+			newy = newy + 40
 		else
-			newy = newy + 50
-			newx = 320
+			newx = newx + 40
 		end
 		letterboxGroup[i].x = newx 
 		letterboxGroup[i].y = newy
@@ -502,6 +505,8 @@ function unmuteGame(event)
 	audio.resume(game1MusicChannel)
 	unmuteBtn.isVisible = false
 	muteBtn.isVisible = true
+	muted = 0
+	print("unmuteGame " .. muted)
 end
 
 ---------------- MUTE GAME ---------------------------
@@ -509,6 +514,8 @@ function muteGame(event)
 	audio.pause(game1MusicChannel)
 	muteBtn.isVisible = false
 	unmuteBtn.isVisible = true
+	muted = 1
+	print("muteGame " .. muted)
 end
 
 ---------------- PAUSE GAME ---------------------------
@@ -566,7 +573,9 @@ end
 --------------- RESUME FROM PAUSE -----------------
 function resume_onBtnRelease()
 	pausegroup:removeSelf()
-	audio.resume(game1MusicChannel)
+	if (muted == 0) then 
+		audio.resume(game1MusicChannel)
+	end
 	timer:resume()
 	submit:setEnabled(true)
 	for i = 1, #letterbox do
@@ -661,6 +670,7 @@ end
 function scene:createScene(event)
 	--get passed parameters from previous scene
 
+	muted = 0
 	boolFirst = event.params.first
 	category = event.params.categ
 	currScore = event.params.score
@@ -754,14 +764,15 @@ function scene:createScene(event)
     unmuteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
     unmuteBtn.x = 380
     unmuteBtn.y = 37
-	unmuteBtn:addEventListener("touch", unmuteGame)
+	--unmuteBtn:addEventListener("touch", unmuteGame)
     unmuteBtn:addEventListener("tap", unmuteGame)
     screenGroup:insert( unmuteBtn )
+    unmuteBtn.isVisible = false
 
 	muteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
     muteBtn.x = 380
     muteBtn.y = 37
-    muteBtn:addEventListener("touch", muteGame)
+    --muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
     screenGroup:insert( muteBtn )
 	
@@ -778,8 +789,8 @@ function scene:createScene(event)
 			filename = filename .. "newblank.png"
 			chalkLetter = display.newImage(filename)
 		else
---			filename = filename .. c .. ".png"
-			chalkLetter = display.newText( c:upper(), x, y, font, 45)
+--			filename = filename .. c .. ".png"	
+			chalkLetter = display.newText( c:upper(), x, y, font, 35)
 		end		
 
 --		chalkLetter = display.newText( c:upper(), x, y, font, 45)
@@ -802,23 +813,23 @@ function scene:createScene(event)
     screenGroup:insert( clearBtn )
 	
 	--letters to fill up with
-	x = 270
-	y = 90
+	x = (display.viewableContentWidth/2) + 25
+	y = (display.viewableContentHeight/2) - 80
 	letterboxGroup = display.newGroup()
-	origx = 
-	origy = yx
+	origx = x
+	origy = y
 
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
-		chalkLetter = display.newText( c:upper(), x, y, font, 45)
+		chalkLetter = display.newText( c:upper(), x, y, font, 35)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
-		if (x - 330 < 120) then
-			x = x + 45
+		if(i == 6) then
+			x = (display.viewableContentWidth/2) + 65
+			y = y + 40
 		else
-			y = y + 50
-			x = 320
+			x = x + 40
 		end
 		letterboxGroup[i].x = x 
 		letterboxGroup[i].y = y
