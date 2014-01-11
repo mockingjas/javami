@@ -19,15 +19,9 @@ local currTime, boolFirst, currScore, category, option
 local pausegroup
 --for the gameover screen
 local gameovergroup, round, score
-
--- 1 up, 2 down, 3 right, 4 left, 5 shake
-local instructionSet, glowSet
-local rand, maxSeq, maxSprite
-local instructionOrder = ""
-local spriteOrder = ""
-local curr -- kung ilan na yung nasagot
-
-local answer = ""
+--for backend
+local rand, dimensions, order, current
+local obj, objectGroup, correctObj
 
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
@@ -65,181 +59,9 @@ function swap_char (pos1, pos2, str)
 	return str
 end
 
---------- FUNCTIONS FOR SWIPING ------------
-
-function checkDirection(beginX, beginY, endX, endY)
-    -- 1 up, 2 down, 3 right, 4 left, 5 shake
-    xDistance =  math.abs(endX - beginX) -- math.abs will return the absolute, or non-negative value, of a given value. 
-    yDistance =  math.abs(endY - beginY)
-
-
-    print ("##### " .. beginX .. " " .. beginY)
-    print ("##### " .. endX .. " " .. endY)
-    print ("##### " .. xDistance .. " " .. yDistance)
-
-    if xDistance > yDistance then -- SWIPE LEFT OR RIGHT
-    	
-        if beginX > endX then
-                print("~~~~ swipe left")
-                answer = answer .. "4"
-				curr = curr + 1
-        else 
-                print("~~~~ swipe right")
-                answer = answer .. "3"
-				curr = curr + 1
-        end
-    else 
-        if beginY > endY then -- SWIPE UP OR DOWN
-                print("~~~~ swipe up")
-                answer = answer .. "1"
-				curr = curr + 1
-        else 
-                print("~~~~ swipe down")
-                answer = answer .. "2"
-				curr = curr + 1
-        end
-    end
-    
-end
-
-local pointsTable = {}
-local line
-
-local function drawLine ()
-
-    if line then 
-            line:removeSelf() 
-    end
-    
-    local numPoints = #pointsTable
-    local nl = {}
-    local  j, p
-             
-    nl[1] = pointsTable[1]
-             
-    j = 2
-    p = 1
-             
-    for  i = 2, numPoints, 1  do
-            nl[j] = pointsTable[i]
-            j = j+1
-            p = i 
-    end
-    
-    if ( p  < numPoints -1 ) then
-            nl[j] = pointsTable[numPoints-1]
-    end
-    
-    if #nl > 2 then
-                    line = display.newLine(nl[1].x,nl[1].y,nl[2].x,nl[2].y)
-                    for i = 3, #nl, 1 do 
-                            line:append( nl[i].x,nl[i].y);
-                    end
-                    line:setColor(255,255,0)
-                    line.width=5
-    end
-end
-
-function gestures(event)
-
-	if event.isShake then
-		print("~~~~ SHAKE")
-		answer = answer .. "5"
-		curr = curr + 1
-		checkanswer()
-	end
-
-    if event.phase == "began" then
-
-        beginX = event.x
-        beginY = event.y
-        print("begin")
-
-        pointsTable = nil
-        pointsTable = {}
-        local pt = {}
-        pt.x = event.x
-        pt.y = event.y
-        table.insert(pointsTable,pt)
-    end
-
-    if "moved" == event.phase then
-        
-        local pt = {}
-        pt.x = event.x
-        pt.y = event.y
-        table.insert(pointsTable,pt)
-
-    end
-    
-    if event.phase == "ended"  then
-        endX = event.x
-        endY = event.y
-
-        print("ended")
-        print ("###asdfgsdzg## " .. beginX .. " " .. beginY)
-    	print ("##### " .. endX .. " " .. endY)
-
-    	drawLine()
-
-        checkDirection(beginX, beginY, endX, endY);
-
-        checkanswer()
-
-    end
-end
-
---------------------------------------------
-
-------- FUNCTION FOR CHECKING ANSWER --------------
-function checkanswer()
-	-- check the word
-	-- if right, add score and then,
-
-	if( #answer ~= #instructionOrder ) then
-		print("INSTRUCTIONS: " .. instructionOrder)
-    	print("ANSWER: " .. answer)
-    	print("CURR: " .. curr)
-    	if( get_char(curr, answer) ~= get_char(curr, instructionOrder) ) then
-    		print("wrong!")
-    		curr = 0
-    		answer = ""
-    		audio.play(incorrectSound)
-    	end
-    elseif (answer == instructionOrder) then
-    	print("INSTRUCTIONS: " .. instructionOrder)
-    	print("ANSWER: " .. answer)
-    	print("CURR: " .. curr)
-    	print("correct!")
-    	currScore = currScore + 1
-    	audio.play(correctSound)
-
-    	print ("CUUUUUUUUUUUUURRTIME " .. currTime)
-    	option = {
-			effect = "fade",
-			time = 100,
-			params = {
-				categ = category,
-				first = false,
-				time = currTime - timer:getElapsedSeconds(),
-				score = currScore
-			}
-		}
-		timerText:removeSelf()
-		line:removeSelf() 
-    	timer = nil
-		Runtime:removeEventListener("touch", gestures)
-		Runtime:removeEventListener("accelerometer", gestures)
-    	storyboard.removeScene("reloadthird")
-		storyboard.gotoScene("reloadthird", option)
-    end
-end
-
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
 function home(event)
 	if(event.phase == "ended") then
-		Runtime:removeEventListener("touch", gestures)
-		Runtime:removeEventListener("accelerometer", gestures)
 		gameovergroup.isVisible = false
   		storyboard.removeScene("thirdgame")
   		storyboard.removeScene("mainmenu")
@@ -263,8 +85,7 @@ end
 local function spriteListener( event )
     print(event.phase)
     if (event.phase == "ended") then
-
-    	instructionSet.isVisible = false
+    
     	score.isVisible = false
 		round.isVisible = false
 		gameovergroup = display.newGroup()
@@ -317,6 +138,7 @@ function gameoverdialog()
 
 	scoreToDisplay.isVisible = false
 	pauseBtn.isVisible = false
+	objectGroup:removeSelf()
 
 	local sheet1 = graphics.newImageSheet( "images/trygameover.png", { width=414, height=74, numFrames=24 } )
 	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
@@ -334,7 +156,6 @@ function gameoverdialog()
 	score.x = display.contentCenterX
 	score.y = display.contentCenterY + 45
 
-	instructionSet.isVisible = false
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
@@ -372,11 +193,11 @@ function restart_onBtnRelease()
 		timer = nil
 	end
 	if category == "easy" then
-		currTime = 61
+		
 	elseif category == "medium" then
-		currTime = 121
+		
 	elseif category == "hard" then
-		currTime = 181
+		
 	end
 	option = {
 		effect = "fade",
@@ -388,8 +209,6 @@ function restart_onBtnRelease()
 			score = 0
 		}
 	}
-	Runtime:removeEventListener("touch", gestures)
-	Runtime:removeEventListener("accelerometer", gestures)
 	storyboard.removeScene("reloadthird")
 	storyboard.gotoScene("reloadthird", option)
 end
@@ -406,14 +225,13 @@ end
 function exit_onBtnRelease()
 	pausegroup:removeSelf()
 	timerText:removeSelf()
+	objectGroup:removeSelf()
 	timer = nil
-	Runtime:removeEventListener("touch", gestures)
-	Runtime:removeEventListener("accelerometer", gestures)
 	storyboard.removeScene("thirdgame")
 	storyboard.removeScene("mainmenu")
 
 
-		mainMusic = audio.loadSound("music/MainSong.mp3")
+	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
 	option =	{
@@ -467,84 +285,26 @@ function showpauseDialog()
 	pausegroup:insert(exitBtn)
 end
 
-local function spriteListener( event )
-    print(event.phase)
-    if (event.phase == "ended") then
-
-	 end
-end
-
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	--get passed parameters from previous scene
 
-	print("hello")
 	category = event.params.categ
 	currScore = event.params.score
 	currTime = event.params.time
 
 	screenGroup = self.view
 
-	curr = 0 -- kung ilan na yung nasagot
-
-	instructionSet = display.newGroup()
-	glowSet = display.newGroup()
---	rand = 0
---	maxSeq = 0
---	maxSprite = 0
-	instructionOrder = ""
-	spriteOrder = ""
-	answer = ""
-
 	if category == 'easy' then
-		maxSeq = 3
-		--maxSprite = 3
-		--3 in a sequence
-		--3 sprites
-
+		dimensions = 2
 	elseif category == 'medium' then
-		maxSeq = 5
-		--maxSprite = 4
-		--5 in a sequence
-		--4 sprites
-
+		dimensions = 3
 	elseif category == 'hard' then
-		maxSeq = 7
-		--maxSprite = 5
-		--7 in a sequence
-		--5 sprites
+		dimensions = 4
 	end
 
 	-- Start timer
 	timer = stopwatch.new(currTime)
-
-	-- CHOOSE FROM SPRITES ONLY
-	for i = 1, maxSeq do
-		rand = math.random(5)
-		instructionOrder = instructionOrder .. rand
-	end
-	--[[
-	if (maxSprite < 5) then
-			while (spriteOrder:find(rand) ~= nil) do
-				rand = math.random(5)
-			end
-			spriteOrder = spriteOrder .. rand
-	else
-		spriteOrder = "12345"
-	end
-	]]
-	-- SHUFFLE -------------
-	--[[
-	for i = #spriteOrder, 2, -1 do -- backwards
-		local r = math.random(i) -- select a random number between 1 and i
-		spriteOrder = swap_char(i, r, spriteOrder) -- swap the randomly selected item to position i
-	end 
-	--]] 
-	-- ---------------------
-
-	print("instructions: " .. instructionOrder)
-
-	-----------------------------------------------------------------------------------------------
 
 	-- Screen Elements
 	--score
@@ -569,63 +329,131 @@ function scene:createScene(event)
 
 	screenGroup:insert(scoreToDisplay)
 
-	-----------------------------------------------------------------------------------------------
+	-- GAME
+	objectGroup = display.newGroup()
 
-	x = 130
-	y = display.viewableContentHeight-60
+	order = ""
 
-	local upSheet = graphics.newImageSheet("images/thirdgame/1.png", { width=50, height=100, numFrames=3 } )
-	local up = display.newSprite( upSheet, { name="up", start=1, count=3, time=1000, loopCount=3} ) 	
-	up.x = x
-	up.y = y
-	x = x + 35
-
-	local downSheet = graphics.newImageSheet("images/thirdgame/2.png", { width=50, height=100, numFrames=3 } )
-	local down = display.newSprite( downSheet, { name="down", start=1, count=3, time=1000, loopCount=1} ) 	
-	down.x = x
-	down.y = y
-	x = x + 45
-
-	local rightSheet = graphics.newImageSheet("images/thirdgame/3.png", { width=90, height=100, numFrames=3 } )
-	local right = display.newSprite( rightSheet, { name="right", start=1, count=3, time=1000, loopCount=1} ) 	
-	right.x = x
-	right.y = y
-	x = x + 70
-
-	local leftSheet = graphics.newImageSheet("images/thirdgame/4.png", { width=90, height=100, numFrames=3 } )
-	local left = display.newSprite( leftSheet, { name="left", start=1, count=3, time=1000, loopCount=1} ) 	
-	left.x = x
-	left.y = y
-	x = x + 70
-
-	local shakeSheet = graphics.newImageSheet("images/thirdgame/5.png", { width=90, height=100, numFrames=3 } )
-	local shake = display.newSprite( shakeSheet, { name="shake", start=1, count=3, time=1000, loopCount=1} ) 	
-	shake.x = x
-	shake.y = y
-
-	--screenGroup:insert(glowSet)
-
-	-- instructionSet[i]:play()
-
-	for i = 1, #instructionOrder do
-		if (instructionOrder:sub(i,i) == "1") then
-			up:play()
-			print("up")
-		elseif (instructionOrder:sub(i,i) == "2") then
-			down:play()
-			print("down")
-		elseif (instructionOrder:sub(i,i) == "3") then
-			right:play()
-			print("right")
-		elseif (instructionOrder:sub(i,i) == "4") then
-			left:play()
-			print("left")
-		else
-			shake:play()
-			print("shake")
-		end
+	rand = math.random(10)
+	if category == 'easy' then
+		x = display.viewableContentWidth/2 - 40
+		y = display.viewableContentHeight/2 - 40
+	elseif category == 'medium' then
+		x = display.viewableContentWidth/2 - 60 
+		y = display.viewableContentHeight/2 - 50
+	elseif category == 'hard' then
+		x = display.viewableContentWidth/2 - 100
+		y = display.viewableContentHeight/2 - 110
 	end
 
+	for i = 1, dimensions * dimensions do
+		
+		if (i % dimensions == 1 and i > 1) then
+			if category == 'easy' then
+				x = display.viewableContentWidth/2 - 40
+				y = y + 60
+			elseif category == 'medium' then
+				x = display.viewableContentWidth/2 - 60 
+				y = y + 60
+			elseif category == 'hard' then
+				x = display.viewableContentWidth/2 - 100
+				y = y + 60
+			end
+		elseif (i % dimensions ~= 1) then
+			x = x + 60
+		end
+
+		if (rand > 5) then
+			--circles
+			--x y radius
+			obj = display.newCircle(x, y, 25)
+		else
+			--squares
+			obj = display.newRect(x, y, 50, 50)
+		end
+
+		objectGroup:insert(i, obj)
+		obj:setFillColor(x,x,x)
+		obj.isVisible = false
+	end
+
+	-- SHUFFLE -------------
+	-- 97 == a
+	order = ""
+	for i = 1, dimensions * dimensions do
+		order = order .. string.char(96+i)
+	end
+	print("JSHGSJHGJLASDGJKSD " .. order)
+	for i = order:len(), 2, -1 do -- backwards
+		local r = math.random(i) -- select a random number between 1 and i
+		order = swap_char(i, r, order) -- swap the randomly selected item to position i
+	end 
+	print("JSHGSJHGJLASDGJKSD " .. order)
+	-- ---------------------
+
+	current = 1
+
+	correctObj = objectGroup[string.byte(order,current) % 96]
+	correctObj.isVisible = true
+	correctObj.alpha = 0
+	transition.to(correctObj, {time=3000, alpha=1})
+	correctObj:addEventListener("tap", checkanswer)
+
+end
+
+function  checkanswer(event)
+	local t = event.target
+	if (t == correctObj) then
+		print("CORRECT!")
+		for i = 1, current do
+			obj = objectGroup[string.byte(order,i) % 96]
+			obj.isVisible = false
+			obj:removeEventListener("tap", checkanswer)
+		end
+
+		print("check answer current " .. current)
+		if (current < dimensions * dimensions) then
+			showNext()
+		else
+			boolFirst = false
+			print("NEXT!")
+			currScore = currScore + 1
+			option = {
+				time = 400,
+				params = {
+					categ = category,
+					first = boolFirst,
+					time = currTime - timer:getElapsedSeconds(),
+					score = currScore,
+				}
+			}
+
+			timerText:removeSelf()
+			timer = nil
+			storyboard.removeScene("reloadthird")
+			storyboard.gotoScene("reloadthird", option)
+		end
+	else
+		print("WRONG!")
+	end
+end
+
+function showNext()
+	for i = 1, current do
+		print("loopy " .. i)
+		obj = objectGroup[string.byte(order,i) % 96]
+		obj.isVisible = true
+		obj.alpha = 0
+		transition.to(obj, {time=3000, alpha=1})
+		obj:addEventListener("tap", checkanswer)
+	end
+	current = current + 1
+	print("current " .. current)
+	correctObj = objectGroup[string.byte(order,current) % 96]
+	correctObj.isVisible = true
+	correctObj.alpha = 0
+	transition.to(correctObj, {time=3000, alpha=1})
+	correctObj:addEventListener("tap", checkanswer)
 end
 
 
@@ -647,6 +475,4 @@ scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
 scene:addEventListener("destroyScene", scene)
 Runtime:addEventListener("enterFrame", onFrame)
-Runtime:addEventListener("touch", gestures)
-Runtime:addEventListener("accelerometer", gestures)
 return scene
