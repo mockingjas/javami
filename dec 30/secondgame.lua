@@ -221,6 +221,42 @@ function muteGame(event)
 	muted = 1
 end
 
+---------------- ZOOM IN IMAGE ---------------------------
+function zoomOut(event)
+	levelgroup:removeSelf()
+end
+
+---------------- ZOOM IN IMAGE ---------------------------
+function zoomIn(event)
+	physics.pause()
+
+ 	levelgroup = display.newGroup()
+
+	rect = display.newImage("images/modal/gray.png")
+ 	rect.x = display.contentWidth/2;
+ 	rect:addEventListener("touch", function() return true end)
+	rect:addEventListener("tap", function() return true end)
+	levelgroup:insert(rect)
+
+ 	zoomedImage = display.newImage("images/firstgame/pictures/blank.png", 200, 200)
+ 	zoomedImage.xScale = zoomedImage.xScale * 1.5
+ 	zoomedImage.yScale = zoomedImage.yScale * 1.5
+ 	zoomedImage.x = display.contentCenterX
+ 	zoomedImage.y = display.contentCenterY
+ 	levelgroup:insert(zoomedImage)
+
+	exitBtn = widget.newButton{
+		defaultFile="images/modal/closebutton.png",
+		overFile="images/modal/closebutton.png",
+		onRelease = zoomOut	-- event listener function
+	}
+	exitBtn:setReferencePoint( display.CenterReferencePoint )
+	exitBtn.x = bg.x + 70
+	exitBtn.y = 80
+	levelgroup:insert(exitBtn)
+
+end
+
 
 
 ---------------- PAUSE GAME ---------------------------
@@ -633,6 +669,9 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		images[i].initialX = images[i].x
 		images[i].initialY = images[i].y
 		images[i].label = photoTextArray[i]
+
+		images[i]:addEventListener("tap", zoomIn)
+
 		gameBoard:insert(images[i])
 
 		local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2

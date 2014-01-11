@@ -21,9 +21,7 @@ storyboard.gotoScene( "startmenu")
 --local createTableGame3= [[CREATE TABLE IF NOT EXISTS ThirdGame(id INTEGER PRIMARY KEY autoincrement, category, score, name, timestamp);]]
 --db:exec(createTableGame3)
 
-for row in db:nrows("DELETE from FirstGame") do
-	print(row.name)
-end
+--for row in db:nrows("DELETE from FirstGame") do	print(row.name) end
 
 print("Table Structure:")
 for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
