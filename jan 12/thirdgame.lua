@@ -233,7 +233,7 @@ function restart_onBtnRelease()
 			score = 0
 		}
 	}
-	audio.stop(game3MusicChannel)
+	audio.stop()
 	storyboard.removeScene("reloadthird")
 	storyboard.gotoScene("reloadthird", option)
 end

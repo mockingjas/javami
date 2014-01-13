@@ -303,7 +303,7 @@ function restart_onBtnRelease()
 			new = boolNew
 		}
 	}
-	audio.stop(game2MusicChannel)
+	audio.stop()
 	storyboard.removeScene("reloadsecond")
 	storyboard.gotoScene("reloadsecond", option)
 end
@@ -339,7 +339,7 @@ function exit_onBtnRelease()
 			music = backgroundMusicChannel
 		}
 	}
-	audio.stop(game2MusicChannel)
+	audio.stop()
 	storyboard.gotoScene("mainmenu", option)	
 end
 

@@ -325,7 +325,7 @@ function home(event)
   		storyboard.removeScene("firstgame")
   		storyboard.removeScene("mainmenu")
 
-  		audio.stop(game1MusicChannel)
+  		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
@@ -348,7 +348,7 @@ function emaildialogue(event)
   		storyboard.removeScene("firstgame")
   		storyboard.removeScene("emaildialogue")
 
-  		audio.stop(game1MusicChannel)
+  		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
@@ -521,6 +521,7 @@ function muteGame(event)
 	audio.pause(game1MusicChannel)
 	muteBtn.isVisible = false
 	unmuteBtn.isVisible = true
+	muted = 1
 end
 
 ---------------- PAUSE GAME ---------------------------
@@ -570,7 +571,7 @@ function restart_onBtnRelease()
 			hint = itemHint,
 		}
 	}
-	audio.stop(game1MusicChannel)
+	audio.stop()
 	storyboard.removeScene("reload")
 	storyboard.gotoScene("reload", option)
 end
@@ -598,7 +599,7 @@ function exit_onBtnRelease()
 	storyboard.removeScene("firstgame")
 	storyboard.removeScene("mainmenu")
 
-	audio.stop(game1MusicChannel)
+	audio.stop()
 
 	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
@@ -769,6 +770,7 @@ function scene:createScene(event)
     unmuteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
     unmuteBtn.x = 380
     unmuteBtn.y = 37
+    unmuteBtn.isVisible = false
 	unmuteBtn:addEventListener("touch", unmuteGame)
     unmuteBtn:addEventListener("tap", unmuteGame)
     screenGroup:insert( unmuteBtn )
