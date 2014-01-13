@@ -20,7 +20,7 @@ local function button1 ( event )
 			categ = "easy",
 			first = true,
 			score = 0,
-			time = 11
+			time = 61
 		}
 	}
 

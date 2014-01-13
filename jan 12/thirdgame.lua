@@ -331,11 +331,11 @@ function scene:createScene(event)
 	screenGroup = self.view
 
 	if category == 'easy' then
-		dimensions = 2
-	elseif category == 'medium' then
 		dimensions = 3
-	elseif category == 'hard' then
+	elseif category == 'medium' then
 		dimensions = 4
+	elseif category == 'hard' then
+		dimensions = 5
 	end
 
 	if(boolFirst) then
@@ -406,15 +406,15 @@ function scene:createScene(event)
 	order = ""
 
 	if category == 'easy' then
-		c = 2
+		c = 1
 		x = display.viewableContentWidth/2 - 40
 		y = display.viewableContentHeight/2 - 40
 	elseif category == 'medium' then
-		c = 4
+		c = 2
 		x = display.viewableContentWidth/2 - 60 
 		y = display.viewableContentHeight/2 - 50
 	elseif category == 'hard' then
-		c = 6
+		c = 3
 		x = display.viewableContentWidth/2 - 100
 		y = display.viewableContentHeight/2 - 110
 	end
@@ -503,7 +503,7 @@ function  checkanswer(event)
 		for i = 1, current do
 			obj = objectGroup[string.byte(order,i) % 96]
 			obj.isVisible = false
-			obj:removeEventListener("tap", checkanswer)
+			--obj:removeEventListener("tap", checkanswer)
 		end
 
 		print("check answer current " .. current)
@@ -511,6 +511,7 @@ function  checkanswer(event)
 			showNext()
 			t = nil
 		else
+			audio.play(correctSound)
 			boolFirst = false
 			print("NEXT!")
 			option = {
@@ -529,8 +530,9 @@ function  checkanswer(event)
 			storyboard.gotoScene("reloadthird", option)
 		end
 	else
+		audio.play(incorrectSound)
 		print("WRONG!!!!")
-		--[[
+		objectGroup:removeSelf()
 		boolFirst = false
 		print("NEXT!")
 		option = {
@@ -547,7 +549,7 @@ function  checkanswer(event)
 		timer = nil
 		storyboard.removeScene("reloadthird")
 		storyboard.gotoScene("reloadthird", option)
-		]]
+		
 	end
 end
 
@@ -558,7 +560,7 @@ function showNext()
 		obj.isVisible = true
 		obj.alpha = 0
 		transition.to(obj, {time=1500, alpha=1})
-		obj:addEventListener("tap", checkanswer)
+		--obj:addEventListener("tap", checkanswer)
 	end
 	current = current + 1
 	print("current " .. current)
