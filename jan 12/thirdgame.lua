@@ -22,6 +22,7 @@ local gameovergroup, round, score, gameover
 --for backend
 local rand, dimensions, order, current
 local obj, objectGroup, correctObj
+local r, g, b
 
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
@@ -404,18 +405,40 @@ function scene:createScene(event)
 
 	order = ""
 
-	rand = math.random(10)
 	if category == 'easy' then
+		c = 2
 		x = display.viewableContentWidth/2 - 40
 		y = display.viewableContentHeight/2 - 40
 	elseif category == 'medium' then
+		c = 4
 		x = display.viewableContentWidth/2 - 60 
 		y = display.viewableContentHeight/2 - 50
 	elseif category == 'hard' then
+		c = 6
 		x = display.viewableContentWidth/2 - 100
 		y = display.viewableContentHeight/2 - 110
 	end
 
+	r = {255,	0,		128,	255,	0,		128 }
+	g = {0,		128,	255, 	128,	255, 	0 }
+	b = {128,	255,	0,		0,		128, 	255 }
+
+	color = {}
+	colorStr = ""
+	for i = 1, c do
+		tempC = ""
+		temp = math.random(6)
+		tempC = tempC .. temp
+		while (string.find(colorStr, temp) ~= nil) do
+			tempC = ""
+			temp = math.random(6)
+			tempC = tempC .. temp	
+		end
+		colorStr = colorStr .. temp
+		color[i] = temp
+	end
+
+	rand = math.random(10)
 	for i = 1, dimensions * dimensions do
 		
 		if (i % dimensions == 1 and i > 1) then
@@ -443,7 +466,7 @@ function scene:createScene(event)
 		end
 
 		objectGroup:insert(i, obj)
-		obj:setFillColor(x,x,x)
+		obj:setFillColor(r[color[i%c+1]],g[color[i%c+1]],b[color[i%c+1]])
 		obj.isVisible = false
 	end
 
@@ -475,6 +498,8 @@ function  checkanswer(event)
 	local t = event.target
 	if (t == correctObj) then
 		print("CORRECT!")
+		currScore = currScore + 10
+		scoreToDisplay.text = "Score: " .. currScore
 		for i = 1, current do
 			obj = objectGroup[string.byte(order,i) % 96]
 			obj.isVisible = false
@@ -484,10 +509,10 @@ function  checkanswer(event)
 		print("check answer current " .. current)
 		if (current < dimensions * dimensions) then
 			showNext()
+			t = nil
 		else
 			boolFirst = false
 			print("NEXT!")
-			currScore = currScore + 1
 			option = {
 				time = 400,
 				params = {
@@ -504,7 +529,25 @@ function  checkanswer(event)
 			storyboard.gotoScene("reloadthird", option)
 		end
 	else
-		print("WRONG!")
+		print("WRONG!!!!")
+		--[[
+		boolFirst = false
+		print("NEXT!")
+		option = {
+			time = 400,
+			params = {
+				categ = category,
+				first = boolFirst,
+				time = currTime - timer:getElapsedSeconds(),
+				score = currScore,
+			}
+		}
+
+		timerText:removeSelf()
+		timer = nil
+		storyboard.removeScene("reloadthird")
+		storyboard.gotoScene("reloadthird", option)
+		]]
 	end
 end
 
@@ -514,7 +557,7 @@ function showNext()
 		obj = objectGroup[string.byte(order,i) % 96]
 		obj.isVisible = true
 		obj.alpha = 0
-		transition.to(obj, {time=3000, alpha=1})
+		transition.to(obj, {time=1500, alpha=1})
 		obj:addEventListener("tap", checkanswer)
 	end
 	current = current + 1
@@ -522,7 +565,7 @@ function showNext()
 	correctObj = objectGroup[string.byte(order,current) % 96]
 	correctObj.isVisible = true
 	correctObj.alpha = 0
-	transition.to(correctObj, {time=3000, alpha=1})
+	transition.to(correctObj, {time=1500, alpha=1})
 	correctObj:addEventListener("tap", checkanswer)
 end
 

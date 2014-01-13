@@ -164,7 +164,7 @@ local function button3 ( event )
 		params = {
 			categ = "easy",
 			first = true,
-			time =3,
+			time =61,
 			score = 0
 		}
 	}
