@@ -12,7 +12,7 @@ local scene = storyboard.newScene()
 --for the blackboard
 local screenGroup
 --for the timer and reloading
-local timer, timerText
+local timerr, timerText
 --for reloading params
 local currTime, boolFirst, currScore, category, option
 --for the pause screen
@@ -20,8 +20,8 @@ local pausegroup
 --for the gameover screen
 local gameovergroup, round, score, gameover
 --for backend
-local rand, dimensions, order, current
-local obj, objectGroup, correctObj
+local rand, dimensions, order, current, answer
+local obj, objectGroup
 local r, g, b
 
 ------- Load sounds ---------
@@ -68,10 +68,10 @@ end
 timerText = display.newText("", 480, 5, font, 18) 
 timerText:setTextColor(0,0,0)
 local function onFrame(event)
-	if (timer ~= nil) then
-   		timerText.text = timer:toRemainingString()
-   		local done = timer:isElapsed()
- 		local secs = timer:getElapsedSeconds()
+	if (timerr ~= nil) then
+   		timerText.text = timerr:toRemainingString()
+   		local done = timerr:isElapsed()
+ 		local secs = timerr:getElapsedSeconds()
 -- 		print("done:" .. secs)
 
    		if(done) then
@@ -170,7 +170,7 @@ function moveBG(self,event)
 	if(self.x == 241) then
 		Runtime:removeEventListener("enterFrame", gameover)
 		finalmenu()
-		timer = nil
+		timerr = nil
 	else
 		self.x = self.x - (self.speed)
 	end
@@ -178,6 +178,7 @@ end
 
 function gameoverdialog()
 
+	objectGroup:removeSelf()
 	pauseBtn.isVisible = false
 	unmuteBtn.isVisible = false
 	muteBtn.isVisible = false
@@ -196,7 +197,7 @@ end
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
-    	timer:pause()
+    	timerr:pause()
         pauseBtn.isVisible = false
         audio.pause(game3MusicChannel)
         showpauseDialog()
@@ -206,11 +207,11 @@ end
  
  --------------- RESTART GAME ----------------------
 function restart_onBtnRelease()
-	if (timer ~= nil) then
+	if (timerr ~= nil) then
 		objectGroup:removeSelf()
 		pausegroup:removeSelf()
 		timerText:removeSelf()
-		timer = nil
+		timerr = nil
 	else
 		gameovergroup.isVisible = false
 		gameover.isVisible = false
@@ -245,7 +246,7 @@ function resume_onBtnRelease()
 		audio.resume(game2MusicChannel)
 	end
 	pausegroup:removeSelf()
-	timer:resume()
+	timerr:resume()
     pauseBtn.isVisible = true
 	return true
 end
@@ -255,7 +256,7 @@ function exit_onBtnRelease()
 	objectGroup:removeSelf()
 	pausegroup:removeSelf()
 	timerText:removeSelf()
-	timer = nil
+	timerr = nil
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
 	storyboard.removeScene("thirdgame")
@@ -316,6 +317,18 @@ function showpauseDialog()
 	pausegroup:insert(exitBtn)
 end
 
+local function playBlink(event)
+	print("playseq")
+	--for i = 1, current do
+		current = current + 1
+		print("current " .. current)
+		obj = objectGroup[string.byte(order,current) % 96]
+		transition.to( obj, {time = 200, alpha = 0} )
+		transition.to( obj, {delay = 200, time = 200, alpha = 1} )
+	--end
+	print("tapos")
+end
+
 
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
@@ -326,16 +339,16 @@ function scene:createScene(event)
 	currTime = event.params.time
 	boolFirst = event.params.first
 
-	-- Start timer
-	timer = stopwatch.new(currTime)
+	-- Start timerr
+	timerr = stopwatch.new(currTime)
 	screenGroup = self.view
 
 	if category == 'easy' then
-		dimensions = 3
+		dimensions = 2
 	elseif category == 'medium' then
-		dimensions = 4
+		dimensions = 3
 	elseif category == 'hard' then
-		dimensions = 5
+		dimensions = 4
 	end
 
 	if(boolFirst) then
@@ -419,19 +432,19 @@ function scene:createScene(event)
 		y = display.viewableContentHeight/2 - 110
 	end
 
-	r = {255,	0,		128,	255,	0,		128 }
-	g = {0,		128,	255, 	128,	255, 	0 }
-	b = {128,	255,	0,		0,		128, 	255 }
+	r = {255,	0,		200,	255,	128 }
+	g = {0,		128,	50, 	128, 	0 }
+	b = {128,	255,	50,		0,		128 }
 
 	color = {}
 	colorStr = ""
 	for i = 1, c do
 		tempC = ""
-		temp = math.random(6)
+		temp = math.random(5)
 		tempC = tempC .. temp
 		while (string.find(colorStr, temp) ~= nil) do
 			tempC = ""
-			temp = math.random(6)
+			temp = math.random(5)
 			tempC = tempC .. temp	
 		end
 		colorStr = colorStr .. temp
@@ -465,6 +478,7 @@ function scene:createScene(event)
 			obj = display.newRect(x, y, 50, 50)
 		end
 
+		obj.name = "" .. string.char(96+i)
 		objectGroup:insert(i, obj)
 		obj:setFillColor(r[color[i%c+1]],g[color[i%c+1]],b[color[i%c+1]])
 		obj.isVisible = false
@@ -484,91 +498,76 @@ function scene:createScene(event)
 	print("JSHGSJHGJLASDGJKSD " .. order)
 	-- ---------------------
 
-	current = 1
+	for i = 1, dimensions*dimensions do
+		print("loopy " .. i)
+		obj = objectGroup[string.byte(order,i) % 96]
+		obj.isVisible = true
+		obj.alpha = 1
+		--transition.to(obj, {time=1500, alpha=1})
+		obj:addEventListener("tap", checkanswer)
+		obj:addEventListener("touch", checkanswer)
+	end
 
-	correctObj = objectGroup[string.byte(order,current) % 96]
-	correctObj.isVisible = true
-	correctObj.alpha = 0
-	transition.to(correctObj, {time=3000, alpha=1})
-	correctObj:addEventListener("tap", checkanswer)
+	answer = ""
+	current = 0
+	start(1)
 
+end
+
+function start(last)
+	current = 0
+	for i = 1, last do
+		timer.performWithDelay(i*1000, playBlink, 1)
+	end
 end
 
 function  checkanswer(event)
 	local t = event.target
-	if (t == correctObj) then
-		print("CORRECT!")
-		currScore = currScore + 10
-		scoreToDisplay.text = "Score: " .. currScore
-		for i = 1, current do
-			obj = objectGroup[string.byte(order,i) % 96]
-			obj.isVisible = false
-			--obj:removeEventListener("tap", checkanswer)
-		end
+	if (event.phase == "ended") then
+		print("ended " .. t.name)
+		answer = answer .. t.name
+		print(answer)
+		if(string.find(order, answer) ~= nil) then
+			a,b = string.find(order, answer)
+			print(a .. b)
 
-		print("check answer current " .. current)
-		if (current < dimensions * dimensions) then
-			showNext()
-			t = nil
+			if (a == 1 and b == current) then
+				print("CORRECT!!!!")
+				--next!
+				answer = ""
+				print("CURRENT SA CHECKANSWER ".. current+1)
+				if (current + 1 <= dimensions*dimensions) then
+					start(current+1)
+				else
+					reload()
+				end
+			elseif (a == 1 and b < current) then
+				print("di pa tapos")
+			end
 		else
-			audio.play(correctSound)
-			boolFirst = false
-			print("NEXT!")
-			option = {
-				time = 400,
-				params = {
-					categ = category,
-					first = boolFirst,
-					time = currTime - timer:getElapsedSeconds(),
-					score = currScore,
-				}
-			}
-
-			timerText:removeSelf()
-			timer = nil
-			storyboard.removeScene("reloadthird")
-			storyboard.gotoScene("reloadthird", option)
+			print("WRONG!!!!")
+			reload()
 		end
-	else
-		audio.play(incorrectSound)
-		print("WRONG!!!!")
-		objectGroup:removeSelf()
-		boolFirst = false
-		print("NEXT!")
-		option = {
-			time = 400,
-			params = {
-				categ = category,
-				first = boolFirst,
-				time = currTime - timer:getElapsedSeconds(),
-				score = currScore,
-			}
-		}
-
-		timerText:removeSelf()
-		timer = nil
-		storyboard.removeScene("reloadthird")
-		storyboard.gotoScene("reloadthird", option)
-		
 	end
 end
 
-function showNext()
-	for i = 1, current do
-		print("loopy " .. i)
-		obj = objectGroup[string.byte(order,i) % 96]
-		obj.isVisible = true
-		obj.alpha = 0
-		transition.to(obj, {time=1500, alpha=1})
-		--obj:addEventListener("tap", checkanswer)
-	end
-	current = current + 1
-	print("current " .. current)
-	correctObj = objectGroup[string.byte(order,current) % 96]
-	correctObj.isVisible = true
-	correctObj.alpha = 0
-	transition.to(correctObj, {time=1500, alpha=1})
-	correctObj:addEventListener("tap", checkanswer)
+function reload()
+	objectGroup:removeSelf()
+	timerText:removeSelf()
+	timerr = nil
+	option = {
+		effect = "fade",
+		time = 100,
+		params = {
+			categ = category,
+			first = true,
+			time = currTime,
+			score = 0
+		}
+	}
+	audio.stop()
+	storyboard.removeScene("reloadthird")
+	storyboard.gotoScene("reloadthird", option)
 end
 
 
