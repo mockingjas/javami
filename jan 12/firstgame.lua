@@ -671,7 +671,6 @@ function play()
 	network.download( "http://www.translate.google.com/translate_tts?tl=en&q='"..word.."'", "GET", networkListener, word..".mp3", system.TemporaryDirectory )	
 end
 
-
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	--get passed parameters from previous scene

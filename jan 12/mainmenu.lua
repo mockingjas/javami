@@ -13,14 +13,13 @@ local function button1 ( event )
 	-- PARAMETERS TO PASS TO NEXT SCENE
 	howtoplay:setEnabled(false)
 	scores:setEnabled(false)
+
 	easy =	{
 		effect = "fade",
 		time = 400,
 		params = {
 			categ = "easy",
-			first = true,
-			score = 0,
-			time = 61
+			game = "one"
 		}
 	}
 
@@ -29,40 +28,37 @@ local function button1 ( event )
 		time = 400,
 		params = {
 			categ = "medium",
-			first = true,
-			score = 0,
-			time = 121
+			game = "one"
 		}
 	}
-
 	hard =	{
 		effect = "fade",
 		time = 400,
 		params = {
 			categ = "hard",
-			first = true,	
-			score = 0,
-			time = 181		
+			game = "one"
 		}
 	}
+
+	
 	function easy_onBtnRelease()
 		levelgroup:removeSelf()
 		audio.stop( bgMusic )
-		storyboard.gotoScene("firstgame", easy)
+		storyboard.gotoScene("countdown", easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
 		levelgroup:removeSelf()
 		audio.stop( bgMusic )
-		storyboard.gotoScene("firstgame", medium)
+		storyboard.gotoScene("countdown", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
 		levelgroup:removeSelf()
 		audio.stop( bgMusic )
-		storyboard.gotoScene("firstgame", hard)
+		storyboard.gotoScene("countdown", hard)
 		return true
 	end
 
@@ -83,6 +79,7 @@ end
 local function button2 ( event )
 
 	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
+	howtoplay:setEnabled(false)
 	scores:setEnabled(false)
 
 	easy =	{
@@ -90,9 +87,7 @@ local function button2 ( event )
 		time = 400,
 		params = {
 			categ = "easy",
-			first = true,
-			score = 0,
-			time = 61,
+			game = "two"
 		}
 	}
 
@@ -101,41 +96,37 @@ local function button2 ( event )
 		time = 400,
 		params = {
 			categ = "medium",
-			first = true,
-			score = 0,
-			time = 121,
+			game = "two"
 		}
 	}
-
 	hard =	{
 		effect = "fade",
 		time = 400,
 		params = {
 			categ = "hard",
-			first = true,
-			score = 0,
-			time = 181,
+			game = "two"
 		}
 	}
 
+	
 	function easy_onBtnRelease()
 		levelgroup:removeSelf()
 		audio.stop( bgMusic )
-		storyboard.gotoScene("secondgame", easy)
+		storyboard.gotoScene("countdown", easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
 		levelgroup:removeSelf()
 		audio.stop( bgMusic )
-		storyboard.gotoScene("secondgame", medium)
+		storyboard.gotoScene("countdown", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
 		levelgroup:removeSelf()
-		audio.stop( bgMusic )		
-		storyboard.gotoScene("secondgame" , hard)
+		audio.stop( bgMusic )
+		storyboard.gotoScene("countdown", hard)
 		return true
 	end
 
@@ -145,6 +136,7 @@ local function button2 ( event )
 		levelgroup:removeSelf()
 		return true
 	end
+	-- 
 	
 	showlevelDialog()
 	
@@ -163,9 +155,7 @@ local function button3 ( event )
 		time = 400,
 		params = {
 			categ = "easy",
-			first = true,
-			time =61,
-			score = 0
+			game = "three"
 		}
 	}
 
@@ -174,51 +164,46 @@ local function button3 ( event )
 		time = 400,
 		params = {
 			categ = "medium",
-			first = true,
-			time = 121,
-			score = 0
+			game = "three"
 		}
 	}
-
 	hard =	{
 		effect = "fade",
 		time = 400,
 		params = {
 			categ = "hard",
-			first = true,
-			time = 181,
-			score = 0			
+			game = "three"
 		}
 	}
+
 	
 	function easy_onBtnRelease()
 		levelgroup:removeSelf()
 		audio.stop( bgMusic )
-		storyboard.gotoScene("thirdgame" , easy)
+		storyboard.gotoScene("countdown", easy)
 		return true
 	end
 
 	function medium_onBtnRelease()
 		levelgroup:removeSelf()
-		audio.stop( bgMusic )		
-		storyboard.gotoScene("thirdgame", medium)
+		audio.stop( bgMusic )
+		storyboard.gotoScene("countdown", medium)
 		return true
 	end
 
 	function hard_onBtnRelease()
 		levelgroup:removeSelf()
-		audio.stop( bgMusic )		
-		storyboard.gotoScene("thirdgame", hard)
+		audio.stop( bgMusic )
+		storyboard.gotoScene("countdown", hard)
 		return true
 	end
-	
+
 	function exit_onBtnRelease()
 		howtoplay:setEnabled(true)
 		scores:setEnabled(true)
 		levelgroup:removeSelf()
 		return true
 	end
-	
 	showlevelDialog()
 	
 end
