@@ -74,14 +74,40 @@ function updateDB(word)
 end
 
 --DB: insert to first game
-function insertToDB(category, score, name, timestamp)
+function insertToDB(category, score, name, timestamp, pausectr)
 	local insertQuery = [[INSERT INTO FirstGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
-	timestamp .. [[');]]
+	timestamp .. [[',']] ..
+	pausectr .. [[');]]
 	db:exec(insertQuery)
+
+	--NEW
+	for row in db:nrows("SELECT id FROM FirstGame") do
+		id = row.id
+	end
+	return id
 end
+
+--NEW
+function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, word)
+	print("SDFDS")
+	local query = [[INSERT INTO FirstGameAnalytics VALUES (NULL, ']] .. 
+	gameid .. [[',']] ..
+	roundid .. [[',']] ..
+	speed .. [[',']] ..
+	hintctr .. [[',']] ..
+	triesctr .. [[',']] ..
+	word .. [[');]]
+	db:exec(query)
+
+	--NEW
+	for row in db:nrows("SELECT id FROM FirstGameAnalytics") do
+		print(row.id)
+	end
+end
+--
 
 --DB: reset all words to un-guessed
 function resetDB()
@@ -160,6 +186,8 @@ function getwordfromDB()
 	print(wordToGuess)
 	--analytics
 	item[currScore+1] = word
+
+
 	
 end
 
@@ -414,6 +442,57 @@ local function spriteListener( event )
 	 end
 end
 
+local function generateReport()
+	gamenumber = {} roundnumber = {} speed = {} hint = {} tries = {} words = {}
+	local report = ""
+	print("REPORT: \n\n")
+
+	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
+		gamenumber[#gamenumber+1] = row.gamenumber
+		roundnumber[#roundnumber+1] = row.roundnumber
+		speed[#speed+1] = row.speed
+		hint[#hint+1] = row.hintcount
+		tries[#tries+1] = row.triescount
+		words[#words+1] = row.word
+	end
+
+	print(#gamenumber)
+	first = gamenumber[1]
+	last = gamenumber[#gamenumber]
+
+
+	local i
+	for i = first, last do
+		-- per game
+		print("\n\n\nGAME# " .. i)
+		report = report .. "GAME# " .. i .. "\n"
+		for row in db:nrows("SELECT * FROM FirstGame where id = '" .. i .. "'") do
+			print("PLAYER NAME: " .. row.name .. "\nCATEGORY: " .. row.category .. "\nTIMESTAMP: " ..row.timestamp .. "\nSCORE: " .. row.score .. "\nNUMBER OF PAUSES: " .. row.pausecount .. "\n")
+			report = report .. "PLAYER NAME: " .. row.name .. "\nCATEGORY: " .. row.category .. "\nTIMESTAMP: " ..row.timestamp .. "\nSCORE: " .. row.score .. "\nNUMBER OF PAUSES: " .. row.pausecount .. "\n"
+		end
+
+		print("GAME#\tROUND#\tWORD\tSPEED\tHINTS\tTRIES")
+		report = report .. "\nGAME#\tROUND#\tWORD\tSPEED\tHINTS\tTRIES\n"
+		for j = 1, #roundnumber do
+			-- per item
+			if tonumber(gamenumber[j]) == i then
+				print(gamenumber[j] .. "\t" .. roundnumber[j] .. "\t" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
+				report = report .. gamenumber[j] .. "\t" .. roundnumber[j] .. "\t" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j].."\n"
+			end
+		end
+		report = report .. "\n"
+	end
+	
+	--print(report)
+
+	-- Save to file
+	local path = system.pathForFile( "Game 1 Analytics.txt", system.ResourceDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
+end
+
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
 
@@ -421,7 +500,8 @@ function gameoverdialog()
 	local date = os.date( "*t" )
 	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
 	print( "time"..timeStamp )
-	insertToDB(category, currScore, profileName, timeStamp)
+	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr) 	--NEW
+
 	--
 
 	timerText:removeSelf()
@@ -456,7 +536,7 @@ function gameoverdialog()
 
 	--- GAME ANALYTICS ---
 	print("\n**GAME ANALYTICS** ")
-
+	print("id" .. id)
 	for i = 1, #item do
 		print("\n("..i..") "..item[i])
 		print("speed: ".. itemSpeed[i])
@@ -464,9 +544,16 @@ function gameoverdialog()
 		print("# of tries: ".. itemTries[i])
 	end
 
+	--- GAME ANALYTICS ---
+	for i = 1, #item do
+		print(id.." "..i.." "..itemSpeed[i].." "..itemHint[i].. " "..itemTries[i] .. " "..item[i])
+		insertAnalyticsToDB(id, i, itemSpeed[i], itemHint[i], itemTries[i], item[i]) 	--NEW
+	end
+
+	generateReport() -- NEW
+
 	print("\nFINAL SCORE: " .. currScore)
 	print("TOTAL # of pauses: " .. pauseCtr)
-
 
 end
 
@@ -527,6 +614,7 @@ end
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
+       	pauseCtr = pauseCtr + 1 --NEW
     	timer:pause()
     	audio.pause(game1MusicChannel)
     	submit:setEnabled(false)
@@ -668,6 +756,7 @@ local function networkListener( event )
 end
 
 function play()
+	itemHint[currScore+1] = itemHint[currScore+1] + 1
 	network.download( "http://www.translate.google.com/translate_tts?tl=en&q='"..word.."'", "GET", networkListener, word..".mp3", system.TemporaryDirectory )	
 end
 
