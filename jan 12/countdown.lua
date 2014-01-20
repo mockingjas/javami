@@ -22,7 +22,7 @@ function loadgame()
 			categ = "easy",
 			first = true,
 			score = 0,
-			time = 11
+			time = 61
 		}
 	}
 
@@ -51,26 +51,35 @@ function loadgame()
 	if(game == "one")  then
 		if(categ == "easy") then
 			storyboard.gotoScene("firstgame", easy)
+			storyboard.removeScene("countdown")
 		elseif(categ == "medium") then
 			storyboard.gotoScene("firstgame", medium)
+			storyboard.removeScene("countdown")
 		else
 			storyboard.gotoScene("firstgame", hard)	
+			storyboard.removeScene("countdown")
 		end
 	elseif(game == "two")  then
 		if(categ == "easy") then
 			storyboard.gotoScene("secondgame", easy)
+			storyboard.removeScene("countdown")
 		elseif(categ == "medium") then
 			storyboard.gotoScene("secondgame", medium)
+			storyboard.removeScene("countdown")
 		else
 			storyboard.gotoScene("secondgame", hard)	
+			storyboard.removeScene("countdown")
 		end	
 	else
 		if(categ == "easy") then
 			storyboard.gotoScene("thirdgame", easy)
+			storyboard.removeScene("countdown")
 		elseif(categ == "medium") then
 			storyboard.gotoScene("thirdgame", medium)
+			storyboard.removeScene("countdown")
 		else
 			storyboard.gotoScene("thirdgame", hard)	
+			storyboard.removeScene("countdown")
 		end
 	end
 
@@ -80,6 +89,7 @@ end
 
 
 function show(event)
+	print("in function show".. i)
 	if(i == 1) then
 		two.isVisible = false
 		one.isVisible = true
@@ -100,7 +110,7 @@ function show(event)
 	elseif(i == 0) then
 		one.isVisible = false
 		go.isVisible = true
-		go.alpha = 100
+		go.alpha = 1
 		transition.to(go, {time=1000, alpha=1, effect ="zoomInOut"})
 		i = i - 1
 	else
@@ -114,6 +124,8 @@ function scene:createScene(event)
 	--Params
 	categ = event.params.categ
 	game = event.params.game
+	i = 3
+	print(i)
 
 	-- Screen Elements
 	local screenGroup = self.view
@@ -149,7 +161,6 @@ function scene:createScene(event)
 	screenGroup:insert(three)
 	screenGroup:insert(go)
 
-	i = 3
 	three.isVisible = false
 	two.isVisible = false
 	one.isVisible = false
