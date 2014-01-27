@@ -1,62 +1,48 @@
-GAME# 177
+GAME# 182
 
 Player:		Cha
 Category:	easy
-Timestamp:	1-19-2014 ; 0:5
+Timestamp:	1-27-2014 ; 10:56
 Pause count:	0
-Final score:	3
-Longest Time:	eat (4 seconds)
-Shortest Time:	new (0 seconds)
-Most hints:	new (1 time/s)
-Least hints:	box, sea, eat (0 time/s)
-Most mistaken:	box, sea, eat (1 attempt/s)
-Least mistaken:	new (0 attempt/s)
+Final score:	14
+Longest Time:	tree (8 seconds)
+Shortest Time:	boat (10 seconds)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES
-box	3	0	1
-sea	2	0	1
-eat	4	0	1
-new	0	1	0
+six	4	0	1
+boat	10	0	1
+rat	3	0	1
+ear	3	0	1
+cold	5	0	1
+tree	8	0	1
+here	6	0	1
+out	3	0	1
+two	3	0	1
+cat	3	0	1
+bed	3	0	1
+one	3	0	1
+you	3	0	1
+toy	3	0	1
 
 -------------------------------------------------------------
-GAME# 178
+GAME# 181
 
 Player:		Cha
 Category:	easy
-Timestamp:	1-19-2014 ; 0:6
-Pause count:	1
+Timestamp:	1-27-2014 ; 10:45
+Pause count:	0
 Final score:	2
-Longest Time:	box (6 seconds)
-Shortest Time:	seed (0 seconds)
-Most hints:	box (3 time/s)
-Least hints:	play, seed (0 time/s)
-Most mistaken:	seed (5 attempt/s)
-Least mistaken:	play (1 attempt/s)
+Longest Time:	bag (4 seconds)
+Shortest Time:	hot (0 seconds)
+Most mistaken:	here, bag (1 attempt/s)
+Least mistaken:	hot (0 attempt/s)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES
-play	4	0	1
-box	6	3	4
-seed	0	0	5
-
--------------------------------------------------------------
-GAME# 179
-
-Player:		Cha
-Category:	easy
-Timestamp:	1-19-2014 ; 0:9
-Pause count:	0
-Final score:	1
-Longest Time:	game (5 seconds)
-Shortest Time:	like (0 seconds)
-Most mistaken:	game (1 attempt/s)
-Least mistaken:	like (0 attempt/s)
-
-PER ITEM ANALYSIS:
-WORD	SPEED	HINTS	TRIES
-game	5	0	1
-like	0	0	0
+here	10	0	1
+bag	4	0	1
+hot	0	0	0
 
 -------------------------------------------------------------
 GAME# 180
@@ -85,50 +71,64 @@ rat	4	0	1
 hand	0	0	0
 
 -------------------------------------------------------------
-GAME# 181
+GAME# 179
 
 Player:		Cha
 Category:	easy
-Timestamp:	1-27-2014 ; 10:45
+Timestamp:	1-19-2014 ; 0:9
 Pause count:	0
-Final score:	2
-Longest Time:	bag (4 seconds)
-Shortest Time:	hot (0 seconds)
-Most mistaken:	here, bag (1 attempt/s)
-Least mistaken:	hot (0 attempt/s)
+Final score:	1
+Longest Time:	game (5 seconds)
+Shortest Time:	like (0 seconds)
+Most mistaken:	game (1 attempt/s)
+Least mistaken:	like (0 attempt/s)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES
-here	10	0	1
-bag	4	0	1
-hot	0	0	0
+game	5	0	1
+like	0	0	0
 
 -------------------------------------------------------------
-GAME# 182
+GAME# 178
 
 Player:		Cha
 Category:	easy
-Timestamp:	1-27-2014 ; 10:56
-Pause count:	0
-Final score:	14
-Longest Time:	tree (8 seconds)
-Shortest Time:	boat (10 seconds)
+Timestamp:	1-19-2014 ; 0:6
+Pause count:	1
+Final score:	2
+Longest Time:	box (6 seconds)
+Shortest Time:	seed (0 seconds)
+Most hints:	box (3 time/s)
+Least hints:	play, seed (0 time/s)
+Most mistaken:	seed (5 attempt/s)
+Least mistaken:	play (1 attempt/s)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES
-six	4	0	1
-boat	10	0	1
-rat	3	0	1
-ear	3	0	1
-cold	5	0	1
-tree	8	0	1
-here	6	0	1
-out	3	0	1
-two	3	0	1
-cat	3	0	1
-bed	3	0	1
-one	3	0	1
-you	3	0	1
-toy	3	0	1
+play	4	0	1
+box	6	3	4
+seed	0	0	5
+
+-------------------------------------------------------------
+GAME# 177
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-19-2014 ; 0:5
+Pause count:	0
+Final score:	3
+Longest Time:	eat (4 seconds)
+Shortest Time:	new (0 seconds)
+Most hints:	new (1 time/s)
+Least hints:	box, sea, eat (0 time/s)
+Most mistaken:	box, sea, eat (1 attempt/s)
+Least mistaken:	new (0 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+box	3	0	1
+sea	2	0	1
+eat	4	0	1
+new	0	1	0
 
 -------------------------------------------------------------

@@ -18,47 +18,12 @@ else
     font = "Eraser-Regular"
 end
 
-
--- TextField Listener
-local function fieldHandler( getObj )
-        
--- Use Lua closure in order to access the TextField object
- 
-	return function( event )
-
-	        print( "TextField Object is: " .. tostring( getObj() ) )
-	        
-	        if ( "began" == event.phase ) then
-	                -- This is the "keyboard has appeared" event
-	        
-	        elseif ( "ended" == event.phase ) then
-	                -- This event is called when the user stops editing a field:
-	                -- for example, when they touch a different field or keyboard focus goes away
-	        
-	                print( "Text entered = " .. tostring( getObj().text ) )         -- display the text entered
-	                
-	        elseif ( "submitted" == event.phase ) then
-	                -- This event occurs when the user presses the "return" key
-	                -- (if available) on the onscreen keyboard
-	                
-	                -- Hide keyboard
-	                native.setKeyboardFocus( nil )
-	        end
-	        
-	end     -- "return function()"
- 
-end
-
 local function textListener( event )
 	if(event.phase == "began") then
-		if(event.target.text == event.target.hintText) then
-			event.target.text = ''
-		end
+		
 	elseif(event.phase == "editing") then
 	elseif(event.phase == "ended") then
-		if(event.target.text == '') then
-		event.target.text = event.target.hintTextend
-		end
+		name.text = event.target.text
 	end
 end
 
@@ -78,6 +43,7 @@ function scene:createScene(event)
 	namelabel:setTextColor(0,0,0)
 	name = native.newTextField( 220, 100, 180, 30 )    -- passes the text field object
     name:setTextColor( 255,255,255)
+    name.hasBackground = false
     name.hintText = "Ross Geller"
    	name.text = name.hintText
    	screenGroup:insert(namelabel)
@@ -87,6 +53,7 @@ function scene:createScene(event)
    	agelabel:setTextColor(0,0,0)
 	age = native.newTextField( 220, 140, 100, 30 )    -- passes the text field object
     age:setTextColor( 255,255,255)
+    age.hasBackground = false
    	age.inputType = "number"
    	age.hintText = "5"
    	age.text = age.hintText
@@ -98,6 +65,7 @@ function scene:createScene(event)
    	emaillabel:setTextColor(0,0,0)
 	email = native.newTextField( 50, 210, 300, 30 )    -- passes the text field object
     email:setTextColor( 255,255,255)
+    email.hasBackground = false
    	email.inputType = "email"
    	email.hintText = "drgeller@friends.org"
    	email.text = email.hintText

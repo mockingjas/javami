@@ -466,7 +466,7 @@ function generateReport()
 	first = gamenumber[1]
 	last = gamenumber[#gamenumber]
 
-	for i = first, last do
+	for i = last, first, -1 do
 	--- PER GAME
 		print("GAME# " .. i)
 		report = report .. "GAME# " .. i .. "\n"
