@@ -1,0 +1,70 @@
+GAME # 12
+
+ROUND 1
+Round time: 29 seconds
+
+CATEGORY: blue
+Correct Words: 5
+	book
+	water
+	beach
+	earth
+	best
+Incorrect Words: 2
+	bed
+	name
+
+CATEGORY: bodypart
+Correct Words: 4
+	teeth
+	elbow
+	bones
+	fingers
+Incorrect Words: 2
+	hill
+	butter
+
+CATEGORY: triangle
+Correct Words: 6
+	hat
+	volcano
+	mountain
+	pizza
+	hill
+	roof
+Incorrect Words: 2
+	elbow
+	love
+
+ROUND 2
+Round time: 28 seconds
+
+CATEGORY: circle
+Correct Words: 13
+	pot
+	baseball
+	day
+	cake
+	happy
+	stones
+	orange
+	eight
+	happy
+	yoyo
+	round
+	baseball
+	ring
+Incorrect Words: 2
+	sit
+	hospital
+
+CATEGORY: bodypart
+Correct Words: 4
+	eyes
+	teeth
+	ear
+	elbow
+Incorrect Words: 2
+	wish
+	tiger
+----------------------------------

@@ -92,19 +92,15 @@ end
 
 --NEW
 function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, word)
-	print("SDFDS")
-	local query = [[INSERT INTO FirstGameAnalytics VALUES (NULL, ']] .. 
-	gameid .. [[',']] ..
-	roundid .. [[',']] ..
-	speed .. [[',']] ..
-	hintctr .. [[',']] ..
-	triesctr .. [[',']] ..
-	word .. [[');]]
-	db:exec(query)
-
-	--NEW
-	for row in db:nrows("SELECT id FROM FirstGameAnalytics") do
-		print(row.id)
+	if tonumber(triesctr) > 0 then
+		local query = [[INSERT INTO FirstGameAnalytics VALUES (NULL, ']] .. 
+		gameid .. [[',']] ..
+		roundid .. [[',']] ..
+		speed .. [[',']] ..
+		hintctr .. [[',']] ..
+		triesctr .. [[',']] ..
+		word .. [[');]]
+		db:exec(query)
 	end
 end
 --
@@ -157,7 +153,6 @@ end
 
 ------- GET WORD FROM DB ---------
 function getwordfromDB()
---	print("PASSED VARIABLE:"..category)
 	local words = fetchByCategory(category)
 --	for i=1,#words do print("DB:"..words[i]) end
 
@@ -300,7 +295,7 @@ local checkanswer = function(event)
 			audio.pause(game1MusicChannel)
 			audio.play(correctSound)
 			boolFirst = false
-			print("Correct!")
+--			print("Correct!")
 			updateDB(word) --set isCorrect to true
 			currScore = currScore + 1
 --			print("New score: "..currScore)
@@ -337,7 +332,7 @@ local checkanswer = function(event)
 			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
-			print("wrong!")
+--			print("wrong!")
 			--To play the sound effect, call this whenever you want to play it
 			-- new: wrong toast
 			toast2.new("", 500)
@@ -442,11 +437,23 @@ local function spriteListener( event )
 	 end
 end
 
-local function generateReport()
+function queryAnalytics(gamectr, column, value)
+	result = ""
+	ctr = 0
+	for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '" ..gamectr.. "' and " .. column .. "= '" .. value .. "'") do
+		if ctr == 0 then
+			result = row.word
+		else
+			result = result .. ", " .. row.word
+		end
+		ctr = ctr + 1
+	end
+	return result
+end
+
+function generateReport()
 	gamenumber = {} roundnumber = {} speed = {} hint = {} tries = {} words = {}
 	local report = ""
-	print("REPORT: \n\n")
-
 	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
 		gamenumber[#gamenumber+1] = row.gamenumber
 		roundnumber[#roundnumber+1] = row.roundnumber
@@ -456,34 +463,95 @@ local function generateReport()
 		words[#words+1] = row.word
 	end
 
-	print(#gamenumber)
 	first = gamenumber[1]
 	last = gamenumber[#gamenumber]
 
-
-	local i
 	for i = first, last do
-		-- per game
-		print("\n\n\nGAME# " .. i)
+	--- PER GAME
+		print("GAME# " .. i)
 		report = report .. "GAME# " .. i .. "\n"
 		for row in db:nrows("SELECT * FROM FirstGame where id = '" .. i .. "'") do
-			print("PLAYER NAME: " .. row.name .. "\nCATEGORY: " .. row.category .. "\nTIMESTAMP: " ..row.timestamp .. "\nSCORE: " .. row.score .. "\nNUMBER OF PAUSES: " .. row.pausecount .. "\n")
-			report = report .. "PLAYER NAME: " .. row.name .. "\nCATEGORY: " .. row.category .. "\nTIMESTAMP: " ..row.timestamp .. "\nSCORE: " .. row.score .. "\nNUMBER OF PAUSES: " .. row.pausecount .. "\n"
+			finalscore = row.score
+			print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
+			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
 
-		print("GAME#\tROUND#\tWORD\tSPEED\tHINTS\tTRIES")
-		report = report .. "\nGAME#\tROUND#\tWORD\tSPEED\tHINTS\tTRIES\n"
-		for j = 1, #roundnumber do
-			-- per item
-			if tonumber(gamenumber[j]) == i then
-				print(gamenumber[j] .. "\t" .. roundnumber[j] .. "\t" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
-				report = report .. gamenumber[j] .. "\t" .. roundnumber[j] .. "\t" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j].."\n"
+		if tonumber(finalscore) > 0 then
+			report = report .. "\n"
+			--NEW
+			--By Speed
+			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY speed DESC") do
+				maxVal = row.speed
+				break
 			end
+			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY speed") do
+				minVal = row.speed
+				break
+			end
+			if maxVal ~= minVal then
+				max = queryAnalytics(i, "speed", maxVal)
+				report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
+				print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
+				min = queryAnalytics(i, "speed", minVal)
+				print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
+				report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
+			end
+
+			--By Hints
+			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount DESC") do
+				maxVal = row.hintcount
+				break
+			end
+			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount") do
+				minVal = row.hintcount
+				break
+			end
+			if maxVal ~= minVal then
+				max = queryAnalytics(i, "hintcount", maxVal)
+				print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
+				report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
+				min = queryAnalytics(i, "hintcount", minVal)
+				print("Least hints:\t"..min.." ("..minVal.." time/s)")
+				report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
+			end
+
+			--By Tries
+			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY triescount DESC") do
+				maxVal = row.triescount
+				break
+			end
+			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY triescount") do
+				minVal = row.triescount
+				break
+			end
+			if maxVal ~= minVal then
+				max = queryAnalytics(i, "triescount", maxVal)
+				print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
+				report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
+				min = queryAnalytics(i, "triescount", minVal)
+				print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
+				report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
+			end
+
+		--PER WORD
+			print("\nPER ITEM ANALYSIS:")
+			print("\nWORD\tSPEED\tHINTS\tTRIES")
+			report = report .. "\nPER ITEM ANALYSIS:"
+			report = report .. "\nWORD\tSPEED\tHINTS\tTRIES\n"
+			for j = 1, #roundnumber do
+				-- per item
+				if tonumber(gamenumber[j]) == i then
+					print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
+					report = report .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j].."\n"
+				end
+			end
+			report = report .. "\n"
 		end
-		report = report .. "\n"
+
+		print("-------------------------------------------------------------\n\n")
+		report = report .. "-------------------------------------------------------------\n"
+
 	end
-	
-	--print(report)
 
 	-- Save to file
 	local path = system.pathForFile( "Game 1 Analytics.txt", system.ResourceDirectory )
@@ -535,25 +603,12 @@ function gameoverdialog()
 	score.y = display.contentCenterY + 45
 
 	--- GAME ANALYTICS ---
-	print("\n**GAME ANALYTICS** ")
-	print("id" .. id)
-	for i = 1, #item do
-		print("\n("..i..") "..item[i])
-		print("speed: ".. itemSpeed[i])
-		print("# of hints: ".. itemHint[i])
-		print("# of tries: ".. itemTries[i])
-	end
-
-	--- GAME ANALYTICS ---
 	for i = 1, #item do
 		print(id.." "..i.." "..itemSpeed[i].." "..itemHint[i].. " "..itemTries[i] .. " "..item[i])
 		insertAnalyticsToDB(id, i, itemSpeed[i], itemHint[i], itemTries[i], item[i]) 	--NEW
 	end
 
 	generateReport() -- NEW
-
-	print("\nFINAL SCORE: " .. currScore)
-	print("TOTAL # of pauses: " .. pauseCtr)
 
 end
 
@@ -600,7 +655,7 @@ function unmuteGame(event)
 	muteBtn.isVisible = true
 	muteBtn.isVisible = true
 	muted = 0
-	print("unmuteGame " .. muted)
+--	print("unmuteGame " .. muted)
 end
 
 ---------------- MUTE GAME ---------------------------
@@ -747,7 +802,7 @@ local function networkListener( event )
 	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
 
 	if speech == nil then
-		print("ERROR!")
+--		print("ERROR!")
 		toast.new("Device must be connected\nto the internet!", 3000)
 	else
 	   	audio.play( speech )

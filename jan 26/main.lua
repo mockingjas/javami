@@ -26,10 +26,9 @@ storyboard.gotoScene( "startmenu")
 
 --for row in db:nrows("ALTER TABLE FirstGame ADD COLUMN pausecount") do end
 
-print("Table Structure:")
-for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
-	print(row.name)
-end
+
+local game2analytics= [[CREATE TABLE IF NOT EXISTS SecondGameAnalytics(id INTEGER PRIMARY KEY autoincrement, gamenumber, roundnumber, word, category, isCorrect, speed);]]
+db:exec(game2analytics)
 
 local game1analytics= [[CREATE TABLE IF NOT EXISTS FirstGameAnalytics(id INTEGER PRIMARY KEY autoincrement, gamenumber, roundnumber, speed, hintcount, triescount, word);]]
 db:exec(game1analytics)
@@ -43,4 +42,11 @@ for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
 	print(row.id..row.gamenumber)
 end
 
+print("Table Structure:")
+for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
+	print(row.name)
+end
+
+
 for row in db:nrows("PRAGMA table_info(FirstGameAnalytics);") do print(row.name) end
+

@@ -1,55 +1,134 @@
 GAME# 177
-PLAYER NAME: Cha
-CATEGORY: easy
-TIMESTAMP: 1-19-2014 ; 0:5
-SCORE: 3
-NUMBER OF PAUSES: 0
 
-GAME#	ROUND#	WORD	SPEED	HINTS	TRIES
-177	1	box	3	0	1
-177	2	sea	2	0	1
-177	3	eat	4	0	1
-177	4	new	0	1	0
+Player:		Cha
+Category:	easy
+Timestamp:	1-19-2014 ; 0:5
+Pause count:	0
+Final score:	3
+Longest Time:	eat (4 seconds)
+Shortest Time:	new (0 seconds)
+Most hints:	new (1 time/s)
+Least hints:	box, sea, eat (0 time/s)
+Most mistaken:	box, sea, eat (1 attempt/s)
+Least mistaken:	new (0 attempt/s)
 
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+box	3	0	1
+sea	2	0	1
+eat	4	0	1
+new	0	1	0
+
+-------------------------------------------------------------
 GAME# 178
-PLAYER NAME: Cha
-CATEGORY: easy
-TIMESTAMP: 1-19-2014 ; 0:6
-SCORE: 2
-NUMBER OF PAUSES: 1
 
-GAME#	ROUND#	WORD	SPEED	HINTS	TRIES
-178	1	play	4	0	1
-178	2	box	6	3	4
-178	3	seed	0	0	5
+Player:		Cha
+Category:	easy
+Timestamp:	1-19-2014 ; 0:6
+Pause count:	1
+Final score:	2
+Longest Time:	box (6 seconds)
+Shortest Time:	seed (0 seconds)
+Most hints:	box (3 time/s)
+Least hints:	play, seed (0 time/s)
+Most mistaken:	seed (5 attempt/s)
+Least mistaken:	play (1 attempt/s)
 
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+play	4	0	1
+box	6	3	4
+seed	0	0	5
+
+-------------------------------------------------------------
 GAME# 179
-PLAYER NAME: Cha
-CATEGORY: easy
-TIMESTAMP: 1-19-2014 ; 0:9
-SCORE: 1
-NUMBER OF PAUSES: 0
 
-GAME#	ROUND#	WORD	SPEED	HINTS	TRIES
-179	1	game	5	0	1
-179	2	like	0	0	0
+Player:		Cha
+Category:	easy
+Timestamp:	1-19-2014 ; 0:9
+Pause count:	0
+Final score:	1
+Longest Time:	game (5 seconds)
+Shortest Time:	like (0 seconds)
+Most mistaken:	game (1 attempt/s)
+Least mistaken:	like (0 attempt/s)
 
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+game	5	0	1
+like	0	0	0
+
+-------------------------------------------------------------
 GAME# 180
-PLAYER NAME: Cha
-CATEGORY: easy
-TIMESTAMP: 1-21-2014 ; 15:10
-SCORE: 9
-NUMBER OF PAUSES: 0
 
-GAME#	ROUND#	WORD	SPEED	HINTS	TRIES
-180	1	baby	6	0	1
-180	2	hat	6	0	1
-180	3	like	9	0	1
-180	4	two	3	0	1
-180	5	coat	5	0	1
-180	6	wind	15	0	1
-180	7	pig	5	0	1
-180	8	toy	5	0	1
-180	9	rat	4	0	1
-180	10	hand	0	0	0
+Player:		Cha
+Category:	easy
+Timestamp:	1-21-2014 ; 15:10
+Pause count:	0
+Final score:	9
+Longest Time:	like (9 seconds)
+Shortest Time:	hand (0 seconds)
+Most mistaken:	baby, hat, like, two, coat, wind, pig, toy, rat (1 attempt/s)
+Least mistaken:	hand (0 attempt/s)
 
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+baby	6	0	1
+hat	6	0	1
+like	9	0	1
+two	3	0	1
+coat	5	0	1
+wind	15	0	1
+pig	5	0	1
+toy	5	0	1
+rat	4	0	1
+hand	0	0	0
+
+-------------------------------------------------------------
+GAME# 181
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 10:45
+Pause count:	0
+Final score:	2
+Longest Time:	bag (4 seconds)
+Shortest Time:	hot (0 seconds)
+Most mistaken:	here, bag (1 attempt/s)
+Least mistaken:	hot (0 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+here	10	0	1
+bag	4	0	1
+hot	0	0	0
+
+-------------------------------------------------------------
+GAME# 182
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 10:56
+Pause count:	0
+Final score:	14
+Longest Time:	tree (8 seconds)
+Shortest Time:	boat (10 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+six	4	0	1
+boat	10	0	1
+rat	3	0	1
+ear	3	0	1
+cold	5	0	1
+tree	8	0	1
+here	6	0	1
+out	3	0	1
+two	3	0	1
+cat	3	0	1
+bed	3	0	1
+one	3	0	1
+you	3	0	1
+toy	3	0	1
+
+-------------------------------------------------------------

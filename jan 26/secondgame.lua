@@ -49,10 +49,7 @@ else
 end
 
 -------- Analytics------------
--- *per item
-local item, itemSpeed, itemCheck, itemCtr
--- *per game
-local pauseCtr
+local pauseCtr, count, roundNumber
 
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
 function home(event)
@@ -81,53 +78,50 @@ end
 --------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
 local function finalmenu( )
 --    print(event.phase)
-   		
-   		gameovergroup = display.newGroup()
+		gameovergroup = display.newGroup()
 
-	    round= display.newText("ROUND: "..category, 0, 0, font, 15)
-		round.x = 150
-		round.y = display.contentCenterY - 120
-		round:setTextColor(0,0,0)
-		gameovergroup:insert(round)
+    round= display.newText("ROUND: "..category, 0, 0, font, 15)
+	round.x = 150
+	round.y = display.contentCenterY - 120
+	round:setTextColor(0,0,0)
+	gameovergroup:insert(round)
 
-		score= display.newText("SCORE: "..currScore, 0, 0, font, 15)
-		score.x = 300
-		score.y = display.contentCenterY - 120
-		score:setTextColor(0,0,0)
-		gameovergroup:insert(score)
+	score= display.newText("SCORE: "..currScore, 0, 0, font, 15)
+	score.x = 300
+	score.y = display.contentCenterY - 120
+	score:setTextColor(0,0,0)
+	gameovergroup:insert(score)
 
-    	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
-	    playBtn.x = 130
-	    playBtn.y = display.contentCenterY - 80
-	    playBtn:addEventListener("touch", restart_onBtnRelease)
-	    gameovergroup:insert(playBtn)
+	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
+    playBtn.x = 130
+    playBtn.y = display.contentCenterY - 80
+    playBtn:addEventListener("touch", restart_onBtnRelease)
+    gameovergroup:insert(playBtn)
 
-	    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 90, font, 25) 
-	    playtext:setTextColor(0,0,0)
-	    gameovergroup:insert(playtext)
+    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 90, font, 25) 
+    playtext:setTextColor(0,0,0)
+    gameovergroup:insert(playtext)
 
-	    local homeBtn = display.newImage( "images/firstgame/home_button.png")
-	    homeBtn.x = 130
-	    homeBtn.y = display.contentCenterY - 25
-	    homeBtn:addEventListener("touch", home)
-	    gameovergroup:insert(homeBtn)
+    local homeBtn = display.newImage( "images/firstgame/home_button.png")
+    homeBtn.x = 130
+    homeBtn.y = display.contentCenterY - 25
+    homeBtn:addEventListener("touch", home)
+    gameovergroup:insert(homeBtn)
 
-	    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 30, font, 25) 
-	    hometext:setTextColor(0,0,0)
-	    gameovergroup:insert(hometext)
+    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 30, font, 25) 
+    hometext:setTextColor(0,0,0)
+    gameovergroup:insert(hometext)
 
-	    local emailBtn = display.newImage( "images/firstgame/email_button.png")
-	    emailBtn.x = 130
-	    emailBtn.y = display.contentCenterY + 30
-	    --email:addEventListener("touch", home)
-	    gameovergroup:insert(emailBtn)
-	    
-	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
-	    emailtext:setTextColor(0,0,0)
-	    gameovergroup:insert(emailtext)
-
+    local emailBtn = display.newImage( "images/firstgame/email_button.png")
+    emailBtn.x = 130
+    emailBtn.y = display.contentCenterY + 30
+    --email:addEventListener("touch", home)
+    gameovergroup:insert(emailBtn)
+    
+    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
+    emailtext:setTextColor(0,0,0)
+    gameovergroup:insert(emailtext)
 end
-
 
 --------------- FUNCTION FOR FALLING LETTERS -------------
 local fallover = function(event)
@@ -146,14 +140,127 @@ local fallover = function(event)
 	end
 end
 
+function cleanArray(array)
+	result = {}
+	ctr = 1
+
+	for i = 1, #array do
+		if ctr > 1 then
+			isUnique = true
+			for j = 1, #result do
+				if array[i] == result[j] then
+					isUnique = false
+				end
+			end
+			if isUnique then
+				result[ctr] = array[i]
+				ctr = ctr + 1
+			end
+		else
+			result[ctr] = array[i]
+			ctr = ctr + 1
+		end
+	end
+
+	return result
+end
+
+function saveToFile()
+	gamenumber = {}
+	report = ""
+	for row in db:nrows("SELECT * FROM SecondGameAnalytics") do
+		gamenumber[#gamenumber+1] = row.gamenumber
+	end
+
+	for i = gamenumber[1], gamenumber[#gamenumber] do
+		-- get game #
+		print("\nGAME # " .. i)
+		report = report .. "GAME # " .. i
+		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. i .. "'") do
+			print("\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score.."\n")
+			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
+		end
+
+		--get round #
+		allRoundNumbers ={}	rounds = {}
+		for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. i .. "'") do
+			allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
+		end
+		rounds = cleanArray(allRoundNumbers)
+
+		print("ANALYSIS PER ROUND:")
+		for j = 1, #rounds do
+			print("\nROUND "..rounds[j])
+			report = report .. "\n\nROUND "..rounds[j]
+
+			--round speed
+			for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
+				print("Round time: "..row.speed.." seconds")
+				report = report .. "\nRound time: "..row.speed.." seconds"
+				break
+			end
+
+			-- get categories
+			allCategories = {}		categories = {}
+			for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
+				allCategories[#allCategories+1] = row.category
+			end
+			categories = cleanArray(allCategories)
+
+			for k = 1, #categories do
+				print("\nCATEGORY: " .. categories[k])
+				report = report .. "\n\nCATEGORY: " .. categories[k]
+
+				-- get correct
+				words = {}
+				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
+					words[#words+1] = row.word
+				end
+				print("\tCorrect Words: "..#words)
+				report = report .. "\nCorrect Words: "..#words
+				for w = 1, #words do
+					print("\t\t"..words[w])
+					report = report .. "\n\t"..words[w]
+				end
+
+				--get incorrect
+				words = {}
+				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
+					words[#words+1] = row.word
+				end
+				print("\tIncorrect Words: "..#words)
+				report = report .. "\nIncorrect Words: "..#words
+				for w = 1, #words do
+					print("\t\t"..words[w])
+					report = report .. "\n\t"..words[w]
+				end
+			end
+
+		end
+		print("----------------------------------")
+		report = report .. "\n----------------------------------\n"
+	end
+
+	-- Save to file
+	local path = system.pathForFile( "Game 2 Analytics.txt", system.ResourceDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
+
+end
+
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
-
 	--SCORING
 	local date = os.date( "*t" )
 	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
-	insertToDB(category, currScore, profileName, timeStamp)
+	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+	print("ID2 " .. id)
 	--
+	-- Save to file
+	saveToFile()
+	
 	timerText:removeSelf()
 	-- maintimer = nil
 
@@ -184,7 +291,6 @@ function gameoverdialog()
 	game = 'GAMEOVER'
 
 	timer.performWithDelay( 500, fallover, 9)
-	print("hello")
 
 end
 
@@ -225,11 +331,13 @@ end
 ---------------- ZOOM IN IMAGE ---------------------------
 function zoomOut(event)
 	levelgroup:removeSelf()
+	maintimer:resume()
 end
 
 ---------------- ZOOM IN IMAGE ---------------------------
 function zoomIn(event)
 	physics.pause()
+	maintimer:pause()
 
  	levelgroup = display.newGroup()
 
@@ -261,6 +369,7 @@ end
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
+      	pauseCtr = pauseCtr + 1
     	maintimer:pause()
     	audio.pause(game2MusicChannel)
         pauseBtn.isVisible = false
@@ -297,10 +406,9 @@ function restart_onBtnRelease()
 			first = true,
 			time = currTime,
 			score = 0,
-			ctr = itemCtr,
-			check = itemCheck,
-			speed = itemSpeed,
-			new = boolNew
+			new = boolNew,
+			pause = pauseCtr,
+			round = roundNumber
 		}
 	}
 	audio.stop()
@@ -314,7 +422,7 @@ function resume_onBtnRelease()
 		audio.resume(game2MusicChannel)
 	end
 	pausegroup:removeSelf()
-	timer:resume()
+	maintimer:resume()
     pauseBtn.isVisible = true
 	return true
 end
@@ -385,15 +493,33 @@ function showpauseDialog()
 end
 
 --- SCORING
-function insertToDB(category, score, name, timestamp)
+function insertToDB(category, score, name, timestamp, pausectr)
 	local insertQuery = [[INSERT INTO SecondGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
-	timestamp .. [[');]]
+	timestamp .. [[',']] ..
+	pausectr.. [[');]]
 	db:exec(insertQuery)
+
+	--NEW
+	for row in db:nrows("SELECT id FROM SecondGame") do
+		id = row.id
+	end
+
+	return id
 end
 
+function insertAnalyticsToDB(gameid, roundid, word, category, isCorrect, speed)
+	local query = [[INSERT INTO SecondGameAnalytics VALUES (NULL, ']] .. 
+	gameid .. [[',']] ..
+	roundid .. [[',']] ..
+	word .. [[',']] ..
+	category .. [[',']] ..
+	isCorrect .. [[',']] ..
+	speed .. [[');]]
+	db:exec(query)
+end
 ----------------------- GET WORDS FROM DB -----------------------------
 local function getWords(type, limit)
 	dbFields = {}
@@ -484,10 +610,8 @@ local function getWords(type, limit)
 
 	-- Shuffle and select n words
 	wordsCopy = shuffle(words)
---	print("SHUFFLED "..type.." ANSWERS:")
 	for i = 1, limit do
 		words[i] = wordsCopy[i]
---		print(words[i])
 	end
 
 	return words
@@ -520,6 +644,7 @@ end
 
 -- FUNCTION FOR RELOADING GAME
 function generateNew()
+	roundNumber = roundNumber + 1
 	boolNew = true
 	boolFirst = false
 	option = {
@@ -529,11 +654,10 @@ function generateNew()
 			first = boolFirst,
 			time = currTime - maintimer:getElapsedSeconds(),
 			score = currScore,
-			ctr = itemCtr,
-			check = itemCheck,
-			speed = itemSpeed,
 			new = boolNew,
-			music = game2MusicChannel
+			pause = pauseCtr,
+			music = game2MusicChannel,
+			round = roundNumber
 		}
 	}
 	gameBoard:removeSelf()
@@ -549,19 +673,20 @@ function checkanswer(target)
 	for i = 1, numberOfCategories do
 		if target.x == boxes[i].x then
 			boxNumber = i
---			print("box# "..boxNumber)
 			break
 		end
 	end
 
---	print(target.label)
 	isCorrect = false
 	for j = 1, 127 do
 		if answers[boxNumber][j] == target.label then
-			itemCheck[itemCtr] = 1
 			currScore = currScore + 1
 			scoreToDisplay.text = "Score: "..currScore
 			isCorrect = true
+			boxes[boxNumber].correctCtr = boxes[boxNumber].correctCtr + 1
+			count = boxes[boxNumber].correctCtr
+			boxes[boxNumber].correctWords[count] = target.label
+
 			audio.play(correctSound)
 			correctCtr = correctCtr - 1
 			target:removeSelf()
@@ -573,30 +698,49 @@ function checkanswer(target)
 	end
 
 	if isCorrect == false then
---		print("WRONG!")
-		itemCheck[itemCtr] = 0
 		audio.play(incorrectSound)
+		-- first time
+		if count == 0 then
+			boxes[boxNumber].wrongCtr = boxes[boxNumber].wrongCtr + 1
+			count = boxes[boxNumber].wrongCtr
+			boxes[boxNumber].wrongWords[count] = target.label					
+		else
+			-- check kung nasa array na
+			first = true
+			for i = 1, #boxes[boxNumber].wrongWords do
+				if boxes[boxNumber].wrongWords[i] == target.label then
+					first = false
+					break
+				end
+			end
+			if first then
+				boxes[boxNumber].wrongCtr = boxes[boxNumber].wrongCtr + 1
+				count = boxes[boxNumber].wrongCtr
+				boxes[boxNumber].wrongWords[count] = target.label					
+			end
+		end
+
 		-- snap to original position
 		target.x = target.initialX
 		target.y = target.initialY
 	end	
 
-	-- ANALYTICS PER ITEM
-	print("\nITEM #"..itemCtr)
-	print("WORD: "..item[itemCtr])
-	print("CHECKER: "..itemCheck[itemCtr])
-	print("prev " .. maintimer:getElapsedSeconds())
-	print(boolNew)
-	if (boolNew) then
-		itemSpeed[itemCtr] = maintimer:getElapsedSeconds()		
-		print("Speed: "..itemSpeed[itemCtr])
-	else
-		itemSpeed[itemCtr] = maintimer:getElapsedSeconds()
-		print("Speed: "..itemSpeed[itemCtr] - itemSpeed[itemCtr-1])
-	end
-	itemCtr = itemCtr + 1
-
 	if correctCtr == 0 then
+		-- get game#
+		for row in db:nrows("SELECT id FROM SecondGame ORDER BY id DESC") do
+			gamenumber = row.id
+			break
+		end
+		gamenumber = gamenumber + 1
+
+		for i = 1, boxNumber do
+			for j = 1, #boxes[i].correctWords do
+				insertAnalyticsToDB(gamenumber, roundNumber, boxes[i].correctWords[j], boxes[i].label, 1, maintimer:getElapsedSeconds())
+			end
+			for j = 1, #boxes[i].wrongWords do
+				insertAnalyticsToDB(gamenumber, roundNumber, boxes[i].wrongWords[j], boxes[i].label, 0, maintimer:getElapsedSeconds())
+			end
+		end
 		generateNew()
 	end
 	boolNew = false
@@ -611,7 +755,6 @@ function imageDrag (event)
 	local t = event.target
 
 	if event.phase == "moved" or event.phase == "ended" then
---	print(t.label)
 		---------- BOUNDARIES ----------
 		if t.x > display.viewableContentWidth then
 			t.x = display.viewableContentWidth
@@ -642,8 +785,6 @@ function imageDrag (event)
 
 	if event.phase == "ended" then
 		-- Check answer
-		item[itemCtr] = t.label
-
 		if isMoved == true then
 			checkanswer(t)
 		end
@@ -703,14 +844,11 @@ function scene:createScene(event)
 	currScore = event.params.score
 	currTime = event.params.time
 	boolNew = event.params.new
-
+	pauseCtr = event.params.pause
+	roundNumber = event.params.round
 
 	profileName = "Cha" --temp
-
-	-- analytics
-	item = {}
-	itemCheck = {0}
-	itemSpeed = {}
+	count = 0
 
 	-- Start timer
 	maintimer = stopwatch.new(currTime)
@@ -719,27 +857,13 @@ function scene:createScene(event)
 	if (boolFirst) then
 		game2MusicChannel = audio.play( secondGameMusic, { loops=-1}  )
 		boolNew = false --analytics
-		itemCtr = 1
-		itemCheck[1] = 0
-		itemSpeed[0] = 0
---[[		item[1] = ""
-		itemTries[1] = 0
-		pauseCtr = 0 ]]
+		pauseCtr = 0
+		roundNumber = 1
 	else
-		itemCtr = event.params.ctr
-		itemCheck[itemCtr] = event.params.check
-		itemSpeed = event.params.speed
 		game2MusicChannel = event.params.music
---			itemSpeed[itemCtr+1] = 0
---[[		pauseCtr = event.params.pause
-		item = event.params.itemWord
-		itemTries = event.params.tries
-		item[itemCtr+1] = ""
-		itemTries[itemCtr+1] = 0
-		itemSpeed[itemCtr+1] = 0 ]]
+		pauseCtr = event.params.pause
+		roundNumber = event.params.round
 	end
-
-	
 
 	-- Screen Elements
 	--score
@@ -809,7 +933,6 @@ function scene:createScene(event)
     progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
     screenGroup:insert( progressBarFill )
     
-
     -------------------------------------------- GAME --------------------
 
     --boxes
@@ -818,11 +941,14 @@ function scene:createScene(event)
 	boxes = {}
 	boxLabels = {}
 
-	
-
 	selectedCategories = randomizeCategory(categories)
 	for i = 1, numberOfCategories do
 		boxes[i] = display.newImageRect("images/secondgame/"..categories[selectedCategories[i]].. ".png", 150, 100)
+		boxes[i].label = categories[selectedCategories[i]]
+		boxes[i].correctCtr = 0
+		boxes[i].wrongCtr = 0
+		boxes[i].correctWords = {}
+		boxes[i].wrongWords = {}
 		boxGroup:insert(boxes[i])
 	end
 
@@ -838,7 +964,6 @@ function scene:createScene(event)
 		boxes[2].x = width/3 + boxSize + 10; boxes[2].y = 290
 		boxes[3].x = width/3 + (3*boxSize) + 40; boxes[3].y = 290
 
-		
 		numberOfCorrectAnswers = 17
 		numberOfIncorrectAnswers = 15
 		gridX = width/22
@@ -852,12 +977,6 @@ function scene:createScene(event)
 		numberOfIncorrectAnswers = 16
 		gridX = -30
 	end
-
-	--[[ for i = 1, numberOfCategories do
-		boxLabels[i] = display.newText(categories[selectedCategories[i]] --[[, boxes[i].x-20, boxes[i].y+5, 100, 50, font, 15)
-		boxGroup:insert(boxLabels[i])				
-	end ]]
-
 
 	allWords = getWords("correct", numberOfCorrectAnswers)
 	allExtras = getWords("incorrect", numberOfIncorrectAnswers)
