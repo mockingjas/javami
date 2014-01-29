@@ -5,14 +5,15 @@ local widget = require( "widget" )
 local timer = require("timer")
 local physics = require("physics")
 local lfs = require("lfs")
-local stopwatch =require "stopwatch"
+local stopwatch = require("stopwatch")
+local toast2 = require("toast2")
 local scene = storyboard.newScene()
 
 ------- Global variables ---------
 --for the blackboard
 local screenGroup
 --for the timer and reloading
-local timerr, timerText
+local timerr, timerText, blinker
 --for reloading params
 local currTime, boolFirst, currScore, category, option
 --for the pause screen
@@ -28,6 +29,7 @@ local r, g, b
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
 local thirdGameMusic = audio.loadSound("music/ThirdGame.mp3")
+local tempsound = audio.loadSound("music/3.mp3")
 local game3MusicChannel
 local muted = 0
 
@@ -198,6 +200,7 @@ end
 function pauseGame(event)
     if(event.phase == "ended") then
     	timerr:pause()
+    	timer.pause(blinker)
         pauseBtn.isVisible = false
         audio.pause(game3MusicChannel)
         showpauseDialog()
@@ -212,6 +215,7 @@ function restart_onBtnRelease()
 		pausegroup:removeSelf()
 		timerText:removeSelf()
 		timerr = nil
+		timer.cancel(blinker)
 	else
 		gameovergroup.isVisible = false
 		gameover.isVisible = false
@@ -247,6 +251,7 @@ function resume_onBtnRelease()
 	end
 	pausegroup:removeSelf()
 	timerr:resume()
+	timer.resume(blinker)
     pauseBtn.isVisible = true
 	return true
 end
@@ -257,6 +262,7 @@ function exit_onBtnRelease()
 	pausegroup:removeSelf()
 	timerText:removeSelf()
 	timerr = nil
+	timer.cancel(blinker)
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
 	storyboard.removeScene("thirdgame")
@@ -318,15 +324,23 @@ function showpauseDialog()
 end
 
 local function playBlink(event)
-	print("playseq")
-	--for i = 1, current do
+	print("--play seq")
 		current = current + 1
 		print("current " .. current)
 		obj = objectGroup[string.byte(order,current) % 96]
 		transition.to( obj, {time = 200, alpha = 0} )
+		audio.play(tempsound)
 		transition.to( obj, {delay = 200, time = 200, alpha = 1} )
-	--end
-	print("tapos")
+	print("--end seq")
+end
+
+function shuffle(array)
+	for i = 1, #array*2 do
+		local a = math.random(#array)
+		local b = math.random(#array)
+		array[a], array[b] = array[b], array[a]
+	end
+	return array
 end
 
 
@@ -384,8 +398,6 @@ function scene:createScene(event)
 	scoreToDisplay:setTextColor(0,0,0)
 	screenGroup:insert(scoreToDisplay)
 
-
-
 	--pause button
 	pauseBtn = display.newImageRect( "images/secondgame/pause.png", 20, 20)
     pauseBtn.x = 445
@@ -417,24 +429,25 @@ function scene:createScene(event)
 	objectGroup = display.newGroup()
 
 	order = ""
-
+	size = 0
 	if category == 'easy' then
 		c = 1
-		x = display.viewableContentWidth/2 - 40
-		y = display.viewableContentHeight/2 - 40
+		size = 2
 	elseif category == 'medium' then
-		c = 2
-		x = display.viewableContentWidth/2 - 60 
-		y = display.viewableContentHeight/2 - 50
-	elseif category == 'hard' then
 		c = 3
-		x = display.viewableContentWidth/2 - 100
-		y = display.viewableContentHeight/2 - 110
+		size = 1.5
+	elseif category == 'hard' then
+		c = 5
+		size = 1
 	end
 
 	r = {255,	0,		200,	255,	128 }
 	g = {0,		128,	50, 	128, 	0 }
 	b = {128,	255,	50,		0,		128 }
+	
+	for i = 1, #b do
+		print("b " .. i .. " " .. b[i])
+	end
 
 	color = {}
 	colorStr = ""
@@ -451,38 +464,62 @@ function scene:createScene(event)
 		color[i] = temp
 	end
 
-	rand = math.random(10)
-	for i = 1, dimensions * dimensions do
-		
-		if (i % dimensions == 1 and i > 1) then
-			if category == 'easy' then
-				x = display.viewableContentWidth/2 - 40
-				y = y + 60
-			elseif category == 'medium' then
-				x = display.viewableContentWidth/2 - 60 
-				y = y + 60
-			elseif category == 'hard' then
-				x = display.viewableContentWidth/2 - 100
-				y = y + 60
-			end
-		elseif (i % dimensions ~= 1) then
-			x = x + 60
-		end
+	for i = 1, #color do
+		print("COLOR: " .. color[i])
+	end
 
+	print("COLOR STR: " .. colorStr)
+	
+	for i = #color+1, dimensions * dimensions do
+		a = math.random(#colorStr)
+		color[i] = tonumber(get_char(a, colorStr))
+	end
+
+	print("   BEFORE COLOR ORDER: ")
+
+	for i = 1, #color do
+		print(color[i])
+	end
+
+	print("   AFTER COLOR ORDER: ")
+
+	shuffle(color)
+
+	for i = 1, #color do
+		print(color[i])
+	end
+
+	rand = math.random(10)
+	x = 0
+	y = 0
+	local z = 0
+	for i = 1, dimensions * dimensions do
+		if (i % dimensions ~= 1) then
+			x = x + (60*size)
+		elseif(i % dimensions == 1 and i > 1) then
+			x = 0
+			y = y + (60*size)
+		end
 		if (rand > 5) then
-			--circles
-			--x y radius
-			obj = display.newCircle(x, y, 25)
+			--circles x y radius
+			obj = display.newCircle(x, y, 25*size)
 		else
 			--squares
-			obj = display.newRect(x, y, 50, 50)
+			obj = display.newRect(x, y, 50*size, 50*size)
 		end
 
 		obj.name = "" .. string.char(96+i)
 		objectGroup:insert(i, obj)
-		obj:setFillColor(r[color[i%c+1]],g[color[i%c+1]],b[color[i%c+1]])
+
+		z = tonumber(color[i])
+		obj:setFillColor(r[z],g[z],b[z])
+
 		obj.isVisible = false
 	end
+
+	objectGroup:setReferencePoint(display.CenterReferencePoint)
+	objectGroup.x = display.viewableContentWidth/2
+	objectGroup.y = display.viewableContentHeight/2 + 10
 
 	-- SHUFFLE -------------
 	-- 97 == a
@@ -490,34 +527,33 @@ function scene:createScene(event)
 	for i = 1, dimensions * dimensions do
 		order = order .. string.char(96+i)
 	end
-	print("JSHGSJHGJLASDGJKSD " .. order)
+
 	for i = order:len(), 2, -1 do -- backwards
 		local r = math.random(i) -- select a random number between 1 and i
 		order = swap_char(i, r, order) -- swap the randomly selected item to position i
 	end 
-	print("JSHGSJHGJLASDGJKSD " .. order)
+	print("ORDER: " .. order)
 	-- ---------------------
 
 	for i = 1, dimensions*dimensions do
-		print("loopy " .. i)
 		obj = objectGroup[string.byte(order,i) % 96]
 		obj.isVisible = true
 		obj.alpha = 1
-		--transition.to(obj, {time=1500, alpha=1})
 		obj:addEventListener("tap", checkanswer)
 		obj:addEventListener("touch", checkanswer)
 	end
 
 	answer = ""
 	current = 0
-	start(1)
+	startSequence(1)
 
+	screenGroup:insert(objectGroup)
 end
 
-function start(last)
+function startSequence(last)
 	current = 0
 	for i = 1, last do
-		timer.performWithDelay(i*1000, playBlink, 1)
+		blinker = timer.performWithDelay(i*1000, playBlink, 1)
 	end
 end
 
@@ -532,20 +568,36 @@ function  checkanswer(event)
 			print(a .. b)
 
 			if (a == 1 and b == current) then
+				-- CORRECT YUNG BUONG PAGKAKASUNOD
 				print("CORRECT!!!!")
+				currScore = currScore + 1
+				scoreToDisplay.text = "Score: "..currScore
+
+				---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
+				audio.play(correctSound)
 				--next!
 				answer = ""
-				print("CURRENT SA CHECKANSWER ".. current+1)
+				-- print("CURRENT SA CHECKANSWER ".. current+1)
 				if (current + 1 <= dimensions*dimensions) then
-					start(current+1)
+					startSequence(current+1)
 				else
 					reload()
 				end
 			elseif (a == 1 and b < current) then
-				print("di pa tapos")
+				-- CORRECT PERO HINDI PA NIYA NACCOMPLETE YUNG CURRENT SEQUENCE
+				-- PA-ADD NG TOAST NG CHECK MARK DUN SA SAME OBJECT NA TAMA YUNG NACLICK
+				print("subround not yet done")
+				audio.play(tempsound)
+				currScore = currScore + 1
+				scoreToDisplay.text = "Score: "..currScore
 			end
 		else
+			---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
+			---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
 			print("WRONG!!!!")
+			audio.play(incorrectSound)
+			toast2.new("images/wrong.png", 80, 10, 200)
+			
 			reload()
 		end
 	end
@@ -557,12 +609,12 @@ function reload()
 	timerr = nil
 	option = {
 		effect = "fade",
-		time = 100,
+		time = 300,
 		params = {
 			categ = category,
 			first = true,
 			time = currTime,
-			score = 0
+			score = currScore
 		}
 	}
 	audio.stop()
