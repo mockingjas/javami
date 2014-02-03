@@ -8,7 +8,6 @@ local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
 local toast = require("toast");
 local toast2 = require("toast2");
-local profileName
 
 ------- Global variables ---------
 --for the blackboard
@@ -24,16 +23,14 @@ local pausegroup
 local gameovergroup, round, score
 local dialog, msgText, startTime
 --for sounds
-local muted 
-local muteBtn, unmuteBtn, clearBtn
+local muted, muteBtn, unmuteBtn, clearBtn
 local origx, origy
 
 -------- Analytics------------
 -- *per item
 local item, itemSpeed, itemHint, itemTries
-
 -- *per game
-local pauseCtr
+local pauseCtr, profileName
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -52,13 +49,11 @@ if "Win" == system.getInfo( "platformName" ) then
 elseif "Android" == system.getInfo( "platformName" ) then
     font = "EraserRegular"
 else
-    -- Mac and iOS
     font = "Eraser-Regular"
 end
 
 --------- FUNCTIONS FOR DATABASE ------------
---DB: fetch
-function fetchByCategory(categ)
+local function fetchByCategory(categ)
 	local words = {}
 	for row in db:nrows("SELECT * FROM Words where firstGameCategory ='"..categ.."'") do
 		local rowData = row.id .. " " .. row.name.." "..row.firstGameCategory.." "..row.isCorrect.."\n"
@@ -68,13 +63,12 @@ function fetchByCategory(categ)
 end
 
 --DB: update if word was guessed
-function updateDB(word)
-	for row in db:nrows("UPDATE Words SET isCorrect ='true' where name ='"..word.."'") do
-	end
+local function updateDB(word)
+	for row in db:nrows("UPDATE Words SET isCorrect ='true' where name ='"..word.."'") do end
 end
 
 --DB: insert to first game
-function insertToDB(category, score, name, timestamp, pausectr)
+local function insertToDB(category, score, name, timestamp, pausectr)
 	local insertQuery = [[INSERT INTO FirstGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
@@ -83,16 +77,14 @@ function insertToDB(category, score, name, timestamp, pausectr)
 	pausectr .. [[');]]
 	db:exec(insertQuery)
 
-	--NEW
 	for row in db:nrows("SELECT id FROM FirstGame") do
 		id = row.id
 	end
 	return id
 end
 
---NEW
-function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, word)
-	if tonumber(triesctr) > 0 then
+local function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, word)
+--	if tonumber(triesctr) > 0 then
 		local query = [[INSERT INTO FirstGameAnalytics VALUES (NULL, ']] .. 
 		gameid .. [[',']] ..
 		roundid .. [[',']] ..
@@ -101,18 +93,16 @@ function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, word)
 		triesctr .. [[',']] ..
 		word .. [[');]]
 		db:exec(query)
-	end
+--	end
 end
---
 
 --DB: reset all words to un-guessed
-function resetDB()
-	for row in db:nrows("UPDATE Words SET isCorrect ='false'") do
-	end
+local function resetDB()
+	for row in db:nrows("UPDATE Words SET isCorrect ='false'") do end
 end
 
 --DB:close
-function onSystemEvent( event )
+local function onSystemEvent( event )
 	if event.type == "applicationExit" then
 		if db and db:isopen() then
 			db:close()
@@ -122,7 +112,7 @@ end
 Runtime:addEventListener( "system", onSystemEvent )
 
 --DB: check if a word has been answered correctly
-function hasBeenAnswered(wordToGuess)
+local function hasBeenAnswered(wordToGuess)
 	local rowData
 	for row in db:nrows("SELECT * FROM Words WHERE name = '"..wordToGuess.."'") do
 		rowData = row.isCorrect
@@ -130,32 +120,9 @@ function hasBeenAnswered(wordToGuess)
 	return rowData
 end
 
---------- FUNCTIONS FOR STRING MANIPULATIONS ------------
--- position in str to be replaced with ch
-function replace_char (pos, str, ch)
-	if (pos == 1) then return ch .. str:sub(pos+1)
-	elseif (pos == str:len()) then return str:sub(1, str:len()-1) .. ch
-	else return str:sub(1, pos-1) .. ch .. str:sub(pos+1)
-	end
-end
-
-function get_char (pos, str)
-	return str:sub(pos, pos)
-end
-
-function swap_char (pos1, pos2, str)
-	local temp1 = get_char(pos1, str)
-	local temp2 = get_char(pos2, str)
-	str = replace_char(pos1, str, temp2)
-	str = replace_char(pos2, str, temp1)
-	return str
-end
-
-------- GET WORD FROM DB ---------
-function getwordfromDB()
+--DB: get word
+local function getwordfromDB()
 	local words = fetchByCategory(category)
---	for i=1,#words do print("DB:"..words[i]) end
-
 	--randomize a word from DB that hasn't been correctly answered yet
 	local i = 1 
 	while true do
@@ -169,30 +136,57 @@ function getwordfromDB()
 		if hasBeenAnswered(wordToGuess) == 'false' then
 			break
 		end
-
 		-- if all words have already been correctly answered, reset
 		if i == #words then -- change to kung ilan words sa DB
 			resetDB()
 		end
-
 		i = i + 1
 	end
-
 	print(wordToGuess)
-	--analytics
 	item[currScore+1] = word
+end
 
+local function queryAnalytics(gamectr, column, value)
+	result = ""
+	ctr = 0
+	for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '" ..gamectr.. "' and " .. column .. "= '" .. value .. "'") do
+		if ctr == 0 then
+			result = row.word
+		else
+			result = result .. ", " .. row.word
+		end
+		ctr = ctr + 1
+	end
+	return result
+end
 
-	
+-----------------------------------------------------------------------
+
+--------- FUNCTIONS FOR STRING MANIPULATIONS ------------
+-- position in str to be replaced with ch
+local function replace_char (pos, str, ch)
+	if (pos == 1) then return ch .. str:sub(pos+1)
+	elseif (pos == str:len()) then return str:sub(1, str:len()-1) .. ch
+	else return str:sub(1, pos-1) .. ch .. str:sub(pos+1)
+	end
+end
+
+local function get_char (pos, str)
+	return str:sub(pos, pos)
+end
+
+local function swap_char (pos1, pos2, str)
+	local temp1 = get_char(pos1, str)
+	local temp2 = get_char(pos2, str)
+	str = replace_char(pos1, str, temp2)
+	str = replace_char(pos2, str, temp1)
+	return str
 end
 
 ------- FUNCTION FOR SETTING THE WORD --------------
-function setword()
-
+local function setword()
 	getwordfromDB()
---	print("String length: " .. word:len())
 	local blanks = math.floor(word:len()/2)
-
 	letterbox = ""
 	-- GET RANDOM BLANKS ---
 	for i = 1,blanks do
@@ -203,9 +197,6 @@ function setword()
 		letterbox = letterbox .. get_char(rand, wordToGuess)
 		wordToGuess = replace_char(rand, wordToGuess, "_")
 	end
-
---	print("Word to guess: " .. wordToGuess)
-	-- ---------------------
 
 	-- GET LETTERBOX -------
 	for i = 1,10 - blanks do
@@ -218,15 +209,11 @@ function setword()
 		letterbox = letterbox .. letter
 	end
 
-	-- SHUFFLE -------------
+	-- SHUFFLE 
 	for i = letterbox:len(), 2, -1 do -- backwards
 		local r = math.random(i) -- select a random number between 1 and i
 		letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
-	end  
-	-- ---------------------
-
---	print("Letterbox: " .. letterbox)
-	-- ---------------------
+	end
 end
 
 ------------ FUNCTION FOR OBJECT DRAG --------------------
@@ -234,7 +221,6 @@ local function objectDrag (event)
 	local distX, distY
 	local t = event.target
 	if event.phase == "moved" or event.phase == "ended" then
-
 		---------- BOUNDARIES ----------
 		if t.x > display.viewableContentWidth then
 			t.x = display.viewableContentWidth
@@ -248,7 +234,7 @@ local function objectDrag (event)
 			t.y = 30
 		end	
 		---------- BOUNDARIES ----------
-		
+			
 		for i = 1, wordToGuess:len() do
 			if ( get_char(i, wordToGuess) == "_" ) then
 				local s = "_" .. get_char(i, word)
@@ -264,10 +250,7 @@ local function objectDrag (event)
 end
 
 ------- FUNCTION FOR CHECKING ANSWER --------------
-local checkanswer = function(event)
-	-- check the word
-	-- if right, add score and then,
-
+local function checkanswer(event)
 	answer = ""
 	blanks = math.floor(word:len()/2)
 	count = 0
@@ -288,19 +271,13 @@ local checkanswer = function(event)
 	end
 
   	if event.phase == "ended" then
-  	  	--analytics
 	  	itemTries[currScore+1] = itemTries[currScore+1] + 1
-
 		if answer == word and count == blanks then
 			audio.pause(game1MusicChannel)
 			audio.play(correctSound)
 			boolFirst = false
---			print("Correct!")
 			updateDB(word) --set isCorrect to true
 			currScore = currScore + 1
---			print("New score: "..currScore)
---			print(timer:getElapsedSeconds())
-
 			-- ANALYTICS PER ITEM
 			print("\n\n***ANALYTICS PER ITEM*** ")
 			itemSpeed[currScore] = timer:getElapsedSeconds()
@@ -318,7 +295,6 @@ local checkanswer = function(event)
 					time = currTime - timer:getElapsedSeconds(),
 					score = currScore,
 					music = game1MusicChannel,
-					--analytics
 					speed = itemSpeed,
 					pause = pauseCtr,
 					itemWord = item,
@@ -326,15 +302,11 @@ local checkanswer = function(event)
 					hint = itemHint,
 				}
 			}
-
 			timerText:removeSelf()
 			timer = nil
 			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
---			print("wrong!")
-			--To play the sound effect, call this whenever you want to play it
-			-- new: wrong toast
 			toast2.new("", 500)
 			audio.play(incorrectSound)
 		end
@@ -342,12 +314,11 @@ local checkanswer = function(event)
 end
 
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
-function home(event)
+local function home(event)
 	if(event.phase == "ended") then
 		gameovergroup.isVisible = false
   		storyboard.removeScene("firstgame")
   		storyboard.removeScene("mainmenu")
-
   		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
@@ -365,16 +336,14 @@ function home(event)
 end
 
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
-function emaildialogue(event)
+local function emaildialogue(event)
 	if(event.phase == "ended") then
 		gameovergroup.isVisible = false
   		storyboard.removeScene("firstgame")
   		storyboard.removeScene("emaildialogue")
-
   		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
-
 		option =	{
 			effect = "fade",
 			time = 100,
@@ -389,12 +358,9 @@ end
 
 --------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
 local function spriteListener( event )
---    print(event.phase)
     if (event.phase == "ended") then
-
     	score.isVisible = false
 		round.isVisible = false
-
 		gameovergroup = display.newGroup()
 
 	    round= display.newText("ROUND: "..category, 0, 0, font, 15)
@@ -432,28 +398,18 @@ local function spriteListener( event )
 	    gameovergroup:insert(emailBtn)
 	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 50, font, 25) 
 	    gameovergroup:insert(emailtext)
-
-
 	 end
 end
 
-function queryAnalytics(gamectr, column, value)
-	result = ""
-	ctr = 0
-	for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '" ..gamectr.. "' and " .. column .. "= '" .. value .. "'") do
-		if ctr == 0 then
-			result = row.word
-		else
-			result = result .. ", " .. row.word
-		end
-		ctr = ctr + 1
-	end
-	return result
-end
-
-function generateReport()
-	gamenumber = {} roundnumber = {} speed = {} hint = {} tries = {} words = {}
+local function generateReport()
+	gamenumber = {}
+	roundnumber = {}
+	speed = {}
+	hint = {}
+	tries = {}
+	words = {}
 	local report = ""
+
 	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
 		gamenumber[#gamenumber+1] = row.gamenumber
 		roundnumber[#roundnumber+1] = row.roundnumber
@@ -467,7 +423,7 @@ function generateReport()
 	last = gamenumber[#gamenumber]
 
 	for i = last, first, -1 do
-	--- PER GAME
+	-- PER GAME
 		print("GAME# " .. i)
 		report = report .. "GAME# " .. i .. "\n"
 		for row in db:nrows("SELECT * FROM FirstGame where id = '" .. i .. "'") do
@@ -476,17 +432,18 @@ function generateReport()
 			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
 
-		if tonumber(finalscore) > 0 then
+--		if tonumber(finalscore) > 0 then
 			report = report .. "\n"
-			--NEW
 			--By Speed
-			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY speed DESC") do
+			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY speed DESC") do
 				maxVal = row.speed
 				break
 			end
-			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY speed") do
-				minVal = row.speed
-				break
+			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY speed") do
+				if tonumber(row.speed) > 0 then
+					minVal = row.speed
+					break
+				end
 			end
 			if maxVal ~= minVal then
 				max = queryAnalytics(i, "speed", maxVal)
@@ -496,13 +453,12 @@ function generateReport()
 				print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
 				report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
 			end
-
 			--By Hints
-			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount DESC") do
+			for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount DESC") do
 				maxVal = row.hintcount
 				break
 			end
-			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount") do
+			for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount") do
 				minVal = row.hintcount
 				break
 			end
@@ -514,15 +470,16 @@ function generateReport()
 				print("Least hints:\t"..min.." ("..minVal.." time/s)")
 				report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
 			end
-
 			--By Tries
-			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY triescount DESC") do
+			for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY triescount DESC") do
 				maxVal = row.triescount
 				break
 			end
-			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY triescount") do
-				minVal = row.triescount
-				break
+			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY triescount") do
+				if tonumber(row.triescount) > 0 then
+					minVal = row.triescount
+					break
+				end
 			end
 			if maxVal ~= minVal then
 				max = queryAnalytics(i, "triescount", maxVal)
@@ -532,7 +489,6 @@ function generateReport()
 				print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
 				report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
 			end
-
 		--PER WORD
 			print("\nPER ITEM ANALYSIS:")
 			print("\nWORD\tSPEED\tHINTS\tTRIES")
@@ -546,11 +502,9 @@ function generateReport()
 				end
 			end
 			report = report .. "\n"
-		end
-
+--		end
 		print("-------------------------------------------------------------\n\n")
 		report = report .. "\n-------------------------------------------------------------\n"
-
 	end
 
 	-- Save to file
@@ -559,18 +513,105 @@ function generateReport()
 	file:write( report )
 	io.close( file )
 	file = nil
+
+	--BAGO: 1 game lang
+	local report = ""
+
+	print("BAGO: GAME# " .. last)
+	report = report .. "GAME# " .. last .. "\n\n"
+	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
+		finalscore = row.score
+		print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
+		report = report .. "Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
+		break
+	end
+
+		--By Speed
+		for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed DESC") do
+			maxVal = row.speed
+			break
+		end
+		for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed") do
+			if tonumber(row.speed) > 0 then
+				minVal = row.speed
+				break
+			end
+		end
+
+		if maxVal ~= minVal then
+			max = queryAnalytics(last, "speed", maxVal)
+			print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
+			report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
+			min = queryAnalytics(last, "speed", minVal)
+			print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
+			report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
+		end
+
+		--By Hints
+		for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount DESC") do
+			maxVal = row.hintcount
+			break
+		end
+		for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount") do
+			minVal = row.hintcount
+			break
+		end
+		if maxVal ~= minVal then
+			max = queryAnalytics(last, "hintcount", maxVal)
+			print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
+			report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
+			min = queryAnalytics(last, "hintcount", minVal)
+			print("Least hints:\t"..min.." ("..minVal.." time/s)")
+			report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
+		end
+
+		--By Tries
+		for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount DESC") do
+			maxVal = row.triescount
+			break
+		end
+		for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount") do
+			if tonumber(row.triescount) > 0 then			
+				minVal = row.triescount
+				break
+			end
+		end
+		if maxVal ~= minVal then
+			max = queryAnalytics(last, "triescount", maxVal)
+			print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
+			report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
+			min = queryAnalytics(last, "triescount", minVal)
+			print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
+			report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
+		end
+
+		--PER WORD
+		print("\nPER ITEM ANALYSIS:")
+		print("\nWORD\tSPEED\tHINTS\tTRIES")
+		report = report .. "\nPER ITEM ANALYSIS:"
+		report = report .. "\nWORD\tSPEED\tHINTS\tTRIES"
+		for j = 1, #roundnumber do
+			if tonumber(gamenumber[j]) == tonumber(last) then
+				print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
+				report = report .. "\n" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j]
+			end
+		end
+
+		-- Save to file
+		local path = system.pathForFile( "Game 1.txt", system.ResourceDirectory )
+		local file = io.open( path, "w" )
+		file:write( report )
+		io.close( file )
+		file = nil
+
 end
 
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
-
-	-- SCORING: Timestamp
 	local date = os.date( "*t" )
 	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
 	print( "time"..timeStamp )
-	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr) 	--NEW
-
-	--
+	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
 
 	timerText:removeSelf()
 	timer = nil
@@ -605,11 +646,10 @@ function gameoverdialog()
 	--- GAME ANALYTICS ---
 	for i = 1, #item do
 		print(id.." "..i.." "..itemSpeed[i].." "..itemHint[i].. " "..itemTries[i] .. " "..item[i])
-		insertAnalyticsToDB(id, i, itemSpeed[i], itemHint[i], itemTries[i], item[i]) 	--NEW
+		insertAnalyticsToDB(id, i, itemSpeed[i], itemHint[i], itemTries[i], item[i])
 	end
 
-	generateReport() -- NEW
-
+	generateReport()
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
@@ -619,18 +659,15 @@ local function onFrame(event)
    		timerText.text = timer:toRemainingString()
    		local done = timer:isElapsed()
  		local secs = timer:getElapsedSeconds()
--- 		print("done:" .. secs)
-
    		if(done) then
 	   		Runtime:removeEventListener("enterFrame", onFrame)
 	    	gameoverdialog()
 		end
 	end 
-
 end
 
 ---------------- new: CLEAR ---------------------------
-function clear(event)
+local function clear(event)
 	local newx = origx
 	local newy = origy
 
@@ -649,17 +686,16 @@ function clear(event)
 end
 
 ---------------- UNMUTE GAME ---------------------------
-function unmuteGame(event)
+local function unmuteGame(event)
 	audio.resume(game1MusicChannel)
 	unmuteBtn.isVisible = false
 	muteBtn.isVisible = true
 	muteBtn.isVisible = true
 	muted = 0
---	print("unmuteGame " .. muted)
 end
 
 ---------------- MUTE GAME ---------------------------
-function muteGame(event)
+local function muteGame(event)
 	audio.pause(game1MusicChannel)
 	muteBtn.isVisible = false
 	unmuteBtn.isVisible = true
@@ -667,7 +703,7 @@ function muteGame(event)
 end
 
 ---------------- PAUSE GAME ---------------------------
-function pauseGame(event)
+local function pauseGame(event)
     if(event.phase == "ended") then
        	pauseCtr = pauseCtr + 1 --NEW
     	timer:pause()
@@ -743,7 +779,6 @@ function exit_onBtnRelease()
 	storyboard.removeScene("mainmenu")
 
 	audio.stop()
-
 	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
@@ -759,7 +794,6 @@ end
 
 ----------------- PAUSE DIALOG ------------------
 function showpauseDialog()
-
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentWidth/2;
@@ -802,7 +836,6 @@ local function networkListener( event )
 	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
 
 	if speech == nil then
---		print("ERROR!")
 		toast.new("Device must be connected\nto the internet!", 3000)
 	else
 	   	audio.play( speech )
@@ -810,67 +843,22 @@ local function networkListener( event )
 
 end
 
-function play()
+local function play()
 	itemHint[currScore+1] = itemHint[currScore+1] + 1
 	network.download( "http://www.translate.google.com/translate_tts?tl=en&q='"..word.."'", "GET", networkListener, word..".mp3", system.TemporaryDirectory )	
 end
 
-------------------CREATE SCENE: MAIN -----------------------------
-function scene:createScene(event)
-	--get passed parameters from previous scene
-
-	muted = 0
-	boolFirst = event.params.first
-	category = event.params.categ
-	currScore = event.params.score
-	currTime = event.params.time
-	profileName = "Cha" --temp
-
-	-- analytics
-	item = {}
-	itemTries = {0}
-	itemHint = {0}
-	itemSpeed = {}
-
-	-- Start timer
-	timer = stopwatch.new(currTime)
-	if (boolFirst) then
-		game1MusicChannel = audio.play( firstGameMusic, { loops=-1}  )
-		resetDB()
-		-- analytics
-		itemSpeed[1] = 0
-		item[1] = ""
-		itemTries[1] = 0
-		itemHint[1] = 0
-		pauseCtr = 0
-	else
-		game1MusicChannel = event.params.music
-		audio.resume(game1MusicChannel)
-		itemSpeed = event.params.speed
-		pauseCtr = event.params.pause
-		item = event.params.itemWord
-		itemTries = event.params.tries
-		itemHint = event.params.hint
-		item[currScore+1] = ""
-		itemTries[currScore+1] = 0
-		itemHint[currScore+1] = 0
-		itemSpeed[currScore+1] = 0
-	end
-
-	screenGroup = self.view
-	setword()
-
-	-- Screen Elements
-	--score
-	scoreToDisplay = display.newText("Score: "..currScore, 0, 25, font, 18 )	
-	
-	--blackboard
+local function displayScreenElements()
+	--BG
 	bg = display.newImageRect("images/firstgame/board.png", 550, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
-	
-	--checkbutton
+	--SCORE
+	scoreToDisplay = display.newText("Score: "..currScore, 0, 25, font, 18 )	
+
+	------ BUTTONS -------
+	--SUBMIT
 	submit = widget.newButton{
 		id = "submit",
 		defaultFile = "images/firstgame/submit_button.png",
@@ -880,16 +868,8 @@ function scene:createScene(event)
 	}
 	submit.x = 453; submit.y = 180
 	screenGroup:insert(submit)
-	
-	--picture of word
-	image = display.newImage( "images/firstgame/pictures/"..word..".png" )
-	if image == nil then
-		image = display.newImage( "images/firstgame/pictures/blank.png" )
-	end
 
-	image.x = 310/2; image.y = 260/2;
-
-	-- hint
+	-- HINT
 	hintBtn = widget.newButton{
 		id = "hint",
 		defaultFile = "images/firstgame/hint_button.png",
@@ -899,9 +879,8 @@ function scene:createScene(event)
 	hintBtn.x = 400; hintBtn.y = 180
 	screenGroup:insert(hintBtn)
 	hintBtn:addEventListener("tap", play)
-
-
-	--pause button
+	
+	-- PAUSE
 	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
     pauseBtn.x = 410
     pauseBtn.y = 37
@@ -909,7 +888,7 @@ function scene:createScene(event)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
 
-    --mute button
+    -- UN/MUTE
     unmuteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
     unmuteBtn.x = 380
     unmuteBtn.y = 37
@@ -923,26 +902,74 @@ function scene:createScene(event)
     muteBtn.y = 37
     muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
-    screenGroup:insert( muteBtn )
-	
-	-- letters
+    screenGroup:insert( muteBtn )	
+end
+
+------------------CREATE SCENE: MAIN -----------------------------
+function scene:createScene(event)
+
+	-- ** VARIABLES  ** --
+	screenGroup = self.view
+	muted = 0
+	profileName = "Cha"
+	item = {}
+	itemTries = {0}
+	itemHint = {0}
+	itemSpeed = {}
+
+	-- From previous scene
+	boolFirst = event.params.first
+	category = event.params.categ
+	currScore = event.params.score
+	currTime = event.params.time
+	timer = stopwatch.new(currTime)
+
+	if boolFirst then
+		resetDB()
+		game1MusicChannel = audio.play( firstGameMusic, { loops=-1}  )
+		itemSpeed[1] = 0
+		item[1] = ""
+		itemTries[1] = 0
+		itemHint[1] = 0
+		pauseCtr = 0
+	else
+		audio.resume(game1MusicChannel)
+		game1MusicChannel = event.params.music
+		itemSpeed = event.params.speed
+		pauseCtr = event.params.pause
+		item = event.params.itemWord
+		itemTries = event.params.tries
+		itemHint = event.params.hint
+		item[currScore+1] = ""
+		itemTries[currScore+1] = 0
+		itemHint[currScore+1] = 0
+		itemSpeed[currScore+1] = 0
+	end
+
+	displayScreenElements()
+	setword()
+
+	--IMAGE
+	image = display.newImage( "images/firstgame/pictures/"..word..".png" )
+	if image == nil then
+		image = display.newImage( "images/firstgame/pictures/blank.png" )
+	end
+	image.x = 310/2; image.y = 260/2;
+
+	-- LETTERS
 	local x = -20
 	local y = 260
 	wordGroup = display.newGroup()
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-
 		local filename = "images/firstgame/"
 		if (c == "_") then
 			filename = filename .. "newblank.png"
 			chalkLetter = display.newImage(filename)
 		else
---			filename = filename .. c .. ".png"
 			chalkLetter = display.newText( c:upper(), x, y, font, 35)
 		end		
-
---		chalkLetter = display.newText( c:upper(), x, y, font, 45)
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then
 			c = c .. get_char(i, word)
@@ -953,7 +980,7 @@ function scene:createScene(event)
 		chalkLetter.y = y
 	end
 
-	--new: clear button
+	-- CLEAR
 	clearBtn = display.newImageRect( "images/firstgame/clear.png", 50, 50)
     clearBtn.x = x + 55
     clearBtn.y = y
@@ -967,7 +994,6 @@ function scene:createScene(event)
 	letterboxGroup = display.newGroup()
 	origx = x
 	origy = y
-
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
@@ -993,24 +1019,7 @@ function scene:createScene(event)
 	screenGroup:insert(scoreToDisplay)
 end
 
-
-function scene:enterScene(event)
-
-end
-
-function scene:exitScene(event)
-
-end
-
-function scene:destroyScene(event)
-
-end
-
-
 scene:addEventListener("createScene", scene)
-scene:addEventListener("enterScene", scene)
-scene:addEventListener("exitScene", scene)
-scene:addEventListener("destroyScene", scene)
 Runtime:addEventListener("enterFrame", onFrame)
 
 return scene

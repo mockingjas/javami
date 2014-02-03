@@ -1,0 +1,12 @@
+GAME# 269
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:53
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+hill	6	0	1
+like	0	0	1

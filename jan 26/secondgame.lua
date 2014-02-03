@@ -229,6 +229,70 @@ function saveToFile()
 	file:write( report )
 	io.close( file )
 	file = nil
+
+	-- BAGO: 1 LANG
+
+	report = ""
+	report = report .. "GAME # " .. gamenumber[#gamenumber]
+	for row in db:nrows("SELECT * FROM SecondGame where id = '" .. gamenumber[#gamenumber] .. "'") do
+		report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
+	end
+	--get round #
+	allRoundNumbers = {}
+	rounds = {}
+	for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. gamenumber[#gamenumber] .. "'") do
+		allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
+	end
+	rounds = cleanArray(allRoundNumbers)
+
+	for j = 1, #rounds do
+		report = report .. "\n\nROUND "..rounds[j]
+		--round speed
+		for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+			report = report .. "\nRound time: "..row.speed.." seconds"
+			break
+		end
+		-- get categories
+		allCategories = {}
+		categories = {}
+		for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+			allCategories[#allCategories+1] = row.category
+		end
+		categories = cleanArray(allCategories)
+
+		for k = 1, #categories do
+			report = report .. "\n\nCATEGORY: " .. categories[k]
+			-- get correct
+			words = {}
+			for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				words[#words+1] = row.word
+			end
+			report = report .. "\nCorrect Words: "..#words
+			for w = 1, #words do
+				report = report .. "\n\t"..words[w]
+			end
+			--get incorrect
+			words = {}
+			for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				words[#words+1] = row.word
+			end
+			report = report .. "\nIncorrect Words: "..#words
+			for w = 1, #words do
+				report = report .. "\n\t"..words[w]
+			end
+		end
+	end
+	report = report .. "\n----------------------------------\n"
+
+	-- Save to file
+	print(report)
+	local path = system.pathForFile( "Game 2.txt", system.ResourceDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
+
+	--
 end
 
 --------------- FUNCTION FOR END OF GAME ----------------
@@ -770,6 +834,7 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 
 	for i = 1, #photoArray do
 		fontSize = 12
+		
 		images[i] = display.newImageRect(photoArray[i], photoWidth, photoHeight)
 		if images[i] == nil then
 			images[i] = display.newImageRect("images/secondgame/image.png", photoWidth, photoHeight)
@@ -783,13 +848,14 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		images[i].initialY = images[i].y
 		images[i].label = photoTextArray[i]
 		images[i]:addEventListener("tap", zoomIn)
+		screenGroup:insert(images[i])
 		gameBoard:insert(images[i])
-		screenGroup:insert(gameBoard)
 
 		local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2
 		textObject = display.newText( photoTextArray[i], currentX + textPosX, currentY + photoHeight - 50, native.systemFontBold, fontSize )
 		textObject:setTextColor( 0,0,0 )
 		gameBoard:insert(textObject)
+		screenGroup:insert(gameBoard)
 
 		--Update the position of the next item
 		currentX = currentX + photoWidth + paddingX
@@ -801,6 +867,7 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 
 		MultiTouch.activate(images[i], "move", "single");
 		images[i]:addEventListener(MultiTouch.MULTITOUCH_EVENT, imageDrag);
+		--gameBoard:addEventListener(MultiTouch.MULTITOUCH_EVENT, imageDrag);
 	end
 end
 

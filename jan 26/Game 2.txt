@@ -1,0 +1,52 @@
+GAME # 19
+Player:		Cha
+Category:	medium
+Timestamp:	1-27-2014 ; 13:9
+Pause count:	0
+Final score:	29
+
+ROUND 1
+Round time: 61 seconds
+
+CATEGORY: bodypart
+Correct Words: 2
+	ear
+	shoulder
+Incorrect Words: 3
+	hat
+	police
+	pen
+
+CATEGORY: nonliving
+Correct Words: 9
+	oven
+	bell
+	knife
+	cage
+	best
+	anchor
+	hat
+	pen
+	stove
+Incorrect Words: 9
+	song
+	turkey
+	beach
+	close
+	police
+	student
+	read
+	angle
+	six
+
+CATEGORY: animal
+Correct Words: 4
+	hen
+	chicken
+	turkey
+	rabbit
+Incorrect Words: 3
+	ten
+	song
+	student
+----------------------------------

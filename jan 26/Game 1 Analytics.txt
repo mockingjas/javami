@@ -1,3 +1,1248 @@
+GAME# 269
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:53
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+hill	6	0	1
+like	0	0	1
+
+
+-------------------------------------------------------------
+GAME# 268
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:34
+Pause count:	0
+Final score:	2
+Longest Time:	back (5 seconds)
+Shortest Time:	big (2 seconds)
+Most mistaken:	back (2 attempt/s)
+Least mistaken:	big (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+back	5	0	2
+big	2	0	1
+one	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 267
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:34
+Pause count:	0
+Final score:	2
+Longest Time:	good (6 seconds)
+Shortest Time:	sit (3 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+sit	3	0	1
+good	6	0	1
+yes	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 266
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:31
+Pause count:	0
+Final score:	2
+Longest Time:	hill (5 seconds)
+Shortest Time:	one (3 seconds)
+Most mistaken:	hill (2 attempt/s)
+Least mistaken:	one (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+one	3	0	1
+hill	5	0	2
+hot	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 265
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:30
+Pause count:	0
+Final score:	2
+Most mistaken:	sit (2 attempt/s)
+Least mistaken:	eight (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+sit	4	0	2
+eight	4	0	1
+fish	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 264
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:30
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+bell	6	0	1
+corn	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 263
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:28
+Pause count:	0
+Final score:	3
+Most mistaken:	far (2 attempt/s)
+Least mistaken:	dog, top (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+dog	3	0	1
+top	3	0	1
+far	3	0	2
+ring	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 262
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:28
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+sun	5	0	1
+help	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 261
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:26
+Pause count:	0
+Final score:	2
+Longest Time:	hill (5 seconds)
+Shortest Time:	bed (3 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+hill	5	0	1
+bed	3	0	1
+boy	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 260
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:25
+Pause count:	0
+Final score:	2
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+short	4	0	1
+bear	4	0	1
+hen	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 259
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:24
+Pause count:	0
+Final score:	9
+Longest Time:	far, sea (6 seconds)
+Shortest Time:	hat, bed, boy (2 seconds)
+Most mistaken:	jump (2 attempt/s)
+Least mistaken:	hat, pen, bed, seed, she, boy, far, sea (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+hat	2	0	1
+pen	3	0	1
+bed	2	0	1
+seed	5	0	1
+jump	5	0	2
+she	3	0	1
+boy	2	0	1
+far	6	0	1
+sea	6	0	1
+back	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 258
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:23
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+bell	7	0	1
+roof	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 257
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:22
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+find	5	0	1
+fly	0	0	1
+
+
+-------------------------------------------------------------
+GAME# 256
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:20
+Pause count:	0
+Final score:	11
+Longest Time:	wind (7 seconds)
+Shortest Time:	look (13 seconds)
+Most hints:	three (4 time/s)
+Least hints:	look, baby, black, out, day, back, hot, four, sun, wind, rain (0 time/s)
+Most mistaken:	three (4 attempt/s)
+Least mistaken:	baby, black, out, day, back, hot, four, sun, wind (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+look	13	0	2
+baby	5	0	1
+black	5	0	1
+out	3	0	1
+day	2	0	1
+back	4	0	1
+hot	3	0	1
+three	6	4	4
+four	5	0	1
+sun	2	0	1
+wind	7	0	1
+rain	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 255
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:19
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+pig	6	0	1
+cake	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 254
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:17
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+find	6	0	1
+corn	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 253
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:14
+Pause count:	0
+Final score:	2
+Longest Time:	pen (4 seconds)
+Shortest Time:	sea (3 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+pen	4	0	1
+sea	3	0	1
+five	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 252
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:13
+Pause count:	0
+Final score:	2
+Longest Time:	boat (5 seconds)
+Shortest Time:	ear (2 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+boat	5	0	1
+ear	2	0	1
+girl	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 251
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:12
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+nine	6	0	1
+game	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 250
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:10
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+look	7	0	1
+baby	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 249
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:9
+Pause count:	0
+Final score:	2
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+sit	4	0	1
+short	4	0	1
+pen	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 248
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:9
+Pause count:	0
+Final score:	3
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+bag	3	0	1
+rat	3	0	1
+sea	3	0	1
+coat	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 247
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:8
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+song	9	0	1
+under	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 246
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:7
+Pause count:	0
+Final score:	2
+Longest Time:	boy (3 seconds)
+Shortest Time:	bed (2 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+boy	3	0	1
+bed	2	0	1
+new	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 245
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:6
+Pause count:	0
+Final score:	2
+Longest Time:	sun (4 seconds)
+Shortest Time:	two (3 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+two	3	0	1
+sun	4	0	1
+pan	0	0	1
+
+
+-------------------------------------------------------------
+GAME# 244
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:6
+Pause count:	0
+Final score:	2
+Longest Time:	cold (5 seconds)
+Shortest Time:	go (3 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+cold	5	0	1
+go	3	0	1
+you	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 243
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:2
+Pause count:	0
+Final score:	2
+Longest Time:	nine (4 seconds)
+Shortest Time:	rat (2 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+nine	4	0	1
+rat	2	0	1
+like	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 242
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:1
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+coat	0	0	13
+
+
+-------------------------------------------------------------
+GAME# 241
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 14:1
+Pause count:	0
+Final score:	2
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+rat	4	0	1
+run	4	0	1
+bell	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 240
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:57
+Pause count:	0
+Final score:	2
+Longest Time:	good (4 seconds)
+Shortest Time:	two (2 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+good	4	0	1
+two	2	0	1
+shoes	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 239
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:50
+Pause count:	0
+Final score:	2
+Most mistaken:	bed (2 attempt/s)
+Least mistaken:	ten (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+ten	4	0	1
+bed	4	0	2
+leaf	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 238
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:48
+Pause count:	0
+Final score:	1
+Most mistaken:	four (2 attempt/s)
+Least mistaken:	hat (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+hat	4	0	1
+four	0	0	2
+
+
+-------------------------------------------------------------
+GAME# 237
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:47
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+like	7	0	1
+rat	0	0	1
+
+
+-------------------------------------------------------------
+GAME# 236
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:46
+Pause count:	0
+Final score:	2
+Longest Time:	seed (6 seconds)
+Shortest Time:	box (3 seconds)
+Most mistaken:	seed (2 attempt/s)
+Least mistaken:	box (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+box	3	0	1
+seed	6	0	2
+game	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 235
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:44
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+new	7	0	3
+play	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 234
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:44
+Pause count:	0
+Final score:	3
+Most mistaken:	sea (2 attempt/s)
+Least mistaken:	pen, box (1 attempt/s)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+pen	3	0	1
+box	3	0	1
+sea	3	0	2
+eat	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 233
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:42
+Pause count:	0
+Final score:	2
+Longest Time:	draw (4 seconds)
+Shortest Time:	day (3 seconds)
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+draw	4	0	1
+day	3	0	1
+rat	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 232
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:41
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+ball	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 231
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:41
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+far	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 230
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:40
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+find	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 229
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:40
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+bell	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 228
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:40
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+box	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 227
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:38
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+snow	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 226
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:35
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+eight	4	0	1
+boy	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 225
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:33
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+pen	3	0	1
+you	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 224
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:33
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+brown	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 223
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:31
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+hill	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 222
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:31
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+bed	3	0	1
+fly	0	0	1
+
+
+-------------------------------------------------------------
+GAME# 221
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:30
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+three	0	0	1
+
+
+-------------------------------------------------------------
+GAME# 220
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:29
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+milk	0	0	1
+
+
+-------------------------------------------------------------
+GAME# 219
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:26
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+yes	3	0	1
+fire	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 218
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:26
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+name	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 217
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:24
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+boat	4	0	1
+bag	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 216
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:24
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+bear	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 215
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:23
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+shoes	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 214
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:23
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+rain	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 213
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:23
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+leaf	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 212
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:22
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+ball	4	0	1
+white	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 211
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:21
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+coat	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 210
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:20
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+cow	3	0	1
+three	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 209
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:20
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+ball	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 208
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:20
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+short	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 207
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:18
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+sit	3	0	1
+help	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 206
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:18
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+blue	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 205
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 13:17
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+play	0	0	0
+
+
+-------------------------------------------------------------
+GAME# 204
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:28
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+corn	4	0	1
+
+
+-------------------------------------------------------------
+GAME# 203
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:28
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 202
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:28
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 201
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:27
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 200
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:27
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 199
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:25
+Pause count:	0
+Final score:	1
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+red	3	0	1
+
+
+-------------------------------------------------------------
+GAME# 198
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:25
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 197
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:24
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 196
+
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 12:23
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 195
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 16:58
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 194
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 16:31
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 193
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 16:23
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 192
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 16:22
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 191
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 16:13
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
+GAME# 190
+
+Player:		Cha
+Category:	easy
+Timestamp:	1-27-2014 ; 16:12
+Pause count:	0
+Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
+-------------------------------------------------------------
 GAME# 189
 
 Player:		Cha
@@ -5,6 +1250,12 @@ Category:	easy
 Timestamp:	1-27-2014 ; 15:55
 Pause count:	0
 Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+head	0	0	3
+
+
 -------------------------------------------------------------
 GAME# 188
 
@@ -13,6 +1264,12 @@ Category:	easy
 Timestamp:	1-27-2014 ; 15:54
 Pause count:	0
 Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+eight	0	0	1
+
+
 -------------------------------------------------------------
 GAME# 187
 
@@ -21,6 +1278,11 @@ Category:	easy
 Timestamp:	1-27-2014 ; 15:53
 Pause count:	0
 Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
 -------------------------------------------------------------
 GAME# 186
 
@@ -29,6 +1291,11 @@ Category:	easy
 Timestamp:	1-27-2014 ; 15:42
 Pause count:	0
 Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
 -------------------------------------------------------------
 GAME# 185
 
@@ -37,6 +1304,11 @@ Category:	easy
 Timestamp:	1-27-2014 ; 15:40
 Pause count:	0
 Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
 -------------------------------------------------------------
 GAME# 184
 
@@ -45,6 +1317,11 @@ Category:	easy
 Timestamp:	1-27-2014 ; 13:31
 Pause count:	0
 Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
 -------------------------------------------------------------
 GAME# 183
 
@@ -53,6 +1330,11 @@ Category:	easy
 Timestamp:	1-27-2014 ; 13:14
 Pause count:	0
 Final score:	0
+
+PER ITEM ANALYSIS:
+WORD	SPEED	HINTS	TRIES
+
+
 -------------------------------------------------------------
 GAME# 182
 
@@ -91,9 +1373,7 @@ Timestamp:	1-27-2014 ; 10:45
 Pause count:	0
 Final score:	2
 Longest Time:	bag (4 seconds)
-Shortest Time:	hot (0 seconds)
-Most mistaken:	here, bag (1 attempt/s)
-Least mistaken:	hot (0 attempt/s)
+Shortest Time:	here (10 seconds)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES
@@ -111,9 +1391,7 @@ Timestamp:	1-21-2014 ; 15:10
 Pause count:	0
 Final score:	9
 Longest Time:	like (9 seconds)
-Shortest Time:	hand (0 seconds)
-Most mistaken:	baby, hat, like, two, coat, wind, pig, toy, rat (1 attempt/s)
-Least mistaken:	hand (0 attempt/s)
+Shortest Time:	wind (15 seconds)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES
@@ -137,10 +1415,6 @@ Category:	easy
 Timestamp:	1-19-2014 ; 0:9
 Pause count:	0
 Final score:	1
-Longest Time:	game (5 seconds)
-Shortest Time:	like (0 seconds)
-Most mistaken:	game (1 attempt/s)
-Least mistaken:	like (0 attempt/s)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES
@@ -157,7 +1431,7 @@ Timestamp:	1-19-2014 ; 0:6
 Pause count:	1
 Final score:	2
 Longest Time:	box (6 seconds)
-Shortest Time:	seed (0 seconds)
+Shortest Time:	play (4 seconds)
 Most hints:	box (3 time/s)
 Least hints:	play, seed (0 time/s)
 Most mistaken:	seed (5 attempt/s)
@@ -179,11 +1453,9 @@ Timestamp:	1-19-2014 ; 0:5
 Pause count:	0
 Final score:	3
 Longest Time:	eat (4 seconds)
-Shortest Time:	new (0 seconds)
+Shortest Time:	sea (2 seconds)
 Most hints:	new (1 time/s)
 Least hints:	box, sea, eat (0 time/s)
-Most mistaken:	box, sea, eat (1 attempt/s)
-Least mistaken:	new (0 attempt/s)
 
 PER ITEM ANALYSIS:
 WORD	SPEED	HINTS	TRIES

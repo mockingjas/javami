@@ -27,6 +27,10 @@ storyboard.gotoScene( "startmenu")
 --for row in db:nrows("SELECT * FROM FirstGameAnalytics") do	print(row.id..row.gamenumber) end
 for row in db:nrows("PRAGMA table_info(SecondGame);") do print(row.name) end
 
+-- BAGO
+local profile= [[CREATE TABLE IF NOT EXISTS Profile(id INTEGER PRIMARY KEY autoincrement, name, age);]]
+db:exec(profile)
+
 print("**DATABASE**")
 for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
 	print(row.name)
