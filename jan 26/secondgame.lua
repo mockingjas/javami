@@ -25,6 +25,10 @@ local muted, muteBtn, unmuteBtn
 --for analytics
 local profileName, pauseCtr, count, roundNumber
 local boolNew = false
+--for after modal
+local levelgroup
+local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
+local userAge, username, emailaddress
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -43,6 +47,99 @@ elseif "Android" == system.getInfo( "platformName" ) then
 else
     -- Mac and iOS
     font = "Eraser-Regular"
+end
+--------------------------- EMAIL RESULTS -----------------------------
+
+emailaddress = "mariciabalayan@gmail.com"
+
+local function onSendEmail( event )
+	print("sdklfksdlf")
+	local options =
+	{
+	   to = emailaddress,
+	   subject = "Game Analytics",
+	   body = "Name: "..username.text.."/nAge: "..userAge.text,
+	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1 Analytics.txt", type="text" },
+	}
+	print(native.showPopup("mail", options))
+	native.showPopup("mail", options)
+end
+
+-----------------------FUNCTIONS FOR GETTING NAME ------------------------------------
+
+function closedialog()
+	username = display.newText(name.text, 190, 100, font, 20)
+	username.isVisible = false
+	userAge = display.newText(age.text, 190, 100, font, 20)
+	userAge.isVisible = false
+	levelgroup.isVisible = false
+	name.isVisible = false
+	age.isVisible = false
+end
+
+local function nameListener( event )
+	if(event.phase == "began") then
+	elseif(event.phase == "editing") then
+	elseif(event.phase == "ended") then
+		name.text = event.target.text
+	end
+end
+
+local function ageListener( event )
+	if(event.phase == "began") then
+	elseif(event.phase == "editing") then
+	elseif(event.phase == "ended") then
+		age.text = event.target.text
+	end
+end
+
+function showlevelDialog()
+ 	
+ 	levelgroup = display.newGroup()
+
+	local rect = display.newImage("images/modal/gray.png")
+ 	rect.x = display.contentWidth/2;
+ 	rect:addEventListener("touch", function() return true end)
+	rect:addEventListener("tap", function() return true end)
+	levelgroup:insert(rect)
+
+	local dialog = display.newImage("images/modal/saveanalytics.png")
+ 	dialog.x = display.contentWidth/2;
+ 	levelgroup:insert(dialog)
+
+	namelabel = display.newText("Kid's name", 190, 100, font, 20)
+	namelabel:setTextColor(0,0,0)
+	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
+    name:setTextColor( 0,0,0)
+    name.hintText= ""
+   	name.text = name.hintText
+   	levelgroup:insert(namelabel)
+   	levelgroup:insert(name)
+
+   	agelabel = display.newText("Kid's Age", 200, 160, font, 20)
+   	agelabel:setTextColor(0,0,0)
+	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
+    age:setTextColor( 0,0,0)
+   	age.inputType = "number"
+   	age.hintText = ""
+   	age.text = age.hintText
+   	levelgroup:insert(agelabel)
+   	levelgroup:insert(age)
+
+   	--checkbutton
+	okay = widget.newButton{
+		id = "okay",
+		defaultFile = "images/firstgame/submit_button.png",
+		fontSize = 15,
+		emboss = true,
+		onEvent = closedialog
+	}
+	okay.x = 350; okay.y = 235
+	levelgroup:insert(okay)
+
+   	name:addEventListener( "userInput", nameListener)
+	age:addEventListener( "userInput", ageListener)
+
 end
 
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
@@ -108,7 +205,7 @@ local function finalmenu( )
     local emailBtn = display.newImage( "images/firstgame/email_button.png")
     emailBtn.x = 130
     emailBtn.y = display.contentCenterY + 30
-    --email:addEventListener("touch", home)
+    emailBtn:addEventListener("touch", home)
     gameovergroup:insert(emailBtn)
     
     local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
@@ -130,6 +227,7 @@ local fallover = function(event)
 	else
 		maintimer = nil
 		finalmenu()
+		showlevelDialog()
 	end
 end
 

@@ -27,7 +27,7 @@ function loadgame()
 			categ = "easy",
 			first = true,
 			score = 0,
-			time = 10
+			time = 62
 		}
 	}
 
@@ -38,7 +38,7 @@ function loadgame()
 			categ = "medium",
 			first = true,
 			score = 0,
-			time = 121
+			time = 122
 		}
 	}
 
@@ -49,7 +49,7 @@ function loadgame()
 			categ = "hard",
 			first = true,	
 			score = 0,
-			time = 181		
+			time = 182		
 		}
 	}
 
