@@ -1,11 +1,31 @@
-GAME # 15
+GAME # 16
 
 Player: Cha
 Category : easy
-Timestamp: 2-4-2014 ; 23:50
-Final Score: 3
-Number of rounds: 1
+Timestamp: 2-5-2014 ; 0:2
+Final Score: 23
+Number of rounds: 6
 
 ROUND 1
-Round time: 6 second/s
+Round time: 16 second/s
+Round score: 8
+
+ROUND 2
+Round time: 4 second/s
+Round score: 1
+
+ROUND 3
+Round time: 5 second/s
+Round score: 2
+
+ROUND 4
+Round time: 10 second/s
+Round score: 1
+
+ROUND 5
+Round time: 17 second/s
+Round score: 8
+
+ROUND 6
+Round time: 10 second/s
 Round score: 3
