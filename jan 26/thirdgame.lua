@@ -24,6 +24,8 @@ local gameovergroup, round, score, gameover
 local rand, dimensions, order, current, answer
 local obj, objectGroup
 local r, g, b
+--for analytics
+local roundNumber, correctCtr, roundSpeed, pauseCtr, profileName
 
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
@@ -43,6 +45,37 @@ else
     -- Mac and iOS
     font = "Eraser-Regular"
 end
+
+
+---------- DB FUNCTIONS ---------------------------------
+
+--save score
+function insertToDB(category, score, name, timestamp, pausectr)
+	local query = [[INSERT INTO ThirdGame VALUES (NULL, ']] .. 
+	category .. [[',']] ..
+	score .. [[',']] ..
+	name .. [[',']] ..
+	timestamp .. [[',']] ..
+	pausectr.. [[');]]
+	db:exec(query)
+
+	for row in db:nrows("SELECT id FROM ThirdGame") do
+		id = row.id
+	end
+	return id
+end
+
+--save analytics
+function insertAnalyticsToDB(gameid, roundid, roundscore, roundspeed)
+	local query = [[INSERT INTO ThirdGameAnalytics VALUES (NULL, ']] .. 
+	gameid .. [[',']] ..
+	roundid .. [[',']] ..
+	roundscore .. [[',']] ..
+	roundspeed .. [[');]]
+	db:exec(query)
+end
+
+---------------------------------------------------------
 
 --------- FUNCTIONS FOR STRING MANIPULATIONS ------------
 -- position in str to be replaced with ch
@@ -178,7 +211,55 @@ function moveBG(self,event)
 	end
 end
 
+function queryAndSaveToFile(id)
+	local report = ""
+	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
+		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.."\nFinal Score: "..row.score.."\nNumber of rounds: "..roundNumber
+		--add longest time, shortest time, average time
+
+		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
+			report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
+		end
+		break
+	end
+
+	-- Save to file
+	print(report)
+	local path = system.pathForFile( "Game 3.txt", system.ResourceDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
+
+	--Append
+	report = report .. "\n----------------------------------\n"
+	local path = system.pathForFile( "Game 3 Analytics.txt", system.ResourceDirectory )
+	local file = io.open( path, "a" )
+	file:write( report )
+	io.close( file )
+	file = nil
+end
+
 function gameoverdialog()
+
+	-- ANALYTICS ----------------------
+	local date = os.date( "*t" )
+	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
+	--save to DB
+	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+
+	--per round
+	for i = 1, roundNumber do
+		-- if last
+		if tonumber(correctCtr[i]) > 0 and tonumber(roundSpeed[i]) == 0 then
+			roundSpeed[i] = currTime - roundSpeed[i]
+		end
+		--save to db
+		insertAnalyticsToDB(id, i, correctCtr[i], roundSpeed[i])
+	end
+
+	queryAndSaveToFile(id)
+	-------------------
 
 	objectGroup:removeSelf()
 	pauseBtn.isVisible = false
@@ -199,6 +280,7 @@ end
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
     if(event.phase == "ended") then
+       	pauseCtr = pauseCtr + 1
     	timerr:pause()
     	timer.pause(blinker)
         pauseBtn.isVisible = false
@@ -347,6 +429,7 @@ end
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	muted = 0
+	profileName = "Cha" --temp
 	--get passed parameters from previous scene
 	category = event.params.categ
 	currScore = event.params.score
@@ -365,12 +448,27 @@ function scene:createScene(event)
 		dimensions = 4
 	end
 
+	correctCtr = {0}
+	roundSpeed = {0}
+
 	if(boolFirst) then
 		game3MusicChannel = audio.play( thirdGameMusic, { loops=-1}  )
+		roundNumber = 1
+		correctCtr[1] = 0
+		roundSpeed[1] = 0
+		pauseCtr = 0
 	else
 		game3MusicChannel = event.params.music
+		roundNumber = event.params.roundctr
+		correctCtr = event.params.correctcount
+		correctCtr[roundNumber] = 0
+		roundSpeed = event.params.roundspeed
+		roundSpeed[roundNumber] = 0
+		pauseCtr = event.params.pausecount
 	end
- 
+
+	print("\n\nROUND NUMBER " .. roundNumber)
+
 	-- Screen Elements
 
 	--bg
@@ -557,7 +655,7 @@ function startSequence(last)
 	end
 end
 
-function  checkanswer(event)
+function checkanswer(event)
 	local t = event.target
 	if (event.phase == "ended") then
 		print("ended " .. t.name)
@@ -571,6 +669,7 @@ function  checkanswer(event)
 				-- CORRECT YUNG BUONG PAGKAKASUNOD
 				print("CORRECT!!!!")
 				currScore = currScore + 1
+				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
 				scoreToDisplay.text = "Score: "..currScore
 
 				---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
@@ -589,6 +688,7 @@ function  checkanswer(event)
 				print("subround not yet done")
 				audio.play(tempsound)
 				currScore = currScore + 1
+				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
 				scoreToDisplay.text = "Score: "..currScore
 			end
 		else
@@ -606,17 +706,25 @@ end
 function reload()
 	objectGroup:removeSelf()
 	timerText:removeSelf()
-	timerr = nil
+	boolFirst = false
+	roundSpeed[roundNumber] = timerr:getElapsedSeconds()
+	roundNumber = roundNumber + 1
 	option = {
 		effect = "fade",
 		time = 300,
 		params = {
 			categ = category,
 			first = true,
-			time = currTime,
-			score = currScore
+			time = currTime - timerr:getElapsedSeconds(),
+			score = currScore,
+			first = boolFirst,
+			roundctr = roundNumber,
+			correctcount = correctCtr,
+			roundspeed = roundSpeed,
+			pausecount = pauseCtr
 		}
 	}
+	timerr = nil
 	audio.stop()
 	storyboard.removeScene("reloadthird")
 	storyboard.gotoScene("reloadthird", option)

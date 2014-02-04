@@ -168,70 +168,6 @@ function saveToFile()
 		gamenumber[#gamenumber+1] = row.gamenumber
 	end
 
-	for i = gamenumber[#gamenumber], gamenumber[1], -1 do
-		-- get game #
-		report = report .. "GAME # " .. i
-		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. i .. "'") do
-			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
-		end
-		--get round #
-		allRoundNumbers = {}
-		rounds = {}
-		for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. i .. "'") do
-			allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
-		end
-		rounds = cleanArray(allRoundNumbers)
-
-		for j = 1, #rounds do
-			report = report .. "\n\nROUND "..rounds[j]
-			--round speed
-			for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
-				report = report .. "\nRound time: "..row.speed.." seconds"
-				break
-			end
-			-- get categories
-			allCategories = {}
-			categories = {}
-			for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
-				allCategories[#allCategories+1] = row.category
-			end
-			categories = cleanArray(allCategories)
-
-			for k = 1, #categories do
-				report = report .. "\n\nCATEGORY: " .. categories[k]
-				-- get correct
-				words = {}
-				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
-					words[#words+1] = row.word
-				end
-				report = report .. "\nCorrect Words: "..#words
-				for w = 1, #words do
-					report = report .. "\n\t"..words[w]
-				end
-				--get incorrect
-				words = {}
-				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..i.."'") do
-					words[#words+1] = row.word
-				end
-				report = report .. "\nIncorrect Words: "..#words
-				for w = 1, #words do
-					report = report .. "\n\t"..words[w]
-				end
-			end
-		end
-		report = report .. "\n----------------------------------\n"
-	end
-
-	-- Save to file
-	print(report)
-	local path = system.pathForFile( "Game 2 Analytics.txt", system.ResourceDirectory )
-	local file = io.open( path, "w" )
-	file:write( report )
-	io.close( file )
-	file = nil
-
-	-- BAGO: 1 LANG
-
 	report = ""
 	report = report .. "GAME # " .. gamenumber[#gamenumber]
 	for row in db:nrows("SELECT * FROM SecondGame where id = '" .. gamenumber[#gamenumber] .. "'") do
@@ -282,7 +218,6 @@ function saveToFile()
 			end
 		end
 	end
-	report = report .. "\n----------------------------------\n"
 
 	-- Save to file
 	print(report)
@@ -292,7 +227,14 @@ function saveToFile()
 	io.close( file )
 	file = nil
 
-	--
+	-- Append
+	report = report .. "\n----------------------------------\n"
+	local path = system.pathForFile( "Game 2 Analytics.txt", system.ResourceDirectory )
+	local file = io.open( path, "a" )
+	file:write( report )
+	io.close( file )
+	file = nil
+
 end
 
 --------------- FUNCTION FOR END OF GAME ----------------

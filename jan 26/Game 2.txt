@@ -1,52 +1,28 @@
-GAME # 19
+GAME # 28
 Player:		Cha
-Category:	medium
-Timestamp:	1-27-2014 ; 13:9
+Category:	easy
+Timestamp:	2-3-2014 ; 15:54
 Pause count:	0
-Final score:	29
+Final score:	12
 
 ROUND 1
-Round time: 61 seconds
+Round time: 14 seconds
 
-CATEGORY: bodypart
-Correct Words: 2
-	ear
-	shoulder
-Incorrect Words: 3
-	hat
-	police
-	pen
-
-CATEGORY: nonliving
-Correct Words: 9
-	oven
-	bell
-	knife
-	cage
-	best
-	anchor
-	hat
-	pen
-	stove
-Incorrect Words: 9
-	song
-	turkey
-	beach
-	close
-	police
-	student
-	read
-	angle
-	six
+CATEGORY: triangle
+Correct Words: 1
+	volcano
+Incorrect Words: 0
 
 CATEGORY: animal
-Correct Words: 4
-	hen
-	chicken
-	turkey
-	rabbit
-Incorrect Words: 3
-	ten
-	song
-	student
-----------------------------------
+Correct Words: 9
+	lion
+	monkey
+	horse
+	ostrich
+	turtle
+	kangaroo
+	penguin
+	squirrel
+	dragon
+Incorrect Words: 1
+	deer

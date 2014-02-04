@@ -1,157 +1,61 @@
-GAME # 19
+GAME # 27
 Player:		Cha
-Category:	medium
-Timestamp:	1-27-2014 ; 13:9
+Category:	easy
+Timestamp:	2-3-2014 ; 15:53
 Pause count:	0
-Final score:	29
+Final score:	10
 
 ROUND 1
-Round time: 61 seconds
-
-CATEGORY: bodypart
-Correct Words: 2
-	ear
-	shoulder
-Incorrect Words: 3
-	hat
-	police
-	pen
+Round time: 19 seconds
 
 CATEGORY: nonliving
-Correct Words: 9
-	oven
-	bell
-	knife
-	cage
-	best
-	anchor
-	hat
-	pen
-	stove
-Incorrect Words: 9
-	song
-	turkey
+Correct Words: 6
+	stones
+	box
+	building
+	drink
+	class
+	school
+Incorrect Words: 3
+	sheep
+	squirrel
 	beach
-	close
-	police
-	student
-	read
-	angle
-	six
 
 CATEGORY: animal
 Correct Words: 4
-	hen
-	chicken
-	turkey
-	rabbit
-Incorrect Words: 3
-	ten
-	song
-	student
+	giraffe
+	sheep
+	squirrel
+	elephant
+Incorrect Words: 1
+	hot
 ----------------------------------
-GAME # 18
-Player:		Cha
-Category:	hard
-Timestamp:	1-27-2014 ; 13:4
-Pause count:	0
-Final score:	32
-
-ROUND 1
-Round time: 114 seconds
-
-CATEGORY: circle
-Correct Words: 2
-	baseball
-	eyes
-Incorrect Words: 4
-	full
-	planet
-	blue
-	leg
-----------------------------------
-GAME # 17
+GAME # 28
 Player:		Cha
 Category:	easy
-Timestamp:	1-27-2014 ; 12:59
+Timestamp:	2-3-2014 ; 15:54
 Pause count:	0
-Final score:	15
+Final score:	12
 
 ROUND 1
-Round time: 44 seconds
+Round time: 14 seconds
 
-CATEGORY: rectangle
+CATEGORY: triangle
 Correct Words: 1
-	box
-Incorrect Words: 7
 	volcano
-	pizza
-	read
-	full
-	picnic
-	warm
-	walk
-
-CATEGORY: nonliving
-Correct Words: 9
-	boat
-	volcano
-	slippers
-	street
-	belt
-	oven
-	pizza
-	warm
-	short
-Incorrect Words: 6
-	green
-	picnic
-	white
-	read
-	write
-	eyes
-----------------------------------
-GAME # 16
-Player:		Cha
-Category:	easy
-Timestamp:	1-27-2014 ; 12:58
-Pause count:	0
-Final score:	26
-
-ROUND 1
-Round time: 23 seconds
-
-CATEGORY: circle
-Correct Words: 6
-	cake
-	orange
-	eight
-	snow
-	stop
-	yoyo
-Incorrect Words: 2
-	morning
-	off
-
-CATEGORY: yellow
-Correct Words: 4
-	corn
-	day
-	morning
-	light
 Incorrect Words: 0
 
-ROUND 2
-Round time: 22 seconds
-
-CATEGORY: circle
-Correct Words: 3
-	find
-	happy
-	round
-Incorrect Words: 4
-	apple
-	like
-	elbow
-	stove
+CATEGORY: animal
+Correct Words: 9
+	lion
+	monkey
+	horse
+	ostrich
+	turtle
+	kangaroo
+	penguin
+	squirrel
+	dragon
+Incorrect Words: 1
+	deer
 ----------------------------------

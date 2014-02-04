@@ -2,7 +2,7 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore
+local text, category, boolFirst, gameTimer, currScore, roundNumber, correctCtr, roundSpeed, pauseCtr
 
 
 function scene:createScene(event)
@@ -13,6 +13,10 @@ function scene:createScene(event)
 	gameTimer = event.params.time
 	category = event.params.categ
 	currScore = event.params.score
+	roundNumber = event.params.roundctr
+	correctCtr = event.params.correctcount
+	roundSpeed = event.params.roundspeed
+	pauseCtr = event.params.pausecount
 
 	print("CUUUUURTIME SA RELOAD "..gameTimer)
 end
@@ -26,7 +30,12 @@ function scene:enterScene(event)
 			categ = category,
 			first = boolFirst,
 			time = gameTimer,
-			score = currScore
+			score = currScore,
+			roundctr = roundNumber,
+			first = boolFirst,
+			correctcount = correctCtr,
+			roundspeed = roundSpeed,
+			pausecount = pauseCtr
 		}
 	}
 

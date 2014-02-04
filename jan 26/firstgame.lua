@@ -408,8 +408,7 @@ local function generateReport()
 	hint = {}
 	tries = {}
 	words = {}
-	local report = ""
-
+	
 	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
 		gamenumber[#gamenumber+1] = row.gamenumber
 		roundnumber[#roundnumber+1] = row.roundnumber
@@ -422,99 +421,6 @@ local function generateReport()
 	first = gamenumber[1]
 	last = gamenumber[#gamenumber]
 
-	for i = last, first, -1 do
-	-- PER GAME
-		print("GAME# " .. i)
-		report = report .. "GAME# " .. i .. "\n"
-		for row in db:nrows("SELECT * FROM FirstGame where id = '" .. i .. "'") do
-			finalscore = row.score
-			print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
-			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
-		end
-
---		if tonumber(finalscore) > 0 then
-			report = report .. "\n"
-			--By Speed
-			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY speed DESC") do
-				maxVal = row.speed
-				break
-			end
-			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY speed") do
-				if tonumber(row.speed) > 0 then
-					minVal = row.speed
-					break
-				end
-			end
-			if maxVal ~= minVal then
-				max = queryAnalytics(i, "speed", maxVal)
-				report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
-				print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
-				min = queryAnalytics(i, "speed", minVal)
-				print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
-				report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
-			end
-			--By Hints
-			for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount DESC") do
-				maxVal = row.hintcount
-				break
-			end
-			for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY hintcount") do
-				minVal = row.hintcount
-				break
-			end
-			if maxVal ~= minVal then
-				max = queryAnalytics(i, "hintcount", maxVal)
-				print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
-				report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
-				min = queryAnalytics(i, "hintcount", minVal)
-				print("Least hints:\t"..min.." ("..minVal.." time/s)")
-				report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
-			end
-			--By Tries
-			for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY triescount DESC") do
-				maxVal = row.triescount
-				break
-			end
-			for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY triescount") do
-				if tonumber(row.triescount) > 0 then
-					minVal = row.triescount
-					break
-				end
-			end
-			if maxVal ~= minVal then
-				max = queryAnalytics(i, "triescount", maxVal)
-				print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
-				report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
-				min = queryAnalytics(i, "triescount", minVal)
-				print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
-				report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
-			end
-		--PER WORD
-			print("\nPER ITEM ANALYSIS:")
-			print("\nWORD\tSPEED\tHINTS\tTRIES")
-			report = report .. "\nPER ITEM ANALYSIS:"
-			report = report .. "\nWORD\tSPEED\tHINTS\tTRIES\n"
-			for j = 1, #roundnumber do
-				-- per item
-				if tonumber(gamenumber[j]) == i then
-					print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
-					report = report .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j].."\n"
-				end
-			end
-			report = report .. "\n"
---		end
-		print("-------------------------------------------------------------\n\n")
-		report = report .. "\n-------------------------------------------------------------\n"
-	end
-
-	-- Save to file
-	local path = system.pathForFile( "Game 1 Analytics.txt", system.ResourceDirectory )
-	local file = io.open( path, "w" )
-	file:write( report )
-	io.close( file )
-	file = nil
-
-	--BAGO: 1 game lang
 	local report = ""
 
 	print("BAGO: GAME# " .. last)
@@ -526,83 +432,91 @@ local function generateReport()
 		break
 	end
 
-		--By Speed
-		for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed DESC") do
-			maxVal = row.speed
+	--By Speed
+	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed DESC") do
+		maxVal = row.speed
+		break
+	end
+	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed") do
+		if tonumber(row.speed) > 0 then
+			minVal = row.speed
 			break
 		end
-		for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed") do
-			if tonumber(row.speed) > 0 then
-				minVal = row.speed
-				break
-			end
-		end
+	end
 
-		if maxVal ~= minVal then
-			max = queryAnalytics(last, "speed", maxVal)
-			print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
-			report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
-			min = queryAnalytics(last, "speed", minVal)
-			print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
-			report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
-		end
+	if maxVal ~= minVal then
+		max = queryAnalytics(last, "speed", maxVal)
+		print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
+		report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
+		min = queryAnalytics(last, "speed", minVal)
+		print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
+		report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
+	end
 
-		--By Hints
-		for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount DESC") do
-			maxVal = row.hintcount
+	--By Hints
+	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount DESC") do
+		maxVal = row.hintcount
+		break
+	end
+	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount") do
+		minVal = row.hintcount
+		break
+	end
+	if maxVal ~= minVal then
+		max = queryAnalytics(last, "hintcount", maxVal)
+		print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
+		report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
+		min = queryAnalytics(last, "hintcount", minVal)
+		print("Least hints:\t"..min.." ("..minVal.." time/s)")
+		report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
+	end
+
+	--By Tries
+	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount DESC") do
+		maxVal = row.triescount
+		break
+	end
+	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount") do
+		if tonumber(row.triescount) > 0 then			
+			minVal = row.triescount
 			break
 		end
-		for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount") do
-			minVal = row.hintcount
-			break
-		end
-		if maxVal ~= minVal then
-			max = queryAnalytics(last, "hintcount", maxVal)
-			print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
-			report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
-			min = queryAnalytics(last, "hintcount", minVal)
-			print("Least hints:\t"..min.." ("..minVal.." time/s)")
-			report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
-		end
+	end
+	if maxVal ~= minVal then
+		max = queryAnalytics(last, "triescount", maxVal)
+		print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
+		report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
+		min = queryAnalytics(last, "triescount", minVal)
+		print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
+		report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
+	end
 
-		--By Tries
-		for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount DESC") do
-			maxVal = row.triescount
-			break
+	--PER WORD
+	print("\nPER ITEM ANALYSIS:")
+	print("\nWORD\tSPEED\tHINTS\tTRIES")
+	report = report .. "\nPER ITEM ANALYSIS:"
+	report = report .. "\nWORD\tSPEED\tHINTS\tTRIES"
+	for j = 1, #roundnumber do
+		if tonumber(gamenumber[j]) == tonumber(last) then
+			print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
+			report = report .. "\n" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j]
 		end
-		for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount") do
-			if tonumber(row.triescount) > 0 then			
-				minVal = row.triescount
-				break
-			end
-		end
-		if maxVal ~= minVal then
-			max = queryAnalytics(last, "triescount", maxVal)
-			print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
-			report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
-			min = queryAnalytics(last, "triescount", minVal)
-			print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
-			report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
-		end
+	end
 
-		--PER WORD
-		print("\nPER ITEM ANALYSIS:")
-		print("\nWORD\tSPEED\tHINTS\tTRIES")
-		report = report .. "\nPER ITEM ANALYSIS:"
-		report = report .. "\nWORD\tSPEED\tHINTS\tTRIES"
-		for j = 1, #roundnumber do
-			if tonumber(gamenumber[j]) == tonumber(last) then
-				print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
-				report = report .. "\n" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j]
-			end
-		end
+	-- Save to file
+	local path = system.pathForFile( "Game 1.txt", system.ResourceDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
 
-		-- Save to file
-		local path = system.pathForFile( "Game 1.txt", system.ResourceDirectory )
-		local file = io.open( path, "w" )
-		file:write( report )
-		io.close( file )
-		file = nil
+	-- Append to file
+	report = report .. "\n-------------------------------------------------------------\n"
+	local path = system.pathForFile( "Game 1 Analytics.txt", system.ResourceDirectory )
+	local file = io.open( path, "a" )
+	file:write( report )
+	io.close( file )
+	file = nil
 
 end
 
