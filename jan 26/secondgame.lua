@@ -5,6 +5,7 @@ local widget = require( "widget" )
 local physics = require("physics")
 local lfs = require("lfs")
 local stopwatch =require "stopwatch"
+local toast = require("toast");
 local scene = storyboard.newScene()
 
 ------- Global variables ---------
@@ -51,7 +52,6 @@ end
 --------------------------- EMAIL RESULTS -----------------------------
 
 emailaddress = "mariciabalayan@gmail.com"
-
 local function onSendEmail( event )
 	print("sdklfksdlf")
 	local options =
@@ -75,6 +75,12 @@ function closedialog()
 	levelgroup.isVisible = false
 	name.isVisible = false
 	age.isVisible = false
+
+	-- SAVE TO PROFILE
+	
+	-- CHANGE PROFILE NAME
+	-- select gameid, change profile name to username
+
 end
 
 local function nameListener( event )
@@ -337,8 +343,11 @@ end
 
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
-	local date = os.date( "*t" )
-	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
+
+	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
+	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
+	local timeStamp = date .. ", " .. time
+
 	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
 
 	for row in db:nrows("SELECT COUNT(*) as count FROM SecondGameAnalytics") do
@@ -408,41 +417,10 @@ function muteGame(event)
 	muted = 1
 end
 
----------------- ZOOM OUT IMAGE ---------------------------
-function zoomOut(event)
-	levelgroup:removeSelf()
-	maintimer:resume()
-end
-
 ---------------- ZOOM IN IMAGE ---------------------------
 function zoomIn(event)
-	physics.pause()
-	maintimer:pause()
 	filename = event.target.filename
-
- 	levelgroup = display.newGroup()
-	rect = display.newImage("images/modal/gray.png")
- 	rect.x = display.contentWidth/2;
- 	rect:addEventListener("touch", function() return true end)
-	rect:addEventListener("tap", function() return true end)
-	levelgroup:insert(rect)
-
- 	zoomedImage = display.newImage(filename, 200, 200)
- 	zoomedImage.xScale = zoomedImage.xScale * 1.5
- 	zoomedImage.yScale = zoomedImage.yScale * 1.5
- 	zoomedImage.x = display.contentCenterX
- 	zoomedImage.y = display.contentCenterY
- 	levelgroup:insert(zoomedImage)
-
-	exitBtn = widget.newButton{
-		defaultFile="images/modal/closebutton.png",
-		overFile="images/modal/closebutton.png",
-		onRelease = zoomOut	-- event listener function
-	}
-	exitBtn:setReferencePoint( display.CenterReferencePoint )
-	exitBtn.x = bg.x + 70
-	exitBtn.y = 80
-	levelgroup:insert(exitBtn)
+	toast.new(filename, 1000, 150, 80, "secondgame")
 end
 
 ---------------- PAUSE GAME ---------------------------

@@ -7,7 +7,6 @@ local lfs = require("lfs")
 local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
 local toast = require("toast");
-local toast2 = require("toast2");
 
 ------- Global variables ---------
 --for the blackboard
@@ -34,7 +33,7 @@ local userAge, username, emailaddress
 -- *per item
 local item, itemSpeed, itemHint, itemTries
 -- *per game
-local pauseCtr, profileName
+local pauseCtr, profileName, latestId
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -88,16 +87,24 @@ local function insertToDB(category, score, name, timestamp, pausectr)
 end
 
 local function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, word)
---	if tonumber(triesctr) > 0 then
-		local query = [[INSERT INTO FirstGameAnalytics VALUES (NULL, ']] .. 
-		gameid .. [[',']] ..
-		roundid .. [[',']] ..
-		speed .. [[',']] ..
-		hintctr .. [[',']] ..
-		triesctr .. [[',']] ..
-		word .. [[');]]
-		db:exec(query)
---	end
+	local query = [[INSERT INTO FirstGameAnalytics VALUES (NULL, ']] .. 
+	gameid .. [[',']] ..
+	roundid .. [[',']] ..
+	speed .. [[',']] ..
+	hintctr .. [[',']] ..
+	triesctr .. [[',']] ..
+	word .. [[');]]
+	db:exec(query)
+end
+
+function saveProfile(dbname, dbage)
+	print("SAVE PROFILE " .. latestId)
+	local query = [[INSERT INTO Profile VALUES (NULL, ']] .. 
+	dbname .. [[',']] ..
+	dbage .. [[');]]
+	db:exec(query)
+
+	for row in db:nrows("UPDATE FirstGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
 end
 
 --DB: reset all words to un-guessed
@@ -311,7 +318,7 @@ local function checkanswer(event)
 			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
-			toast2.new("", 500)
+			toast.new("images/wrong.png", 500, 0, 0, "firstgame_image")
 			audio.play(incorrectSound)
 		end
 	end
@@ -323,27 +330,157 @@ emailaddress = "mariciabalayan@gmail.com"
 
 local function onSendEmail( event )
 	print("sdklfksdlf")
+	print(latestId)
+
 	local options =
 	{
 	   to = emailaddress,
 	   subject = "Game Analytics",
 	   body = "Name: "..username.text.."/nAge: "..userAge.text,
-	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1 Analytics.txt", type="text" },
+	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1.txt", type="text" },
 	}
+
 	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
+
 end
 
 -----------------------FUNCTIONS FOR GETTING NAME ------------------------------------
+function generateReport()
+	print("GENERATE REPORT!!!!")
+	gamenumber = {}
+	roundnumber = {}
+	speed = {}
+	hint = {}
+	tries = {}
+	words = {}
+	
+	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
+		gamenumber[#gamenumber+1] = row.gamenumber
+		roundnumber[#roundnumber+1] = row.roundnumber
+		speed[#speed+1] = row.speed
+		hint[#hint+1] = row.hintcount
+		tries[#tries+1] = row.triescount
+		words[#words+1] = row.word
+	end
+
+	first = gamenumber[1]
+	last = gamenumber[#gamenumber]
+
+	local report = ""
+
+	print("BAGO: GAME# " .. last)
+	report = report .. "GAME# " .. last .. "\n\n"
+	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
+		finalscore = row.score
+		print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
+		report = report .. "Player:\t\t" .. username.text .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
+		break
+	end
+
+	--By Speed
+	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed DESC") do
+		maxVal = row.speed
+		break
+	end
+	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed") do
+		if tonumber(row.speed) > 0 then
+			minVal = row.speed
+			break
+		end
+	end
+
+	if maxVal ~= minVal then
+		max = queryAnalytics(last, "speed", maxVal)
+		print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
+		report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
+		min = queryAnalytics(last, "speed", minVal)
+		print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
+		report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
+	end
+
+	--By Hints
+	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount DESC") do
+		maxVal = row.hintcount
+		break
+	end
+	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount") do
+		minVal = row.hintcount
+		break
+	end
+	if maxVal ~= minVal then
+		max = queryAnalytics(last, "hintcount", maxVal)
+		print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
+		report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
+		min = queryAnalytics(last, "hintcount", minVal)
+		print("Least hints:\t"..min.." ("..minVal.." time/s)")
+		report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
+	end
+
+	--By Tries
+	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount DESC") do
+		maxVal = row.triescount
+		break
+	end
+	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount") do
+		if tonumber(row.triescount) > 0 then			
+			minVal = row.triescount
+			break
+		end
+	end
+	if maxVal ~= minVal then
+		max = queryAnalytics(last, "triescount", maxVal)
+		print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
+		report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
+		min = queryAnalytics(last, "triescount", minVal)
+		print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
+		report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
+	end
+
+	--PER WORD
+	print("\nPER ITEM ANALYSIS:")
+	print("\nWORD\tSPEED\tHINTS\tTRIES")
+	report = report .. "\nPER ITEM ANALYSIS:"
+	report = report .. "\nWORD\tSPEED\tHINTS\tTRIES"
+	for j = 1, #roundnumber do
+		if tonumber(gamenumber[j]) == tonumber(last) then
+			print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
+			report = report .. "\n" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j]
+		end
+	end
+
+	-- Save to file
+	local path = system.pathForFile( "Game 1.txt", system.ResourceDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
+
+	-- Append to file
+	report = report .. "\n-------------------------------------------------------------\n"
+	local path = system.pathForFile( "Game 1 Analytics.txt", system.ResourceDirectory )
+	local file = io.open( path, "a" )
+	file:write( report )
+	io.close( file )
+	file = nil
+
+end
 
 function closedialog()
 	username = display.newText(name.text, 190, 100, font, 20)
 	username.isVisible = false
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
-	levelgroup.isVisible = false
-	name.isVisible = false
-	age.isVisible = false
+
+	if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+	else
+		levelgroup.isVisible = false
+		name.isVisible = false
+		age.isVisible = false
+		saveProfile(username.text, userAge.text)
+		generateReport()
+	end
 end
 
 local function nameListener( event )
@@ -501,131 +638,24 @@ local function spriteListener( event )
 	 end
 end
 
-local function generateReport()
-	gamenumber = {}
-	roundnumber = {}
-	speed = {}
-	hint = {}
-	tries = {}
-	words = {}
-	
-	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
-		gamenumber[#gamenumber+1] = row.gamenumber
-		roundnumber[#roundnumber+1] = row.roundnumber
-		speed[#speed+1] = row.speed
-		hint[#hint+1] = row.hintcount
-		tries[#tries+1] = row.triescount
-		words[#words+1] = row.word
-	end
-
-	first = gamenumber[1]
-	last = gamenumber[#gamenumber]
-
-	local report = ""
-
-	print("BAGO: GAME# " .. last)
-	report = report .. "GAME# " .. last .. "\n\n"
-	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
-		finalscore = row.score
-		print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
-		report = report .. "Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
-		break
-	end
-
-	--By Speed
-	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed DESC") do
-		maxVal = row.speed
-		break
-	end
-	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed") do
-		if tonumber(row.speed) > 0 then
-			minVal = row.speed
-			break
-		end
-	end
-
-	if maxVal ~= minVal then
-		max = queryAnalytics(last, "speed", maxVal)
-		print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
-		report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
-		min = queryAnalytics(last, "speed", minVal)
-		print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
-		report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
-	end
-
-	--By Hints
-	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount DESC") do
-		maxVal = row.hintcount
-		break
-	end
-	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount") do
-		minVal = row.hintcount
-		break
-	end
-	if maxVal ~= minVal then
-		max = queryAnalytics(last, "hintcount", maxVal)
-		print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
-		report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
-		min = queryAnalytics(last, "hintcount", minVal)
-		print("Least hints:\t"..min.." ("..minVal.." time/s)")
-		report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
-	end
-
-	--By Tries
-	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount DESC") do
-		maxVal = row.triescount
-		break
-	end
-	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount") do
-		if tonumber(row.triescount) > 0 then			
-			minVal = row.triescount
-			break
-		end
-	end
-	if maxVal ~= minVal then
-		max = queryAnalytics(last, "triescount", maxVal)
-		print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
-		report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
-		min = queryAnalytics(last, "triescount", minVal)
-		print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
-		report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
-	end
-
-	--PER WORD
-	print("\nPER ITEM ANALYSIS:")
-	print("\nWORD\tSPEED\tHINTS\tTRIES")
-	report = report .. "\nPER ITEM ANALYSIS:"
-	report = report .. "\nWORD\tSPEED\tHINTS\tTRIES"
-	for j = 1, #roundnumber do
-		if tonumber(gamenumber[j]) == tonumber(last) then
-			print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
-			report = report .. "\n" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j]
-		end
-	end
-
-	-- Save to file
-	local path = system.pathForFile( "Game 1.txt", system.ResourceDirectory )
-	local file = io.open( path, "w" )
-	file:write( report )
-	io.close( file )
-	file = nil
-
-	-- Append to file
-	report = report .. "\n-------------------------------------------------------------\n"
-	local path = system.pathForFile( "Game 1 Analytics.txt", system.ResourceDirectory )
-	local file = io.open( path, "a" )
-	file:write( report )
-	io.close( file )
-	file = nil
-
-end
 
 --------------- FUNCTION FOR END OF GAME ----------------
 function gameoverdialog()
-	local date = os.date( "*t" )
-	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
+
+	-- SAVE TO DB
+	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
+	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
+	local timeStamp = date .. ", " .. time
 	print( "time"..timeStamp )
-	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+
+	latestId = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+	print("NEW ID " .. latestId)
+
+	-- SAVE ANALYTICS
+	for i = 1, #item do
+		print(id.." "..i.." "..itemSpeed[i].." "..itemHint[i].. " "..itemTries[i] .. " "..item[i])
+		insertAnalyticsToDB(latestId, i, itemSpeed[i], itemHint[i], itemTries[i], item[i])
+	end
 
 	timerText:removeSelf()
 	timer = nil
@@ -657,13 +687,6 @@ function gameoverdialog()
 	score.x = display.contentCenterX
 	score.y = display.contentCenterY + 45
 
-	--- GAME ANALYTICS ---
-	for i = 1, #item do
-		print(id.." "..i.." "..itemSpeed[i].." "..itemHint[i].. " "..itemTries[i] .. " "..item[i])
-		insertAnalyticsToDB(id, i, itemSpeed[i], itemHint[i], itemTries[i], item[i])
-	end
-
-	generateReport()
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
@@ -850,7 +873,7 @@ local function networkListener( event )
 	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
 
 	if speech == nil then
-		toast.new("Device must be connected\nto the internet!", 3000)
+		toast.new("Device must be connected\nto the internet!", 1000, 15, -105, "firstgame_text")
 	else
 	   	audio.play( speech )
 	end
@@ -925,7 +948,7 @@ function scene:createScene(event)
 	-- ** VARIABLES  ** --
 	screenGroup = self.view
 	muted = 0
-	profileName = "Cha"
+	profileName = "javami"
 	item = {}
 	itemTries = {0}
 	itemHint = {0}

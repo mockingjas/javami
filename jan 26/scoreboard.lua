@@ -39,29 +39,48 @@ end
 function getScoresFromDB(tableName)
 
 	local easyScores = {}
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'easy' order by score desc") do
+		easyScores[1] = "★TOP SCORE★"
+		easyScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
+		break
+	end
+
 	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'easy' order by id desc") do
-		if #easyScores == 5 then
+		if #easyScores == 6 then
 			break
 		else
-			easyScores[#easyScores+1] = row.timestamp .. "   |  " .. row.name.. " : " .. row.score
+			easyScores[3] = "★RECENT SCORES★"
+			easyScores[#easyScores+1] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		end
 	end
 
 	local mediumScores = {}
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'medium' order by score desc") do
+		mediumScores[1] = "★TOP SCORE★"
+		mediumScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
+		break
+	end
 	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'medium' order by id desc") do
-		if #mediumScores == 5 then
+		if #mediumScores == 6 then
 			break
 		else
-			mediumScores[#mediumScores+1] = row.timestamp .. "   |  " .. row.name.. " : " .. row.score
+			mediumScores[3] = "★RECENT SCORES★"
+			mediumScores[#mediumScores+1] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		end
 	end
 
 	local hardScores = {}
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'hard' order by score desc") do
+		hardScores[1] = "★TOP SCORE★"
+		hardScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
+		break
+	end
 	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'hard' order by id desc") do
 		if #hardScores == 5 then		
 			break
 		else
-			hardScores[#hardScores+1] = row.timestamp .. "   |  " .. row.name.. " : " .. row.score
+			hardScores[3] = "★RECENT SCORES★"
+			hardScores[#hardScores+1] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		end
 	end
 
@@ -120,10 +139,6 @@ function displayScores(easyScores, mediumScores, hardScores)
 	widgetGroup:insert( list )
 	widgetGroup:insert( titleBar )
 	widgetGroup:insert( titleText )
-
-	-- Display only 5 recent scores
-
---	for i = 1, #easyScores do print(easyScores[i]) end
 
 	--Items to show in our list
 	local listItems = {
@@ -234,7 +249,7 @@ function scene:createScene( event )
 
 	-- back to home
 	homeBtn = display.newImage( "images/firstgame/home_button.png", 5, 5)
-	homeBtn.x = display.contentWidth
+	homeBtn.x = 0
 	homeBtn.y = 30
 	homeBtn:addEventListener("touch", home)
 
@@ -245,21 +260,21 @@ function scene:createScene( event )
 	{
 		{
 			width = 190, height = 52,
-			defaultFile = "assets/purple.png",
-			overFile = "assets/purple_over.png",
+			defaultFile = "images/scoreboard/purple.png",
+			overFile = "images/scoreboard/purple_over.png",
 			onPress = displayGame1,
 			selected = true
 		},
 		{
 			width = 190, height = 52,
-			defaultFile = "assets/orange.png",
-			overFile = "assets/orange_over.png",
+			defaultFile = "images/scoreboard/orange.png",
+			overFile = "images/scoreboard/orange_over.png",
 			onPress = displayGame2,
 		},
 		{
 			width = 190, height = 52,
-			defaultFile = "assets/blue.png",
-			overFile = "assets/blue_over.png",
+			defaultFile = "images/scoreboard/blue.png",
+			overFile = "images/scoreboard/blue_over.png",
 			onPress = displayGame3,
 		}
 	}
@@ -270,10 +285,10 @@ function scene:createScene( event )
 		top = display.contentHeight - 50,
 		left = -33,
 		width = 574,
-		backgroundFile = "assets/tabbar.png",
-		tabSelectedLeftFile = "assets/tabBar_tabSelectedLeft.png",
-		tabSelectedMiddleFile = "assets/tabBar_tabSelectedMiddle.png",
-		tabSelectedRightFile = "assets/tabBar_tabSelectedRight.png",
+		backgroundFile = "images/scoreboard/tabbar.png",
+		tabSelectedLeftFile = "images/scoreboard/tabBar_tabSelectedLeft.png",
+		tabSelectedMiddleFile = "images/scoreboard/tabBar_tabSelectedMiddle.png",
+		tabSelectedRightFile = "images/scoreboard/tabBar_tabSelectedRight.png",
 		tabSelectedFrameWidth = 20,
 		tabSelectedFrameHeight = 52,
 		buttons = tabButtons

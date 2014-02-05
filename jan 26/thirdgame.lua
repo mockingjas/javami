@@ -6,7 +6,7 @@ local timer = require("timer")
 local physics = require("physics")
 local lfs = require("lfs")
 local stopwatch = require("stopwatch")
-local toast2 = require("toast2")
+local toast = require("toast")
 local scene = storyboard.newScene()
 
 ------- Global variables ---------
@@ -49,7 +49,6 @@ else
     -- Mac and iOS
     font = "Eraser-Regular"
 end
-
 
 ---------- DB FUNCTIONS ---------------------------------
 
@@ -122,8 +121,6 @@ local function onFrame(event)
 
 end
 
-
-
 --------------------------- EMAIL RESULTS -----------------------------
 
 emailaddress = "mariciabalayan@gmail.com"
@@ -143,6 +140,35 @@ end
 
 -----------------------FUNCTIONS FOR GETTING NAME ------------------------------------
 
+function queryAndSaveToFile(id)
+	local report = ""
+	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
+		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.."\nFinal Score: "..row.score.."\nNumber of rounds: "..roundNumber
+		--add longest time, shortest time, average time
+
+		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
+			report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
+		end
+		break
+	end
+
+	-- Save to file
+	print(report)
+	local path = system.pathForFile( "Game 3.txt", system.ResourceDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
+
+	--Append
+	report = report .. "\n----------------------------------\n"
+	local path = system.pathForFile( "Game 3 Analytics.txt", system.ResourceDirectory )
+	local file = io.open( path, "a" )
+	file:write( report )
+	io.close( file )
+	file = nil
+end
+
 function closedialog()
 	username = display.newText(name.text, 190, 100, font, 20)
 	username.isVisible = false
@@ -151,6 +177,27 @@ function closedialog()
 	levelgroup.isVisible = false
 	name.isVisible = false
 	age.isVisible = false
+
+	-- analytics
+	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
+	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
+	local timeStamp = date .. ", " .. time
+
+	--save to DB
+	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+
+	--per round
+	for i = 1, roundNumber do
+		-- if last
+		if tonumber(correctCtr[i]) > 0 and tonumber(roundSpeed[i]) == 0 then
+			roundSpeed[i] = currTime - roundSpeed[i]
+		end
+		--save to db
+		insertAnalyticsToDB(id, i, correctCtr[i], roundSpeed[i])
+	end
+
+	queryAndSaveToFile(id)
+
 end
 
 local function nameListener( event )
@@ -313,55 +360,7 @@ function moveBG(self,event)
 	end
 end
 
-function queryAndSaveToFile(id)
-	local report = ""
-	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
-		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.."\nFinal Score: "..row.score.."\nNumber of rounds: "..roundNumber
-		--add longest time, shortest time, average time
-
-		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
-			report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
-		end
-		break
-	end
-
-	-- Save to file
-	print(report)
-	local path = system.pathForFile( "Game 3.txt", system.ResourceDirectory )
-	local file = io.open( path, "w" )
-	file:write( report )
-	io.close( file )
-	file = nil
-
-	--Append
-	report = report .. "\n----------------------------------\n"
-	local path = system.pathForFile( "Game 3 Analytics.txt", system.ResourceDirectory )
-	local file = io.open( path, "a" )
-	file:write( report )
-	io.close( file )
-	file = nil
-end
-
 function gameoverdialog()
-
-	-- ANALYTICS ----------------------
-	local date = os.date( "*t" )
-	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
-	--save to DB
-	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
-
-	--per round
-	for i = 1, roundNumber do
-		-- if last
-		if tonumber(correctCtr[i]) > 0 and tonumber(roundSpeed[i]) == 0 then
-			roundSpeed[i] = currTime - roundSpeed[i]
-		end
-		--save to db
-		insertAnalyticsToDB(id, i, correctCtr[i], roundSpeed[i])
-	end
-
-	queryAndSaveToFile(id)
-	-------------------
 
 	objectGroup:removeSelf()
 	pauseBtn.isVisible = false
@@ -716,7 +715,6 @@ function scene:createScene(event)
 
 		obj.isVisible = false
 	end
-
 	objectGroup:setReferencePoint(display.CenterReferencePoint)
 	objectGroup.x = display.viewableContentWidth/2
 	objectGroup.y = display.viewableContentHeight/2 + 10
@@ -755,6 +753,8 @@ function startSequence(last)
 	for i = 1, last do
 		blinker = timer.performWithDelay(i*1000, playBlink, 1)
 	end
+
+	--MultiTouch.deactivate(letterboxGroup[i])
 end
 
 function checkanswer(event)
@@ -798,8 +798,7 @@ function checkanswer(event)
 			---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
 			print("WRONG!!!!")
 			audio.play(incorrectSound)
-			toast2.new("images/wrong.png", 80, 10, 200)
-			
+			toast.new("images/wrong.png", 80, 80, 0, "thirdgame")
 			reload()
 		end
 	end

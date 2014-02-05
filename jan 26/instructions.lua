@@ -16,7 +16,6 @@ function scene:createScene( event )
 
 	slideView.new( myImages )	
 
-
 end
 
 function scene:enterScene( event )
