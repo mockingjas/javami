@@ -1,0 +1,28 @@
+GAME # 28
+Player:		Cha
+Category:	easy
+Timestamp:	2-3-2014 ; 15:54
+Pause count:	0
+Final score:	12
+
+ROUND 1
+Round time: 14 seconds
+
+CATEGORY: triangle
+Correct Words: 1
+	volcano
+Incorrect Words: 0
+
+CATEGORY: animal
+Correct Words: 9
+	lion
+	monkey
+	horse
+	ostrich
+	turtle
+	kangaroo
+	penguin
+	squirrel
+	dragon
+Incorrect Words: 1
+	deer
