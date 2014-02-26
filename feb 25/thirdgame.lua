@@ -29,10 +29,7 @@ local roundNumber, correctCtr, roundSpeed, pauseCtr, profileName
 --for after modal
 local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
-local userAge, username, emailaddress
-
-local roundToDisplay
-local playing
+local userAge, username, emailaddress, latestId
 
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
@@ -58,7 +55,9 @@ else
 end
 
 ---------- DB FUNCTIONS ---------------------------------
-
+------- Load DB ---------
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
+db = sqlite3.open( path )
 --save score
 function insertToDB(category, score, name, timestamp, pausectr)
 	local query = [[INSERT INTO ThirdGame VALUES (NULL, ']] .. 
@@ -83,6 +82,16 @@ function insertAnalyticsToDB(gameid, roundid, roundscore, roundspeed)
 	roundscore .. [[',']] ..
 	roundspeed .. [[');]]
 	db:exec(query)
+end
+
+function saveProfile(dbname, dbage)
+	print("SAVE PROFILE " .. latestId)
+	local query = [[INSERT INTO Profile VALUES (NULL, ']] .. 
+	dbname .. [[',']] ..
+	dbage .. [[');]]
+	db:exec(query)
+
+	for row in db:nrows("UPDATE ThirdGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
 end
 
 ---------------------------------------------------------
@@ -137,9 +146,9 @@ local function onSendEmail( event )
 	local options =
 	{
 	   to = emailaddress,
-	   subject = "Game Analytics",
-	   body = "Name: "..username.text.."/nAge: "..userAge.text,
-	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1 Analytics.txt", type="text" },
+	   subject = "Game 3 Analytics",
+	   body = "Name: "..username.text.." Age: "..userAge.text,
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 3.txt", type="text" },
 	}
 	print("  SHOWPOPUP: " .. native.showPopup("mail", options))
 	native.showPopup("mail", options)
@@ -155,6 +164,9 @@ function closedialog()
 	levelgroup.isVisible = false
 	name.isVisible = false
 	age.isVisible = false
+
+	saveProfile(username.text, userAge.text)
+	queryAndSaveToFile(latestId)
 end
 
 local function nameListener( event )
@@ -229,7 +241,6 @@ function home(event)
 		gameovergroup.isVisible = false
 		gameover.isVisible = false
 		scoreToDisplay.isVisible = false
-		roundToDisplay.isVisible = false
 		timerText.isVisible =false
   		storyboard.removeScene("thirdgame")
   		storyboard.removeScene("mainmenu")
@@ -332,7 +343,7 @@ function queryAndSaveToFile(id)
 
 	-- Save to file
 	print("REPORT: " .. report)
-	local path = system.pathForFile( "Game 3.txt", system.ResourceDirectory )
+	local path = system.pathForFile( "Game 3.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
@@ -340,7 +351,7 @@ function queryAndSaveToFile(id)
 
 	--Append
 	report = report .. "\n----------------------------------\n"
-	local path = system.pathForFile( "Game 3 Analytics.txt", system.ResourceDirectory )
+	local path = system.pathForFile( "Game 3 Analytics.txt", system.DocumentsDirectory )
 	local file = io.open( path, "a" )
 	file:write( report )
 	io.close( file )
@@ -353,7 +364,7 @@ function gameoverdialog()
 	local date = os.date( "*t" )
 	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
 	--save to DB
-	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+	latestId = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
 
 	--per round
 	for i = 1, roundNumber do
@@ -362,10 +373,9 @@ function gameoverdialog()
 			roundSpeed[i] = currTime - roundSpeed[i]
 		end
 		--save to db
-		insertAnalyticsToDB(id, i, correctCtr[i], roundSpeed[i])
+		insertAnalyticsToDB(latestId, i, correctCtr[i], roundSpeed[i])
 	end
 
-	queryAndSaveToFile(id)
 	-------------------
 
 	objectGroup:removeSelf()
@@ -386,22 +396,21 @@ end
 
 ---------------- PAUSE GAME ---------------------------
 function pauseGame(event)
-	print("\nFUNCTION: pauseGame")
-	timer.pause(blinker)
-    -- if(event.phase == "ended") then
+    if(event.phase == "ended") then
        	pauseCtr = pauseCtr + 1
     	timerr:pause()
-    	-- audio.pause(one)
-    	-- audio.pause(two)
-    	-- audio.pause(three)
-    	-- audio.pause(four)
-    	-- audio.pause(five)
+    	timer.pause(blinker)
+    	audio.pause(one)
+    	audio.pause(two)
+    	audio.pause(three)
+    	audio.pause(four)
+    	audio.pause(five)
 
         pauseBtn.isVisible = false
         audio.pause(game3MusicChannel)
         showpauseDialog()
         return true
-    -- end
+    end
 end
  
  --------------- RESTART GAME ----------------------
@@ -416,7 +425,6 @@ function restart_onBtnRelease()
 		gameovergroup.isVisible = false
 		gameover.isVisible = false
 		scoreToDisplay.isVisible = false
-		roundToDisplay.isVisible = false
 		timerText:removeSelf()
 	end
 	if category == "easy" then
@@ -446,11 +454,11 @@ function resume_onBtnRelease()
 	if (muted == 0) then 
 		audio.resume(game2MusicChannel)
 	end
-	-- audio.resume(one)
-	-- audio.resume(two)
-	-- audio.resume(three)
-	-- audio.resume(four)
-	-- audio.resume(five)
+	audio.resume(one)
+	audio.resume(two)
+	audio.resume(three)
+	audio.resume(four)
+	audio.resume(five)
 
 	pausegroup:removeSelf()
 	timerr:resume()
@@ -539,16 +547,12 @@ local function playBlink(event)
 	print("\nFUNCTION playBlink")
 		local p1 = event.source.params.p1
 		n = string.byte(order,p1) % 96
-
-		playing = n
-
-		print("  PLAYING: " .. playing)
-
 		print("  N: " .. n)
 		print("  CURRENT: " .. p1)
 		print("  COLOR: " .. color[n])
 		obj = objectGroup[n]
 		transition.to( obj, {time = 200, alpha = 0} )
+
 		
 		if (color[n] == 1) then
 			audio.play(one)
@@ -572,7 +576,6 @@ end
 
 local function startSequence(last)
 	print("\nFUNCTION startSequence")
-	playing = 0
 	for i = 1, last do
 		print("  I/CURRENT: " .. i)
 		blinker = timer.performWithDelay(i*750, playBlink, 1)
@@ -651,16 +654,11 @@ function scene:createScene(event)
 	scoreToDisplay:setTextColor(0,0,0)
 	screenGroup:insert(scoreToDisplay)
 
-	--round
-	roundToDisplay = display.newText("Round 1", (display.contentWidth/2)-35, 5, font, 18 )
-	roundToDisplay:setTextColor(0,0,0)
-	screenGroup:insert(roundToDisplay)
-
 	--pause button
 	pauseBtn = display.newImageRect( "images/secondgame/pause.png", 20, 20)
     pauseBtn.x = 445
     pauseBtn.y = 15
-    -- pauseBtn:addEventListener("touch", pauseGame)
+    pauseBtn:addEventListener("touch", pauseGame)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
 
@@ -806,67 +804,66 @@ function checkanswer(event)
 	local t = event.target
 	print("  T.NAME: " .. t.name)
 
-	answer = answer .. t.name
-	print("  ANSWER: " .. answer)
-	a,b = string.find(order, answer)
 
-	if(string.find(order, answer) ~= nil and a == 1) then
-		print("  A and B: " .. a .. b)
-		n = string.byte(t.name) % 96
-		print("  THIS IS N: "..n)
-		
-		obj = objectGroup[n]
-		transition.to( obj, {time = 200, alpha = 0} )
+	-- if (event.phase == "ended") then
+		-- print("  EVENT.PHASE == ENDED: " .. t.name)
+		answer = answer .. t.name
+		print("  ANSWER: " .. answer)
+		a,b = string.find(order, answer)
 
-		if (color[n] == 1) then
-			audio.play(one)
-			print("  SOUND: 1")
-		elseif (color[n] == 2) then
-			audio.play(two)
-			print("  SOUND: 2")
-		elseif (color[n] == 3) then
-			audio.play(three)
-			print("  SOUND: 3")
-		elseif (color[n] == 4) then
-			audio.play(four)
-			print("  SOUND: 4")
-		elseif (color[n] == 5) then
-			audio.play(five)
-			print("  SOUND: 5")
-		end
-
-		transition.to( obj, {delay = 200, time = 200, alpha = 1} )
-
-		if (a == 1 and b == current) then
-			-- CORRECT YUNG BUONG PAGKAKASUNOD
-			print("  a == 1 and b == current: CORRECT!!!!")
-			currScore = currScore + 1
-			correctCtr[roundNumber] = correctCtr[roundNumber] + 1
-			scoreToDisplay.text = "Score: "..currScore
-			toast.new("images/correct.png", 300, 80, 0, "thirdgame")
-			roundToDisplay.text = "Round "..current+1
-			--next!
-			answer = ""
-			-- print("CURRENT SA CHECKANSWER ".. current+1)
-			if (current + 1 <= dimensions*dimensions) then
-				startSequence(current+1)
-			else
-				reload()
+		if(string.find(order, answer) ~= nil and a == 1) then
+			print("  A and B: " .. a .. b)
+			n = string.byte(t.name) % 96
+			print("  THIS IS N: "..n)
+			if (color[n] == 1) then
+				audio.play(one)
+				print("  SOUND: 1")
+			elseif (color[n] == 2) then
+				audio.play(two)
+				print("  SOUND: 2")
+			elseif (color[n] == 3) then
+				audio.play(three)
+				print("  SOUND: 3")
+			elseif (color[n] == 4) then
+				audio.play(four)
+				print("  SOUND: 4")
+			elseif (color[n] == 5) then
+				audio.play(five)
+				print("  SOUND: 5")
 			end
-		elseif (a == 1 and b < current) then
-			print(" a == 1 and b < current: correct and continue")
-			currScore = currScore + 1
-			correctCtr[roundNumber] = correctCtr[roundNumber] + 1
-			scoreToDisplay.text = "Score: "..currScore
+
+			if (a == 1 and b == current) then
+				-- CORRECT YUNG BUONG PAGKAKASUNOD
+				print("  a == 1 and b == current: CORRECT!!!!")
+				currScore = currScore + 1
+				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
+				scoreToDisplay.text = "Score: "..currScore
+
+				--next!
+				answer = ""
+				-- print("CURRENT SA CHECKANSWER ".. current+1)
+				if (current + 1 <= dimensions*dimensions) then
+					startSequence(current+1)
+				else
+					reload()
+				end
+			elseif (a == 1 and b < current) then
+				print(" a == 1 and b < current: correct and continue")
+				currScore = currScore + 1
+				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
+				scoreToDisplay.text = "Score: "..currScore
+			end
+		else
+			---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
+			---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
+			print("  WRONG!!!!")
+			audio.play(incorrectSound)
+			toast.new("images/wrong.png", 80, 80, 0, "thirdgame")
+			reload()
 		end
-	else
-		---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
-		---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
-		print("  WRONG!!!!")
-		audio.play(incorrectSound)
-		toast.new("images/wrong.png", 300, 80, 0, "thirdgame")
-		reload()
-	end
+	-- else
+	-- 	print("  ELSE")
+	-- end
 end
 
 function reload()
@@ -891,8 +888,8 @@ function reload()
 		}
 	}
 	timerr = nil
-	storyboard.removeScene("reloadthird")
 	audio.stop()
+	storyboard.removeScene("reloadthird")
 	storyboard.gotoScene("reloadthird", option)
 end
 

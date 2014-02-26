@@ -335,9 +335,9 @@ local function onSendEmail( event )
 	local options =
 	{
 	   to = emailaddress,
-	   subject = "Game Analytics",
-	   body = "Name: "..username.text.."/nAge: "..userAge.text,
-	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1.txt", type="text" },
+	   subject = "Game 1 Analytics",
+	   body = "Name: "..username.text.." Age: "..userAge.text,
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1.txt", type="text" },
 	}
 
 	print(native.showPopup("mail", options))
@@ -374,7 +374,7 @@ function generateReport()
 	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
 		finalscore = row.score
 		print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
-		report = report .. "Player:\t\t" .. username.text .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
+		report = report .. "Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
 		break
 	end
 
@@ -438,19 +438,21 @@ function generateReport()
 	end
 
 	--PER WORD
-	print("\nPER ITEM ANALYSIS:")
-	print("\nWORD\tSPEED\tHINTS\tTRIES")
+--	print("\nPER ITEM ANALYSIS:")
+--	print("\nWORD\tSPEED\tHINTS\tTRIES")
 	report = report .. "\nPER ITEM ANALYSIS:"
 	report = report .. "\nWORD\tSPEED\tHINTS\tTRIES"
 	for j = 1, #roundnumber do
 		if tonumber(gamenumber[j]) == tonumber(last) then
-			print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
+--			print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
 			report = report .. "\n" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j]
 		end
 	end
 
+	print("\n\nSTARTX\n\n"..report.."\nENDX\n")
+
 	-- Save to file
-	local path = system.pathForFile( "Game 1.txt", system.ResourceDirectory )
+	local path = system.pathForFile( "Game 1.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
@@ -458,29 +460,34 @@ function generateReport()
 
 	-- Append to file
 	report = report .. "\n-------------------------------------------------------------\n"
-	local path = system.pathForFile( "Game 1 Analytics.txt", system.ResourceDirectory )
-	local file = io.open( path, "a" )
-	file:write( report )
-	io.close( file )
-	file = nil
+	local path2 = system.pathForFile( "Game 1 Analytics.txt", system.DocumentsDirectory )
+	local file2 = io.open( path2, "a" )
+	file2:write( report )
+	file2:flush()
+	io.close( file2 )
+	file2 = nil
+
+	print("\n\nSTART\n\n"..report.."\nEND\n")
 
 end
 
 function closedialog()
+	print("FSDKFJSLKFJSKFJ")
 	username = display.newText(name.text, 190, 100, font, 20)
 	username.isVisible = false
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
-	if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
-	else
+--	if username.text == "" or userAge.text == "" then
+--		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+--	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
+		toast.new(name.text, 1000, 80, -105, "firstgame_text")
 		saveProfile(username.text, userAge.text)
 		generateReport()
-	end
+--	end
 end
 
 local function nameListener( event )

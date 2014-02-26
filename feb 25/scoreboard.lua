@@ -7,7 +7,7 @@ local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --Game
 local bgMusic
-local homeBtn, tabGroup, scores, emailBtn
+local homeBtn, tabGroup, scores, emailBtn1, emailBtn2, emailBtn3
 local boolFirst = false
 local widgetGroup, demoTabs, screenGroup, bg
 
@@ -24,12 +24,37 @@ end
 
 -----------------FUNCTION FOR EMAIL
 
-local function onSendEmail( event )
+local function onSendEmail1( event )
+	print("\n\n1!!!!!\n\n")
 	local options =
 	{
-	   subject = "Game Analytics",
-	   body = "Hello!",
-	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1 Analytics.txt", type="text" },
+	   subject = "Game 1 Overall Analytics",
+	   body = "Game 1 Overall Analytics",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1 Analytics.txt", type="text" },
+	}
+	print(native.showPopup("mail", options))
+	native.showPopup("mail", options)
+end
+
+local function onSendEmail2( event )
+	print("\n\n2!!!!!\n\n")
+	local options =
+	{
+	   subject = "Game 2 Overall Analytics",
+	   body = "Game 2 Overall Analytics",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 2 Analytics.txt", type="text" },
+	}
+	print(native.showPopup("mail", options))
+	native.showPopup("mail", options)
+end
+
+local function onSendEmail3( event )
+	print("\n\n3!!!!!\n\n")
+	local options =
+	{
+	   subject = "Game 3 Overall Analytics",
+	   body = "Game 3 Overall Analytics",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 3 Analytics.txt", type="text" },
 	}
 	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
@@ -40,7 +65,7 @@ function home(event)
 	print("HOME")
 	homeBtn.isVisible = false
 	tabGroup.isVisible = false
-	emailBtn.isVisible = false
+	widgetGroup.isVisible = false
 	storyboard.removeScene("mainmenu")
 	storyboard.removeScene("reloadscores")
 	audio.stop(bgMusic)
@@ -53,29 +78,48 @@ end
 function getScoresFromDB(tableName)
 
 	local easyScores = {}
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'easy' order by score desc") do
+		easyScores[1] = "★TOP SCORE★"
+		easyScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
+		break
+	end
+
 	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'easy' order by id desc") do
-		if #easyScores == 5 then
+		if #easyScores == 6 then
 			break
 		else
-			easyScores[#easyScores+1] = row.timestamp .. "   |  " .. row.name.. " : " .. row.score
+			easyScores[3] = "★RECENT SCORES★"
+			easyScores[#easyScores+1] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		end
 	end
 
 	local mediumScores = {}
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'medium' order by score desc") do
+		mediumScores[1] = "★TOP SCORE★"
+		mediumScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
+		break
+	end
 	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'medium' order by id desc") do
-		if #mediumScores == 5 then
+		if #mediumScores == 6 then
 			break
 		else
-			mediumScores[#mediumScores+1] = row.timestamp .. "   |  " .. row.name.. " : " .. row.score
+			mediumScores[3] = "★RECENT SCORES★"
+			mediumScores[#mediumScores+1] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		end
 	end
 
 	local hardScores = {}
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'hard' order by score desc") do
+		hardScores[1] = "★TOP SCORE★"
+		hardScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
+		break
+	end
 	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'hard' order by id desc") do
 		if #hardScores == 5 then		
 			break
 		else
-			hardScores[#hardScores+1] = row.timestamp .. "   |  " .. row.name.. " : " .. row.score
+			hardScores[3] = "★RECENT SCORES★"
+			hardScores[#hardScores+1] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		end
 	end
 
@@ -199,6 +243,13 @@ function displayGame1()
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
+	-- send email
+	emailBtn1 = display.newImage( "images/firstgame/email_button.png", 5, 5)
+	emailBtn1.x = display.contentWidth
+	emailBtn1.y = 90
+	widgetGroup:insert(emailBtn1)
+	emailBtn1:addEventListener("touch", onSendEmail1)
+
 end
 
 function displayGame2()
@@ -217,6 +268,12 @@ function displayGame2()
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
+	-- send email
+	emailBtn2 = display.newImage( "images/firstgame/email_button.png", 5, 5)
+	emailBtn2.x = display.contentWidth
+	emailBtn2.y = 90
+	widgetGroup:insert(emailBtn2)
+	emailBtn2:addEventListener("touch", onSendEmail2)
 
 end
 
@@ -236,6 +293,13 @@ function displayGame3()
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
+	-- send email
+	emailBtn3 = display.newImage( "images/firstgame/email_button.png", 5, 5)
+	emailBtn3.x = display.contentWidth
+	emailBtn3.y = 90
+	widgetGroup:insert(emailBtn3)
+	emailBtn3:addEventListener("touch", onSendEmail3)
+
 end
 
 function scene:createScene( event )
@@ -249,12 +313,6 @@ function scene:createScene( event )
 	homeBtn.x = display.contentWidth
 	homeBtn.y = 30
 	homeBtn:addEventListener("touch", home)
-
-	-- send email
-	emailBtn = display.newImage( "images/firstgame/email_button.png", 5, 5)
-	emailBtn.x = display.contentWidth
-	emailBtn.y = 90
-	emailBtn:addEventListener("touch", onSendEmail)
 
 	-- Tabs
 	tabGroup = display.newGroup()

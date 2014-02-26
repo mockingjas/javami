@@ -29,7 +29,7 @@ local boolNew = false
 --for after modal
 local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
-local userAge, username, emailaddress
+local userAge, username, emailaddress, latestId
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -53,16 +53,25 @@ end
 
 emailaddress = "mariciabalayan@gmail.com"
 local function onSendEmail( event )
-	print("sdklfksdlf")
 	local options =
 	{
 	   to = emailaddress,
-	   subject = "Game Analytics",
-	   body = "Name: "..username.text.."/nAge: "..userAge.text,
-	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1 Analytics.txt", type="text" },
+	   subject = "Game 2 Analytics",
+	   body = "Name: "..username.text.." Age: "..userAge.text,
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 2.txt", type="text" },
 	}
 	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
+end
+
+function saveProfile(dbname, dbage)
+	print("SAVE PROFILE " .. latestId)
+	local query = [[INSERT INTO Profile VALUES (NULL, ']] .. 
+	dbname .. [[',']] ..
+	dbage .. [[');]]
+	db:exec(query)
+
+	for row in db:nrows("UPDATE SecondGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
 end
 
 -----------------------FUNCTIONS FOR GETTING NAME ------------------------------------
@@ -77,10 +86,11 @@ function closedialog()
 	age.isVisible = false
 
 	-- SAVE TO PROFILE
+	saveProfile(username.text, userAge.text)
+	saveToFile()
 	
 	-- CHANGE PROFILE NAME
 	-- select gameid, change profile name to username
-
 end
 
 local function nameListener( event )
@@ -211,7 +221,7 @@ local function finalmenu( )
     local emailBtn = display.newImage( "images/firstgame/email_button.png")
     emailBtn.x = 130
     emailBtn.y = display.contentCenterY + 30
-    emailBtn:addEventListener("touch", home)
+    emailBtn:addEventListener("touch", onSendEmail)
     gameovergroup:insert(emailBtn)
     
     local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
@@ -265,67 +275,82 @@ end
 
 --------------- FUNCTION FOR SAVING ANALYTICS TO FILE -------------
 function saveToFile()
-	gamenumber = {}
-	report = ""
-
-	for row in db:nrows("SELECT * FROM SecondGameAnalytics") do
-		gamenumber[#gamenumber+1] = row.gamenumber
-	end
+	print("HELLOO")
 
 	report = ""
-	report = report .. "GAME # " .. gamenumber[#gamenumber]
-	for row in db:nrows("SELECT * FROM SecondGame where id = '" .. gamenumber[#gamenumber] .. "'") do
-		report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
+	for row in db:nrows("SELECT COUNT(*) as count FROM SecondGameAnalytics where gamenumber = '"..latestId.."'") do
+		dbcount = row.count
 	end
-	--get round #
-	allRoundNumbers = {}
-	rounds = {}
-	for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. gamenumber[#gamenumber] .. "'") do
-		allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
-	end
-	rounds = cleanArray(allRoundNumbers)
 
-	for j = 1, #rounds do
-		report = report .. "\n\nROUND "..rounds[j]
-		--round speed
-		for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
-			report = report .. "\nRound time: "..row.speed.." seconds"
-			break
+	print("***************** "..dbcount)
+	if dbcount == 0 then
+		report = ""
+		report = report .. "GAME # " .. latestId .. "\n"
+		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. latestId .. "'") do
+			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
-		-- get categories
-		allCategories = {}
-		categories = {}
-		for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
-			allCategories[#allCategories+1] = row.category
-		end
-		categories = cleanArray(allCategories)
+	else
+		gamenumber = {}
 
-		for k = 1, #categories do
-			report = report .. "\n\nCATEGORY: " .. categories[k]
-			-- get correct
-			words = {}
-			for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
-				words[#words+1] = row.word
+		for row in db:nrows("SELECT * FROM SecondGameAnalytics") do
+			gamenumber[#gamenumber+1] = row.gamenumber
+		end
+
+		report = ""
+		report = report .. "GAME # " .. gamenumber[#gamenumber]
+		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. gamenumber[#gamenumber] .. "'") do
+			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
+		end
+		--get round #
+		allRoundNumbers = {}
+		rounds = {}
+		for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. gamenumber[#gamenumber] .. "'") do
+			allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
+		end
+		rounds = cleanArray(allRoundNumbers)
+
+		for j = 1, #rounds do
+			report = report .. "\n\nROUND "..rounds[j]
+			--round speed
+			for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				report = report .. "\nRound time: "..row.speed.." seconds"
+				break
 			end
-			report = report .. "\nCorrect Words: "..#words
-			for w = 1, #words do
-				report = report .. "\n\t"..words[w]
+			-- get categories
+			allCategories = {}
+			categories = {}
+			for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				allCategories[#allCategories+1] = row.category
 			end
-			--get incorrect
-			words = {}
-			for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
-				words[#words+1] = row.word
-			end
-			report = report .. "\nIncorrect Words: "..#words
-			for w = 1, #words do
-				report = report .. "\n\t"..words[w]
+			categories = cleanArray(allCategories)
+
+			for k = 1, #categories do
+				report = report .. "\n\nCATEGORY: " .. categories[k]
+				-- get correct
+				words = {}
+				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+					words[#words+1] = row.word
+				end
+				report = report .. "\nCorrect Words: "..#words
+				for w = 1, #words do
+					report = report .. "\n\t"..words[w]
+				end
+				--get incorrect
+				words = {}
+				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+					words[#words+1] = row.word
+				end
+				report = report .. "\nIncorrect Words: "..#words
+				for w = 1, #words do
+					report = report .. "\n\t"..words[w]
+				end
 			end
 		end
 	end
 
 	-- Save to file
 	print(report)
-	local path = system.pathForFile( "Game 2.txt", system.ResourceDirectory )
+	local path = system.pathForFile( "Game 2.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
@@ -333,7 +358,7 @@ function saveToFile()
 
 	-- Append
 	report = report .. "\n----------------------------------\n"
-	local path = system.pathForFile( "Game 2 Analytics.txt", system.ResourceDirectory )
+	local path = system.pathForFile( "Game 2 Analytics.txt", system.DocumentsDirectory )
 	local file = io.open( path, "a" )
 	file:write( report )
 	io.close( file )
@@ -348,14 +373,7 @@ function gameoverdialog()
 	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
 	local timeStamp = date .. ", " .. time
 
-	id = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
-
-	for row in db:nrows("SELECT COUNT(*) as count FROM SecondGameAnalytics") do
-		dbcount = row.count
-	end
-	if dbcount > 0 then
-		saveToFile()
-	end
+	latestId = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
 	
 	timerText:removeSelf()
 	scoreToDisplay.isVisible = false
