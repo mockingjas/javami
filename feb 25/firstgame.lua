@@ -36,7 +36,7 @@ local item, itemSpeed, itemHint, itemTries
 local pauseCtr, profileName, latestId
 
 ------- Load DB ---------
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
 db = sqlite3.open( path )   
 
 ------- Load sounds ---------
@@ -325,16 +325,13 @@ local function checkanswer(event)
 end
 
 --------------------------- EMAIL RESULTS -----------------------------
-
-emailaddress = "mariciabalayan@gmail.com"
-
 local function onSendEmail( event )
 	print("sdklfksdlf")
 	print(latestId)
 
 	local options =
 	{
-	   to = emailaddress,
+	   to = "",
 	   subject = "Game 1 Analytics",
 	   body = "Name: "..username.text.." Age: "..userAge.text,
 	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1.txt", type="text" },
@@ -379,11 +376,11 @@ function generateReport()
 	end
 
 	--By Speed
-	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed DESC") do
+	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY cast(speed as integer) desc") do
 		maxVal = row.speed
 		break
 	end
-	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY speed") do
+	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY cast(speed as integer)") do
 		if tonumber(row.speed) > 0 then
 			minVal = row.speed
 			break
@@ -400,11 +397,11 @@ function generateReport()
 	end
 
 	--By Hints
-	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount DESC") do
+	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY cast(hintcount as integer) DESC") do
 		maxVal = row.hintcount
 		break
 	end
-	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY hintcount") do
+	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY cast(hintcount as integer)") do
 		minVal = row.hintcount
 		break
 	end
@@ -418,11 +415,11 @@ function generateReport()
 	end
 
 	--By Tries
-	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount DESC") do
+	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY cast(triescount as integer) DESC") do
 		maxVal = row.triescount
 		break
 	end
-	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY triescount") do
+	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY cast(triescount as integer)") do
 		if tonumber(row.triescount) > 0 then			
 			minVal = row.triescount
 			break
@@ -472,7 +469,6 @@ function generateReport()
 end
 
 function closedialog()
-	print("FSDKFJSLKFJSKFJ")
 	username = display.newText(name.text, 190, 100, font, 20)
 	username.isVisible = false
 	userAge = display.newText(age.text, 190, 100, font, 20)
@@ -484,7 +480,7 @@ function closedialog()
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
-		toast.new(name.text, 1000, 80, -105, "firstgame_text")
+--		toast.new(name.text, 1000, 80, -105, "firstgame_text")
 		saveProfile(username.text, userAge.text)
 		generateReport()
 --	end
@@ -969,7 +965,7 @@ function scene:createScene(event)
 	timer = stopwatch.new(currTime)
 
 	if boolFirst then
-		resetDB()
+		--resetDB()
 		game1MusicChannel = audio.play( firstGameMusic, { loops=-1}  )
 		itemSpeed[1] = 0
 		item[1] = ""

@@ -7,7 +7,7 @@
 require "sqlite3"
 local lfs = require "lfs"
 local storyboard = require "storyboard"
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
 db = sqlite3.open( path )
 
 storyboard.gotoScene( "startmenu")
@@ -25,20 +25,24 @@ storyboard.gotoScene( "startmenu")
 --local game3analytics= [[CREATE TABLE IF NOT EXISTS ThirdGameAnalytics(id INTEGER PRIMARY KEY autoincrement, gamenumber, roundnumber, score, speed);]]
 --db:exec(game3analytics)
 
-for row in db:nrows("PRAGMA table_info(Profile);") do print(row.name) end
-
 -- BAGO
-local profile= [[CREATE TABLE IF NOT EXISTS Profile(id INTEGER PRIMARY KEY autoincrement, name, age);]]
-db:exec(profile)
+--local profile= [[CREATE TABLE IF NOT EXISTS Profile(id INTEGER PRIMARY KEY autoincrement, name, age);]]
+--db:exec(profile)
+
+
+--for row in db:nrows("DELETE FROM Words") do end
+
+for row in db:nrows("PRAGMA table_info(Words);") do print(row.name) end
 
 print("**DATABASE**")
 for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
 	print(row.name)
 end
 
-for row in db:nrows("SELECT * FROM Profile") do	print(row.age..row.name) end
+--for row in db:nrows("UPDATE Words SET name = 'animals' where name ='animal'") do	print(row.name) end
+--for row in db:nrows("SELECT * FROM Words where firstGameCategory = 'hard'") do	print(row.name .. "\t" .. row.livingThingCategory) end
 --for row in db:nrows("SELECT * FROM SecondGameAnalytics") do	print(row.id..row.gamenumber..row.roundnumber) end
---for row in db:nrows("SELECT COUNT(*) as count FROM SecondGameAnalytics") do	print(row.count) end
+--for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do	print(row.count) end
 
 
 

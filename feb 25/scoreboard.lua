@@ -3,7 +3,7 @@ local storyboard = require ("storyboard")
 local widget= require ("widget")
 local scene = storyboard.newScene()
 --DB
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
 db = sqlite3.open( path )
 --Game
 local bgMusic
@@ -78,7 +78,7 @@ end
 function getScoresFromDB(tableName)
 
 	local easyScores = {}
-	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'easy' order by score desc") do
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'easy' order by cast(score as integer) desc") do
 		easyScores[1] = "★TOP SCORE★"
 		easyScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		break
@@ -94,7 +94,7 @@ function getScoresFromDB(tableName)
 	end
 
 	local mediumScores = {}
-	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'medium' order by score desc") do
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'medium' order by cast(score as integer) desc") do
 		mediumScores[1] = "★TOP SCORE★"
 		mediumScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		break
@@ -109,7 +109,7 @@ function getScoresFromDB(tableName)
 	end
 
 	local hardScores = {}
-	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'hard' order by score desc") do
+	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'hard' order by cast(score as integer) desc") do
 		hardScores[1] = "★TOP SCORE★"
 		hardScores[2] = row.name .. " : " .. row.score .. " (" .. row.timestamp .. ")"
 		break

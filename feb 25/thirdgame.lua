@@ -56,7 +56,7 @@ end
 
 ---------- DB FUNCTIONS ---------------------------------
 ------- Load DB ---------
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
 db = sqlite3.open( path )
 --save score
 function insertToDB(category, score, name, timestamp, pausectr)
@@ -138,14 +138,11 @@ local function onFrame(event)
 end
 
 --------------------------- EMAIL RESULTS -----------------------------
-
-emailaddress = "mariciabalayan@gmail.com"
-
 local function onSendEmail( event )
 	print("\nFUNCTION OnSendMail")
 	local options =
 	{
-	   to = emailaddress,
+	   to = "",
 	   subject = "Game 3 Analytics",
 	   body = "Name: "..username.text.." Age: "..userAge.text,
 	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 3.txt", type="text" },
