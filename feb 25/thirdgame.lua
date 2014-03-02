@@ -551,7 +551,7 @@ local function playBlink(event)
 		print("  N: " .. n)
 		print("  CURRENT: " .. p1)
 		obj = objectGroup[n]
-		print("  OBJECT NAME: "..obj.name)
+--		print("  OBJECT NAME: "..obj.name)
 		transition.to( obj, {time = 200, alpha = 0} )
 
 		

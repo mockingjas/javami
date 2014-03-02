@@ -251,7 +251,7 @@ local function objectDrag (event)
 				local s = "_" .. get_char(i, word)
 				distX = math.abs(t.x - wordGroup[s].x);
 				distY = math.abs(t.y - wordGroup[s].y);
-				if (distX <= 10) and (distY <= 10) then
+				if (distX <= 20) and (distY <= 20) then
 					t.x = wordGroup[s].x;
 					t.y = wordGroup[s].y;
 				end
@@ -721,7 +721,8 @@ local function clear(event)
 		letterboxGroup[i].x = newx 
 		letterboxGroup[i].y = newy
 		MultiTouch.activate(chalkLetter, "move", "single")
-		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
+		chalkLetter:addEventListener("touch", objectDrag);
+--		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
 end
 
@@ -1024,7 +1025,7 @@ function scene:createScene(event)
 	clearBtn = display.newImageRect( "images/firstgame/clear.png", 50, 50)
     clearBtn.x = x + 55
     clearBtn.y = y
-    clearBtn:addEventListener("touch", clear)
+   -- clearBtn:addEventListener("touch", clear)
     clearBtn:addEventListener("tap", clear)
     screenGroup:insert( clearBtn )
 	

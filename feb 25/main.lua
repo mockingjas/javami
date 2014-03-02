@@ -39,7 +39,7 @@ for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
 	print(row.name)
 end
 
---for row in db:nrows("UPDATE Words SET name = 'animals' where name ='animal'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET name = 'sisters' where name ='sister'") do	print(row.name) end
 --for row in db:nrows("SELECT * FROM Words where firstGameCategory = 'hard'") do	print(row.name .. "\t" .. row.livingThingCategory) end
 --for row in db:nrows("SELECT * FROM SecondGameAnalytics") do	print(row.id..row.gamenumber..row.roundnumber) end
 --for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do	print(row.count) end
