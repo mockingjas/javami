@@ -31,6 +31,8 @@ local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
 local userAge, username, emailaddress, latestId
 
+local roundToDisplay
+
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
@@ -238,6 +240,7 @@ function home(event)
 		gameovergroup.isVisible = false
 		gameover.isVisible = false
 		scoreToDisplay.isVisible = false
+		roundToDisplay.isVisible = false
 		timerText.isVisible =false
   		storyboard.removeScene("thirdgame")
   		storyboard.removeScene("mainmenu")
@@ -422,6 +425,7 @@ function restart_onBtnRelease()
 		gameovergroup.isVisible = false
 		gameover.isVisible = false
 		scoreToDisplay.isVisible = false
+		roundToDisplay.isVisible = false
 		timerText:removeSelf()
 	end
 	if category == "easy" then
@@ -546,24 +550,24 @@ local function playBlink(event)
 		n = string.byte(order,p1) % 96
 		print("  N: " .. n)
 		print("  CURRENT: " .. p1)
-		print("  COLOR: " .. color[n])
 		obj = objectGroup[n]
+		print("  OBJECT NAME: "..obj.name)
 		transition.to( obj, {time = 200, alpha = 0} )
 
 		
-		if (color[n] == 1) then
+		if (n % 5 == 0) then
 			audio.play(one)
 			print("  SOUND: 1")
-		elseif (color[n] == 2) then
+		elseif (n % 5 == 1) then
 			audio.play(two)
 			print("  SOUND: 2")
-		elseif (color[n] == 3) then
+		elseif (n % 5 == 2) then
 			audio.play(three)
 			print("  SOUND: 3")
-		elseif (color[n] == 4) then
+		elseif (n % 5 == 3) then
 			audio.play(four)
 			print("  SOUND: 4")
-		elseif (color[n] == 5) then
+		elseif (n % 5 == 4) then
 			audio.play(five)
 			print("  SOUND: 5")
 		end
@@ -629,7 +633,23 @@ function scene:createScene(event)
 	--bg
 	width = 550; height = 320;
 
-	bg = display.newImageRect("images/thirdgame/game3bg.png", width, height)
+	imageCategory = math.random(5)
+
+	local filename = "images/thirdgame/game3bg.png"
+
+	if (imageCategory == 1) then
+		filename = "images/thirdgame/bg/bg_garden.png"
+	elseif (imageCategory == 2) then
+		filename = "images/thirdgame/bg/bg_kitchen.png"
+	elseif (imageCategory == 3) then
+		filename = "images/thirdgame/bg/bg_clouds.png"
+	elseif (imageCategory == 4) then
+		filename = "images/thirdgame/bg/bg_teaparty.png"
+	elseif (imageCategory == 5) then
+		filename = "images/thirdgame/bg/bg_night.png"
+	end
+
+	bg = display.newImageRect(filename, width, height)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
@@ -650,6 +670,11 @@ function scene:createScene(event)
 	scoreToDisplay = display.newText("Score: "..currScore, -30, 5, font, 18 )	
 	scoreToDisplay:setTextColor(0,0,0)
 	screenGroup:insert(scoreToDisplay)
+
+	--round
+	roundToDisplay = display.newText("Round 1", (display.contentWidth/2)-35, 5, font, 18 )
+	roundToDisplay:setTextColor(0,0,0)
+	screenGroup:insert(roundToDisplay)
 
 	--pause button
 	pauseBtn = display.newImageRect( "images/secondgame/pause.png", 20, 20)
@@ -684,81 +709,59 @@ function scene:createScene(event)
 	order = ""
 	size = 0
 	if category == 'easy' then
-		c = 1
+		imageCategoryCount = 1
 		size = 2
 	elseif category == 'medium' then
-		c = 3
+		imageCategoryCount = 2
 		size = 1.5
 	elseif category == 'hard' then
-		c = 5
+		imageCategoryCount = 3
 		size = 1
 	end
 
-	r = {255,	0,		200,	255,	128 }
-	g = {0,		128,	50, 	128, 	0 }
-	b = {128,	255,	50,		0,		128 }
-
-	color = {}
-	colorStr = ""
-	for i = 1, c do
-		temp = math.random(5)
-		while (string.find(colorStr, temp) ~= nil) do
-			temp = math.random(5)
-		end
-		colorStr = colorStr .. temp
-		color[i] = temp
-	end
-
-	print("  COLOR STRING: " .. colorStr)
-	for i = 1, #color do
-		print("    COLOR: " .. color[i])
-	end
-
-	print("  COLOR STR: " .. colorStr)
-	
-	for i = #color+1, dimensions * dimensions do
-		a = math.random(#colorStr)
-		color[i] = tonumber(get_char(a, colorStr))
-	end
-
-	-- print("  BEFORE COLOR ORDER: ")
-
-	-- for i = 1, #color do
-	-- 	print(color[i])
-	-- end
-
-	print("  AFTER SHUFFLING COLOR ORDER: ")
-
-	shuffle(color)
-
-	for i = 1, #color do
-		print("    " .. color[i])
-	end
-
-	rand = math.random(10)
+	-- imageCategory = math.random(4) FOUND BEFORE THE BG IS SET
 	x = 0
 	y = 0
 	local z = 0
 	for i = 1, dimensions * dimensions do
 		if (i % dimensions ~= 1) then
-			x = x + (60*size)
+			x = x + (70*size)
 		elseif(i % dimensions == 1 and i > 1) then
 			x = 0
 			y = y + (60*size)
 		end
-		if (rand > 5) then
-			--circles x y radius
-			obj = display.newCircle(x, y, 25*size)
-		else
-			--squares
-			obj = display.newRect(x, y, 50*size, 50*size)
+
+		local pixelWidth = 50
+		local pixelHeight = 50
+		if (imageCategory == 1) then
+			flowerNumber = math.random(8)
+			filename = "images/thirdgame/flowers" .. flowerNumber .. ".png"
+		elseif (imageCategory == 2) then
+			fruitNumber = math.random(6)
+			filename = "images/thirdgame/fruits" .. fruitNumber .. ".png"
+		elseif (imageCategory == 3) then
+			cloudNumber = math.random(5)
+			filename = "images/thirdgame/clouds" .. cloudNumber .. ".png"
+			pixelWidth = 75
+		elseif (imageCategory == 4) then
+			teaNumber = math.random(5)
+			teaTypeNumber = math.random(4)
+			teaType = {"smallpot", "bigpot", "cup", "pitcher"}
+			filename = "images/thirdgame/" .. teaType[teaTypeNumber] .. teaNumber .. ".png"
+		elseif(imageCategory == 5) then
+			nightNumber = math.random(10)
+			filename = "images/thirdgame/night" .. nightNumber .. ".png"
+			if(nightNumber >= 7) then
+				pixelWidth = 75
+			end
 		end
+
+		obj = display.newImageRect(filename, pixelWidth*size, pixelHeight*size)
+		obj.x = x
+		obj.y = y
 
 		obj.name = "" .. string.char(96+i)
 		objectGroup:insert(i, obj)
-
-		z = tonumber(color[i])
-		obj:setFillColor(r[z],g[z],b[z])
 
 		obj.isVisible = false
 	end
@@ -812,30 +815,37 @@ function checkanswer(event)
 			print("  A and B: " .. a .. b)
 			n = string.byte(t.name) % 96
 			print("  THIS IS N: "..n)
-			if (color[n] == 1) then
+
+			obj = objectGroup[n]
+			transition.to( obj, {time = 200, alpha = 0} )
+
+			if (n % 5 == 0) then
 				audio.play(one)
 				print("  SOUND: 1")
-			elseif (color[n] == 2) then
+			elseif (n % 5 == 1) then
 				audio.play(two)
 				print("  SOUND: 2")
-			elseif (color[n] == 3) then
+			elseif (n % 5 == 2) then
 				audio.play(three)
 				print("  SOUND: 3")
-			elseif (color[n] == 4) then
+			elseif (n % 5 == 3) then
 				audio.play(four)
 				print("  SOUND: 4")
-			elseif (color[n] == 5) then
+			elseif (n % 5 == 4) then
 				audio.play(five)
 				print("  SOUND: 5")
 			end
 
+			transition.to( obj, {delay = 200, time = 200, alpha = 1} )
+			
 			if (a == 1 and b == current) then
 				-- CORRECT YUNG BUONG PAGKAKASUNOD
 				print("  a == 1 and b == current: CORRECT!!!!")
 				currScore = currScore + 1
 				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
 				scoreToDisplay.text = "Score: "..currScore
-
+				toast.new("images/correct.png", 300, 80, 0, "thirdgame")
+				roundToDisplay.text = "Round "..current+1
 				--next!
 				answer = ""
 				-- print("CURRENT SA CHECKANSWER ".. current+1)
