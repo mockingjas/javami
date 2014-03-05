@@ -66,9 +66,11 @@ function scene:createScene(event)
 	}
 	title.x = (display.contentWidth/2);
 	title.y = (display.contentHeight/2) + 10;
+	title.width = 450
+	title.height = 100
 	screenGroup:insert(title)
 
-	helpText = display.newText("Tap the title to start game", 130, 210, Arial, 18)
+	helpText = display.newText("Tap the title to start game", (display.contentWidth/3)-15, (display.contentHeight/2) + 55, Arial, 18)
 	helpText:setTextColor(255, 255, 255)
 	screenGroup:insert(helpText)
 	
