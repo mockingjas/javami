@@ -31,7 +31,7 @@ local name, email, age, namedisplay, agedisplay -- forward reference (needed for
 local userAge, username, emailaddress, latestId
 
 ------- Load DB ---------
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
@@ -432,7 +432,7 @@ function resume_onBtnRelease()
 	if (muted == 0) then 
 		audio.resume(game2MusicChannel)
 	end
-	pausegroup:removeSelf()
+	pausegroup.isVisible = false
 	maintimer:resume()
     pauseBtn.isVisible = true
 	return true
@@ -445,6 +445,10 @@ function restart_onBtnRelease()
 		timerText:removeSelf()
 		gameBoard:removeSelf()
 		boxGroup:removeSelf()
+		pausegroup = nil
+		timerText = nil
+		gameBoard = nil
+		boxGroup = nil
 		scoreToDisplay.isVisible = false
 		maintimer = nil
 	else
@@ -482,6 +486,10 @@ function exit_onBtnRelease()
 	timerText:removeSelf()
 	boxGroup:removeSelf()
 	gameBoard:removeSelf()
+	pausegroup = nil
+	timerText = nil
+	boxGroup = nil
+	gameBoard = nil
 	scoreToDisplay.isVisible = false
 	maintimer = nil
 	storyboard.removeScene("secondgame")

@@ -58,7 +58,7 @@ end
 
 ---------- DB FUNCTIONS ---------------------------------
 ------- Load DB ---------
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --save score
 function insertToDB(category, score, name, timestamp, pausectr)
@@ -419,6 +419,9 @@ function restart_onBtnRelease()
 		objectGroup:removeSelf()
 		pausegroup:removeSelf()
 		timerText:removeSelf()
+		objectGroup = nil
+		pausegroup = nil
+		timerText = nil
 		timerr = nil
 		timer.cancel(blinker)
 	else
@@ -427,6 +430,7 @@ function restart_onBtnRelease()
 		scoreToDisplay.isVisible = false
 		roundToDisplay.isVisible = false
 		timerText:removeSelf()
+		timerText = nil
 	end
 	if category == "easy" then
 		currTime = 61
@@ -461,7 +465,7 @@ function resume_onBtnRelease()
 	audio.resume(four)
 	audio.resume(five)
 
-	pausegroup:removeSelf()
+	pausegroup.isVisible = false
 	timerr:resume()
 	timer.resume(blinker)
     pauseBtn.isVisible = true
@@ -473,8 +477,12 @@ function exit_onBtnRelease()
 	objectGroup:removeSelf()
 	pausegroup:removeSelf()
 	timerText:removeSelf()
+	objectGroup = nil
+	pausegroup = nil
+	timerText = nil
 	timerr = nil
 	timer.cancel(blinker)
+	timer = nil
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
 	storyboard.removeScene("thirdgame")
