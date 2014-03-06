@@ -31,7 +31,7 @@ local name, email, age, namedisplay, agedisplay -- forward reference (needed for
 local userAge, username, emailaddress, latestId
 
 ------- Load DB ---------
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
@@ -432,7 +432,8 @@ function resume_onBtnRelease()
 	if (muted == 0) then 
 		audio.resume(game2MusicChannel)
 	end
-	pausegroup:removeSelf()
+	pausegroup.isVisible = false
+--	pausegroup:removeSelf()
 	maintimer:resume()
     pauseBtn.isVisible = true
 	return true
@@ -468,7 +469,8 @@ function restart_onBtnRelease()
 			score = 0,
 			new = boolNew,
 			pause = pauseCtr,
-			round = roundNumber
+			round = roundNumber,
+			mute = muted,
 		}
 	}
 	audio.stop()
@@ -556,7 +558,8 @@ function generateNew()
 			new = boolNew,
 			pause = pauseCtr,
 			music = game2MusicChannel,
-			round = roundNumber
+			round = roundNumber,
+			mute = muted
 		}
 	}
 	gameBoard:removeSelf()
@@ -935,7 +938,6 @@ end
 
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
-	muted = 0
 	boolFirst = event.params.first
 	category = event.params.categ
 	currScore = event.params.score
@@ -950,17 +952,6 @@ function scene:createScene(event)
 	-- Start timer
 	maintimer = stopwatch.new(currTime)
 	screenGroup = self.view
-
-	if boolFirst then
-		game2MusicChannel = audio.play( secondGameMusic, { loops=-1}  )
-		boolNew = false
-		pauseCtr = 0
-		roundNumber = 1
-	else
-		game2MusicChannel = event.params.music
-		pauseCtr = event.params.pause
-		roundNumber = event.params.round
-	end
 
 	-- Screen Elements
 	scoreToDisplay = display.newText("Score: "..currScore, -30, 0, font, 18 )	
@@ -1021,6 +1012,24 @@ function scene:createScene(event)
     progressBarFill:setFillColor(50,205,30)  
     progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
     screenGroup:insert( progressBarFill )
+
+    if boolFirst then
+		muted = 0
+		game2MusicChannel = audio.play( secondGameMusic, { loops=-1}  )
+		boolNew = false
+		pauseCtr = 0
+		roundNumber = 1
+	else
+		muted = event.params.mute
+		if muted == 1 then
+			muteGame()
+		else
+			game2MusicChannel = event.params.music
+			audio.resume(game2MusicChannel)
+		end
+		pauseCtr = event.params.pause
+		roundNumber = event.params.round
+	end
     
     -------------------------------------------- GAME --------------------
     --boxes

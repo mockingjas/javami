@@ -3,7 +3,7 @@ local storyboard = require ("storyboard")
 local widget= require ("widget")
 local scene = storyboard.newScene()
 --DB
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --Game
 local bgMusic

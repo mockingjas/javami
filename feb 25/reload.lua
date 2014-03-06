@@ -2,7 +2,7 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore, game1music, itemSpeed, pauseCtr, totalHint, totalTries, item
+local text, category, boolFirst, gameTimer, currScore, game1music, itemSpeed, pauseCtr, totalHint, totalTries, item, muted
 
 
 function scene:createScene(event)
@@ -20,6 +20,7 @@ function scene:createScene(event)
 	item = event.params.itemWord
 	totalTries = event.params.tries
 	totalHint = event.params.hint
+	muted = event.params.mute
 
 end
 
@@ -38,7 +39,8 @@ function scene:enterScene(event)
 			pause = pauseCtr,
 			itemWord = item,
 			tries = totalTries,
-			hint = totalHint
+			hint = totalHint,
+			mute = muted
 		}
 	}
 

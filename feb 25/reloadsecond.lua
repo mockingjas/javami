@@ -2,7 +2,7 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore, itemCtr, itemCheck, itemSpeed, boolNew, pauseCtr, roundNumber
+local text, category, boolFirst, gameTimer, currScore, itemCtr, itemCheck, itemSpeed, boolNew, pauseCtr, roundNumber, muted
 
 function scene:createScene(event)
 	local screenGroup = self.view
@@ -17,6 +17,7 @@ function scene:createScene(event)
 	boolNew = event.params.new
 	pauseCtr = event.params.pause
 	roundNumber = event.params.round
+	muted = event.params.mute
 end
 function scene:enterScene(event)
 	local screenGroup = self.view	
@@ -34,7 +35,8 @@ function scene:enterScene(event)
 			new = boolNew,
 			music = gameMusic,
 			pause = pauseCtr,
-			round = roundNumber
+			round = roundNumber,
+			mute = muted
 		}
 	}
 

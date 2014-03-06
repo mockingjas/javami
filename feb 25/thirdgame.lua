@@ -36,8 +36,8 @@ local roundToDisplay
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
-local thirdGameMusic = audio.loadSound("music/ThirdGame.mp3")
-local game3MusicChannel
+--local thirdGameMusic = audio.loadSound("music/ThirdGame.mp3")
+--local game3MusicChannel
 local one = audio.loadSound("music/1.mp3")
 local two = audio.loadSound("music/2.mp3")
 local three = audio.loadSound("music/3.mp3")
@@ -58,7 +58,7 @@ end
 
 ---------- DB FUNCTIONS ---------------------------------
 ------- Load DB ---------
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --save score
 function insertToDB(category, score, name, timestamp, pausectr)
@@ -262,6 +262,7 @@ function home(event)
 end
 
 ---------------- UNMUTE GAME ---------------------------
+--[[
 function unmuteGame(event)
 	audio.resume(game3MusicChannel)
 	unmuteBtn.isVisible = false
@@ -275,7 +276,7 @@ function muteGame(event)
 	muteBtn.isVisible = false
 	unmuteBtn.isVisible = true
 	muted = 1
-end
+end]]
 
 ------------------------ FINAL MENU --------------------------------
 
@@ -380,8 +381,8 @@ function gameoverdialog()
 
 	objectGroup:removeSelf()
 	pauseBtn.isVisible = false
-	unmuteBtn.isVisible = false
-	muteBtn.isVisible = false
+--	unmuteBtn.isVisible = false
+--	muteBtn.isVisible = false
 
 	gameover= display.newImage( "images/thirdgame/gameover.png" )
 	gameover.x = 700
@@ -407,7 +408,7 @@ function pauseGame(event)
     	audio.pause(five)
 
         pauseBtn.isVisible = false
-        audio.pause(game3MusicChannel)
+        --audio.pause(game3MusicChannel)
         showpauseDialog()
         return true
     end
@@ -452,16 +453,17 @@ end
 
 --------------- RESUME FROM PAUSE -----------------
 function resume_onBtnRelease()
-	if (muted == 0) then 
+--[[	if (muted == 0) then 
 		audio.resume(game2MusicChannel)
-	end
+	end]]
 	audio.resume(one)
 	audio.resume(two)
 	audio.resume(three)
 	audio.resume(four)
 	audio.resume(five)
 
-	pausegroup:removeSelf()
+--	pausegroup:removeSelf()
+	pausegroup.isVisible = false
 	timerr:resume()
 	timer.resume(blinker)
     pauseBtn.isVisible = true
@@ -612,13 +614,13 @@ function scene:createScene(event)
 	roundSpeed = {0}
 
 	if(boolFirst) then
-		game3MusicChannel = audio.play( thirdGameMusic, { loops=-1}  )
+		--game3MusicChannel = audio.play( thirdGameMusic, { loops=-1}  )
 		roundNumber = 1
 		correctCtr[1] = 0
 		roundSpeed[1] = 0
 		pauseCtr = 0
 	else
-		game3MusicChannel = event.params.music
+		--game3MusicChannel = event.params.music
 		roundNumber = event.params.roundctr
 		correctCtr = event.params.correctcount
 		correctCtr[roundNumber] = 0
@@ -684,7 +686,7 @@ function scene:createScene(event)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
 
-     --mute button
+    --[[mute button
     unmuteBtn = display.newImageRect( "images/secondgame/mute_button.png", 20, 20)
     unmuteBtn.x = 420
     unmuteBtn.y = 15
@@ -700,7 +702,7 @@ function scene:createScene(event)
     muteBtn.y = 15
     muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
-    screenGroup:insert( muteBtn )
+    screenGroup:insert( muteBtn )]]
 
 
     -- GAME

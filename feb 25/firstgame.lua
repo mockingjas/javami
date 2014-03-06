@@ -36,7 +36,7 @@ local item, itemSpeed, itemHint, itemTries
 local pauseCtr, profileName, latestId
 
 ------- Load DB ---------
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )   
 
 ------- Load sounds ---------
@@ -311,6 +311,7 @@ local function checkanswer(event)
 					itemWord = item,
 					tries = itemTries,
 					hint = itemHint,
+					mute = muted,
 				}
 			}
 			timerText:removeSelf()
@@ -508,7 +509,7 @@ function showlevelDialog()
 
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentWidth/2;
- 	rect:addEventListener("touch", function() return true end)
+-- 	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
@@ -614,7 +615,7 @@ local function spriteListener( event )
     	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
 	    playBtn.x = 130
 	    playBtn.y = display.contentCenterY - 60
-	    playBtn:addEventListener("touch", restart_onBtnRelease)
+	    playBtn:addEventListener("tap", restart_onBtnRelease)
 	    gameovergroup:insert(playBtn)
 
 	    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 70, font, 25) 
@@ -623,7 +624,7 @@ local function spriteListener( event )
 	    local homeBtn = display.newImage( "images/firstgame/home_button.png")
 	    homeBtn.x = 130
 	    homeBtn.y = display.contentCenterY
-	    homeBtn:addEventListener("touch", home)
+	    homeBtn:addEventListener("tap", home)
 	    gameovergroup:insert(homeBtn)
 
 	    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 10, font, 25) 
@@ -632,7 +633,7 @@ local function spriteListener( event )
 	    local emailBtn = display.newImage( "images/firstgame/email_button.png")
 	    emailBtn.x = 130
 	    emailBtn.y = display.contentCenterY + 60
-	   	emailBtn:addEventListener("touch", onSendEmail)
+	   	emailBtn:addEventListener("tap", onSendEmail)
 	    gameovergroup:insert(emailBtn)
 	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 50, font, 25) 
 	    gameovergroup:insert(emailtext)
@@ -721,7 +722,7 @@ local function clear(event)
 		letterboxGroup[i].x = newx 
 		letterboxGroup[i].y = newy
 		MultiTouch.activate(chalkLetter, "move", "single")
-		chalkLetter:addEventListener("touch", objectDrag);
+		chalkLetter:addEventListener("tap", objectDrag);
 --		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
 end
@@ -789,6 +790,7 @@ function restart_onBtnRelease()
 			itemWord = item,
 			tries = itemTries,
 			hint = itemHint,
+			mute = muted,
 		}
 	}
 	audio.stop()
@@ -798,7 +800,8 @@ end
 
 --------------- RESUME FROM PAUSE -----------------
 function resume_onBtnRelease()
-	pausegroup:removeSelf()
+	--pausegroup:removeSelf()
+	pausegroup.isVisible = false
 	if (muted == 0) then 
 		audio.resume(game1MusicChannel)
 	end
@@ -838,7 +841,7 @@ function showpauseDialog()
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentWidth/2;
- 	pausedialog:addEventListener("touch", function() return true end)
+-- 	pausedialog:addEventListener("touch", function() return true end)
 	pausedialog:addEventListener("tap", function() return true end)
 	pausegroup:insert(pausedialog)
 
@@ -934,14 +937,14 @@ local function displayScreenElements()
     unmuteBtn.x = 380
     unmuteBtn.y = 37
     unmuteBtn.isVisible = false
-	unmuteBtn:addEventListener("touch", unmuteGame)
+--	unmuteBtn:addEventListener("touch", unmuteGame)
     unmuteBtn:addEventListener("tap", unmuteGame)
     screenGroup:insert( unmuteBtn )
 
 	muteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
     muteBtn.x = 380
     muteBtn.y = 37
-    muteBtn:addEventListener("touch", muteGame)
+--    muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
     screenGroup:insert( muteBtn )	
 end
@@ -951,7 +954,6 @@ function scene:createScene(event)
 
 	-- ** VARIABLES  ** --
 	screenGroup = self.view
-	muted = 0
 	profileName = "javami"
 	item = {}
 	itemTries = {0}
@@ -965,8 +967,11 @@ function scene:createScene(event)
 	currTime = event.params.time
 	timer = stopwatch.new(currTime)
 
+	displayScreenElements()
+
 	if boolFirst then
 		--resetDB()
+		muted = 0
 		game1MusicChannel = audio.play( firstGameMusic, { loops=-1}  )
 		itemSpeed[1] = 0
 		item[1] = ""
@@ -974,7 +979,12 @@ function scene:createScene(event)
 		itemHint[1] = 0
 		pauseCtr = 0
 	else
-		audio.resume(game1MusicChannel)
+		muted = event.params.mute
+		if muted == 1 then
+			muteGame()
+		else
+			audio.resume(game1MusicChannel)
+		end
 		game1MusicChannel = event.params.music
 		itemSpeed = event.params.speed
 		pauseCtr = event.params.pause
@@ -987,7 +997,6 @@ function scene:createScene(event)
 		itemSpeed[currScore+1] = 0
 	end
 
-	displayScreenElements()
 	setword()
 
 	--IMAGE
