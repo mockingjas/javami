@@ -292,7 +292,7 @@ function scene:createScene(event)
 	-- an image sheet with orange house
 	local sheet2 = graphics.newImageSheet( "images/menu/orange.png", { width=188, height=212, numFrames=2 } )
 	instance2 = display.newSprite( sheet2, { name="orange", start=1, count=2, time=1000 } )
-	instance2.x = 240
+	instance2.x = 245
 	instance2.y = 220
 	instance2:play()
 	screenGroup:insert(instance2)

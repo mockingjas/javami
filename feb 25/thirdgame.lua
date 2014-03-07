@@ -420,6 +420,9 @@ function restart_onBtnRelease()
 		objectGroup:removeSelf()
 		pausegroup:removeSelf()
 		timerText:removeSelf()
+		objectGroup = nil
+		pausegroup = nil
+		timerText = nil
 		timerr = nil
 		timer.cancel(blinker)
 	else
@@ -428,6 +431,7 @@ function restart_onBtnRelease()
 		scoreToDisplay.isVisible = false
 		roundToDisplay.isVisible = false
 		timerText:removeSelf()
+		timerText = nil
 	end
 	if category == "easy" then
 		currTime = 61
@@ -461,7 +465,6 @@ function resume_onBtnRelease()
 	audio.resume(three)
 	audio.resume(four)
 	audio.resume(five)
-
 --	pausegroup:removeSelf()
 	pausegroup.isVisible = false
 	timerr:resume()
@@ -475,8 +478,12 @@ function exit_onBtnRelease()
 	objectGroup:removeSelf()
 	pausegroup:removeSelf()
 	timerText:removeSelf()
+	objectGroup = nil
+	pausegroup = nil
+	timerText = nil
 	timerr = nil
 	timer.cancel(blinker)
+	timer = nil
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
 	storyboard.removeScene("thirdgame")

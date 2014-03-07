@@ -765,6 +765,8 @@ function restart_onBtnRelease()
 	if (timer ~= nil) then
 		pausegroup:removeSelf()
 		timerText:removeSelf()
+		pausegroup = nil
+		timerText = nil
 		timer = nil
 	else
 		gameovergroup.isVisible = false
@@ -800,8 +802,9 @@ end
 
 --------------- RESUME FROM PAUSE -----------------
 function resume_onBtnRelease()
-	--pausegroup:removeSelf()
 	pausegroup.isVisible = false
+	--pausegroup = nil
+	--pausegroup:removeSelf()
 	if (muted == 0) then 
 		audio.resume(game1MusicChannel)
 	end
@@ -818,9 +821,12 @@ end
 function exit_onBtnRelease()
 	pausegroup:removeSelf()
 	timerText:removeSelf()
+	pausegroup = nil
+	timerText = nil
 	timer = nil
 	storyboard.removeScene("firstgame")
 	storyboard.removeScene("mainmenu")
+	
 
 	audio.stop()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
@@ -1067,6 +1073,7 @@ function scene:createScene(event)
 	screenGroup:insert(wordGroup)
 	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(scoreToDisplay)
+	screenGroup:insert(timerText)
 end
 
 scene:addEventListener("createScene", scene)

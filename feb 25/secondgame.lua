@@ -433,7 +433,6 @@ function resume_onBtnRelease()
 		audio.resume(game2MusicChannel)
 	end
 	pausegroup.isVisible = false
---	pausegroup:removeSelf()
 	maintimer:resume()
     pauseBtn.isVisible = true
 	return true
@@ -446,6 +445,10 @@ function restart_onBtnRelease()
 		timerText:removeSelf()
 		gameBoard:removeSelf()
 		boxGroup:removeSelf()
+		pausegroup = nil
+		timerText = nil
+		gameBoard = nil
+		boxGroup = nil
 		scoreToDisplay.isVisible = false
 		maintimer = nil
 	else
@@ -484,6 +487,10 @@ function exit_onBtnRelease()
 	timerText:removeSelf()
 	boxGroup:removeSelf()
 	gameBoard:removeSelf()
+	pausegroup = nil
+	timerText = nil
+	boxGroup = nil
+	gameBoard = nil
 	scoreToDisplay.isVisible = false
 	maintimer = nil
 	storyboard.removeScene("secondgame")
