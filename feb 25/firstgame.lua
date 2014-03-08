@@ -221,7 +221,7 @@ local function setword()
 	end
 
 	-- SHUFFLE 
-	for i = letterbox:len(), 2, -1 do -- backwards
+	for i = #letterbox, 2, -1 do -- backwards
 		local r = math.random(i) -- select a random number between 1 and i
 		letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
 	end
@@ -554,7 +554,7 @@ end
 
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
 local function home(event)
-	if(event.phase == "ended") then
+--	if(event.phase == "ended") then
 		gameovergroup.isVisible = false
   		storyboard.removeScene("firstgame")
   		storyboard.removeScene("mainmenu")
@@ -571,7 +571,7 @@ local function home(event)
 		}
 		storyboard.gotoScene("mainmenu", option)
   		return true
-  	end
+--  	end
 end
 
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
@@ -751,9 +751,9 @@ local function pauseGame(event)
     	timer:pause()
     	audio.pause(game1MusicChannel)
     	submit:setEnabled(false)
-   		for i = 1, #letterbox do
+--[[   		for i = 1, #letterbox do
 			MultiTouch.deactivate(letterboxGroup[i])
-		end
+		end]]
         pauseBtn.isVisible = false
         showpauseDialog()
         return true
@@ -810,9 +810,9 @@ function resume_onBtnRelease()
 	end
 	timer:resume()
 	submit:setEnabled(true)
-	for i = 1, #letterbox do
+--[[	for i = 1, #letterbox do
 		MultiTouch.activate(letterboxGroup[i], "move", "single")
-	end
+	end]]
     pauseBtn.isVisible = true
 	return true
 end
@@ -1064,6 +1064,8 @@ function scene:createScene(event)
 		end
 		letterboxGroup[i].x = x 
 		letterboxGroup[i].y = y
+		letterboxGroup[i].initX = x
+		letterboxGroup[i].initY = y
 		MultiTouch.activate(chalkLetter, "move", "single")
 		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end

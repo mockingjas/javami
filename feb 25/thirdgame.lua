@@ -30,6 +30,7 @@ local roundNumber, correctCtr, roundSpeed, pauseCtr, profileName
 local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
 local userAge, username, emailaddress, latestId
+local isClick, numOfBlinks
 
 local roundToDisplay
 
@@ -553,8 +554,14 @@ function shuffle(array)
 	return array
 end
 
+function canClick()
+	toast.new("images/go.png", 600, 80, 0, "thirdgame")
+	isClick = true
+end
+
 local function playBlink(event)
-	print("\nFUNCTION playBlink")
+		print("\nFUNCTION playBlink")
+		print(isClick)
 		local p1 = event.source.params.p1
 		n = string.byte(order,p1) % 96
 		print("  N: " .. n)
@@ -562,7 +569,6 @@ local function playBlink(event)
 		obj = objectGroup[n]
 --		print("  OBJECT NAME: "..obj.name)
 		transition.to( obj, {time = 200, alpha = 0} )
-
 		
 		if (n % 5 == 0) then
 			audio.play(one)
@@ -582,9 +588,17 @@ local function playBlink(event)
 		end
 
 		transition.to( obj, {delay = 200, time = 200, alpha = 1} )
+		print("BLINKS "..numOfBlinks)
+
+		if p1 == numOfBlinks then
+			timer.performWithDelay( 800, canClick )
+		end
 end
 
+
 local function startSequence(last)
+	numOfBlinks = last
+	isClick = false
 	print("\nFUNCTION startSequence")
 	for i = 1, last do
 		print("  I/CURRENT: " .. i)
@@ -599,6 +613,7 @@ end
 function scene:createScene(event)
 	muted = 0
 	profileName = "Cha" --temp
+	isClick = false
 	--get passed parameters from previous scene
 	category = event.params.categ
 	currScore = event.params.score
@@ -617,8 +632,8 @@ function scene:createScene(event)
 		dimensions = 4
 	end
 
-	correctCtr = {0}
-	roundSpeed = {0}
+	correctCtr = {}
+	roundSpeed = {}
 
 	if(boolFirst) then
 		--game3MusicChannel = audio.play( thirdGameMusic, { loops=-1}  )
@@ -692,25 +707,6 @@ function scene:createScene(event)
     pauseBtn:addEventListener("touch", pauseGame)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
-
-    --[[mute button
-    unmuteBtn = display.newImageRect( "images/secondgame/mute_button.png", 20, 20)
-    unmuteBtn.x = 420
-    unmuteBtn.y = 15
-    unmuteBtn:addEventListener("touch", unmuteGame)
-    unmuteBtn:addEventListener("tap", unmuteGame)
-    screenGroup:insert( unmuteBtn )
-    unmuteBtn.isVisible = false
-
-
-    --mute button
-	muteBtn = display.newImageRect( "images/secondgame/unmute_button.png", 20, 20)
-    muteBtn.x = 420
-    muteBtn.y = 15
-    muteBtn:addEventListener("touch", muteGame)
-    muteBtn:addEventListener("tap", muteGame)
-    screenGroup:insert( muteBtn )]]
-
 
     -- GAME
 	objectGroup = display.newGroup()
@@ -793,6 +789,13 @@ function scene:createScene(event)
 	print("  ORDER: " .. order)
 	-- ---------------------
 
+	answer = ""
+	-- current = 0
+	print("BEFORE MAG PLAY ")
+	print(isClick)
+
+	startSequence(1)
+
 	for i = 1, dimensions*dimensions do
 		obj = objectGroup[string.byte(order,i) % 96]
 		obj.isVisible = true
@@ -800,20 +803,16 @@ function scene:createScene(event)
 		obj:addEventListener("tap", checkanswer)
 		--obj:addEventListener("touch", checkanswer)
 	end
-
-	answer = ""
-	-- current = 0
-	startSequence(1)
-
 	screenGroup:insert(objectGroup)
 end
 
 function checkanswer(event)
 	print("\nFUNCTION checkanswer")
 	local t = event.target
-	print("  T.NAME: " .. t.name)
+--	print("  T.NAME: " .. t.name)
+	print(isClick)
 
-
+	if isClick == true then
 	-- if (event.phase == "ended") then
 		-- print("  EVENT.PHASE == ENDED: " .. t.name)
 		answer = answer .. t.name
@@ -830,7 +829,7 @@ function checkanswer(event)
 
 			if (n % 5 == 0) then
 				audio.play(one)
-				print("  SOUND: 1")
+				print("  SOUND: 1") 
 			elseif (n % 5 == 1) then
 				audio.play(two)
 				print("  SOUND: 2")
@@ -880,9 +879,11 @@ function checkanswer(event)
 	-- else
 	-- 	print("  ELSE")
 	-- end
+	end
 end
 
 function reload()
+	isClick = false
 	objectGroup:removeSelf()
 	timerText:removeSelf()
 	boolFirst = false

@@ -233,13 +233,13 @@ function displayGame1()
 		widgetGroup:removeSelf()
 		bg:removeSelf()
 	end
-	bg = display.newImageRect("images/menu/scoresgame1.png", 550, 320)
+	bg = display.newImageRect("images/menu/scoresgame3.png", 550, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()
-	getScoresFromDB("FirstGame")
+	getScoresFromDB("ThirdGame")
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
@@ -248,7 +248,7 @@ function displayGame1()
 	emailBtn1.x = display.contentWidth
 	emailBtn1.y = 90
 	widgetGroup:insert(emailBtn1)
-	emailBtn1:addEventListener("touch", onSendEmail1)
+	emailBtn1:addEventListener("touch", onSendEmail3)
 
 end
 
@@ -283,13 +283,13 @@ function displayGame3()
 		widgetGroup:removeSelf()
 		bg:removeSelf()
 	end
-	bg = display.newImageRect("images/menu/scoresgame3.png", 550, 320)
+	bg = display.newImageRect("images/menu/scoresgame1.png", 550, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()
-	getScoresFromDB("ThirdGame")
+	getScoresFromDB("FirstGame")
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
@@ -298,7 +298,7 @@ function displayGame3()
 	emailBtn3.x = display.contentWidth
 	emailBtn3.y = 90
 	widgetGroup:insert(emailBtn3)
-	emailBtn3:addEventListener("touch", onSendEmail3)
+	emailBtn3:addEventListener("touch", onSendEmail1)
 
 end
 
@@ -321,8 +321,8 @@ function scene:createScene( event )
 	{
 		{
 			width = 100, height = 32,
-			defaultFile = "assets/purple.png",
-			overFile = "assets/purple2.png",
+			defaultFile = "assets/blue.png",
+			overFile = "assets/blue2.png",
 			--label = "Game 1",
 			onPress = displayGame1,
 			selected = true
@@ -336,8 +336,8 @@ function scene:createScene( event )
 		},
 		{
 			width = 100, height = 32,
-			defaultFile = "assets/blue.png",
-			overFile = "assets/blue2.png",
+			defaultFile = "assets/purple.png",
+			overFile = "assets/purple2.png",
 			--label = "Game 3",
 			onPress = displayGame3,
 		}

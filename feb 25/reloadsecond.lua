@@ -2,19 +2,17 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
-local text, category, boolFirst, gameTimer, currScore, itemCtr, itemCheck, itemSpeed, boolNew, pauseCtr, roundNumber, muted
+local category, boolFirst, gameTimer, currScore, boolNew, pauseCtr, roundNumber, muted, gameMusic
 
 function scene:createScene(event)
 	local screenGroup = self.view
 	print("RELOADING....")
+	category = event.params.categ
 	boolFirst = event.params.first
 	gameTimer = event.params.time
-	category = event.params.categ
 	currScore = event.params.score
-	itemCtr = event.params.ctr
-	itemCheck = event.params.check
-	itemSpeed = event.params.speed
 	boolNew = event.params.new
+	gameMusic = event.params.music
 	pauseCtr = event.params.pause
 	roundNumber = event.params.round
 	muted = event.params.mute

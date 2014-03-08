@@ -11,7 +11,7 @@ local scene = storyboard.newScene()
 --for the game
 local numberOfCategories, selectedCategories
 local images, labels, answers, maxcount
-local gameBoard, boxGroup, boxes
+local gameBoard, boxGroup, boxes, selected
 --for the timer and reloading
 local maintimer, timerText
 --for reloading params
@@ -136,6 +136,7 @@ function saveToFile()
 			for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
 				allCategories[#allCategories+1] = row.category
 			end
+			categories = {}
 			categories = cleanArray(allCategories)
 
 			for k = 1, #categories do
@@ -350,6 +351,9 @@ function gameoverdialog()
 	muteBtn.isVisible = false
 	progressBar.isVisible = false
 	progressBarFill.isVisible = false
+	if selected ~= nil then
+		selected.isVisible = false
+	end
 
 	gameover = display.newGroup()
 	physics.start()
@@ -589,6 +593,7 @@ function checkanswer(target)
 	isCorrect = false
 	for j = 1, maxcount do
 		if answers[boxNumber][j] == target.label then
+			toast.new("images/correct.png", 300, 80, 0, "thirdgame")
 			currScore = currScore + 1
 			scoreToDisplay.text = "Score: "..currScore
 			isCorrect = true
@@ -608,6 +613,7 @@ function checkanswer(target)
 
 	if isCorrect == false then
 		audio.play(incorrectSound)
+		toast.new("images/wrong.png", 300, 80, 0, "thirdgame")
 		if count == 0 then
 			boxes[boxNumber].wrongCtr = boxes[boxNumber].wrongCtr + 1
 			count = boxes[boxNumber].wrongCtr
@@ -656,40 +662,50 @@ function imageDrag (event)
 	local imagePosX = {}
 	local imagePosY = {}
 	isMoved = false
-	local t = event.target
+	selected = event.target
+	screenGroup:insert(selected)
 
 	if event.phase == "moved" or event.phase == "ended" then
 		---------- BOUNDARIES ----------
-		if t.x > display.viewableContentWidth then
-			t.x = display.viewableContentWidth
-		elseif t.x < 0 then
-			t.x = 0
+		if selected.x > display.viewableContentWidth then
+			selected.x = display.viewableContentWidth
+		elseif selected.x < 0 then
+			selected.x = 0
 		end
 
-		if t.y > display.viewableContentHeight - 30 then
-			t.y = display.viewableContentHeight - 30
-		elseif t.y < 30 then
-			t.y = 30
+		if selected.y > display.viewableContentHeight - 30 then
+			selected.y = display.viewableContentHeight - 30
+		elseif selected.y < 30 then
+			selected.y = 30
 		end	
 		---------- BOUNDARIES ----------
 
 		for i = 1, numberOfCategories do
-			imagePosX[i] = math.abs(t.x - boxes[i].x)
-			imagePosY[i] = math.abs(t.y - boxes[i].y)
+			imagePosX[i] = math.abs(selected.x - boxes[i].x)
+			imagePosY[i] = math.abs(selected.y - boxes[i].y)
 		end
 		-- Snap to middle
 		for i = 1, numberOfCategories do
+
+			--dist from original
+			local initX = math.abs(selected.initialX - selected.x)
+			local initY = math.abs(selected.initialY - selected.y)
+
 			if (imagePosX[i] <= 50) and (imagePosY[i] <= 50) then
-				t.x = boxes[i].x;
-				t.y = boxes[i].y;
+				selected.x = boxes[i].x;
+				selected.y = boxes[i].y;
 				isMoved = true
+			elseif (initX <= 30) and (initY <= 30) then
+				-- snap back to original position
+				selected.x = selected.initialX
+				selected.y = selected.initialY
 			end
 		end
 	end
 
 	if event.phase == "ended" then
 		if isMoved == true then
-			checkanswer(t)
+			checkanswer(selected)
 		end
 	end
 
@@ -919,6 +935,7 @@ local function getWords(type, limit)
 	end
 
 	-- Shuffle and select n words
+	wordsCopy = {}
 	wordsCopy = shuffle(words)
 	for i = 1, limit do
 		words[i] = wordsCopy[i]
@@ -1084,6 +1101,8 @@ function scene:createScene(event)
 		gridX = -30
 	end
 
+	allWords = {}
+	allExtras = {}
 	allWords = getWords("correct", numberOfCorrectAnswers)
 	allExtras = getWords("incorrect", numberOfIncorrectAnswers)
 

@@ -9,9 +9,9 @@ function scene:createScene( event )
 	local slideView = require("slideView")
 	
 	local myImages = {
-		"images/menu/howtoplay1.png",
-		"images/menu/howtoplay2.png",
 		"images/menu/howtoplay3.png",
+		"images/menu/howtoplay2.png",
+		"images/menu/howtoplay1.png",
 	}		
 
 	slideView.new( myImages )	
