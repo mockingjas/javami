@@ -153,14 +153,14 @@ function new( imageSet, slideBackground, top, bottom )
 	end
 	
 	function nextImage()
-		tween = transition.to( images[imgNum], {time=400, x=(screenW*.5 + pad)*-1, transition=easing.outExpo } )
+		tween = transition.to( images[imgNum], {time=400, x=(screenW*.5 + 110)*-1, transition=easing.outExpo } )
 		tween = transition.to( images[imgNum+1], {time=400, x=screenW*.5, transition=easing.outExpo } )
 		imgNum = imgNum + 1
 		--initImage(imgNum)
 	end
 	
 	function prevImage()
-		tween = transition.to( images[imgNum], {time=400, x=(screenW*2)+pad+ 20, transition=easing.outExpo } )
+		tween = transition.to( images[imgNum], {time=400, x=(screenW*2)+pad+ 110, transition=easing.outExpo } )
 		tween = transition.to( images[imgNum-1], {time=400, x=screenW*.5, transition=easing.outExpo } )
 		imgNum = imgNum - 1
 		--initImage(imgNum)

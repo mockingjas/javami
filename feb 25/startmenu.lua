@@ -22,7 +22,7 @@ function scene:createScene(event)
 	local screenGroup = self.view
 	backgroundMusicChannel = audio.play( bgMusic, { loops=-1}  )
 
-	bg = display.newImageRect("images/menu/bg_back.png", 570, 320)
+	bg = display.newImageRect("images/menu/bg_back.png", 600, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
@@ -39,7 +39,7 @@ function scene:createScene(event)
 	building2.speed = 1
 	screenGroup:insert(building2)
 	
-	ground = display.newImage( "images/menu/ground.png" )
+	ground = display.newImageRect( "images/menu/ground.png",600, 320)
 	ground.x = display.contentWidth/2;
 	ground.y =  display.contentHeight/2;
 	screenGroup:insert(ground)
@@ -106,9 +106,6 @@ function scene:enterScene(event)
 
   	building2.enterFrame = moveBGx
   	Runtime:addEventListener("enterFrame", building2)
-
-
-	
 
 	
 end
