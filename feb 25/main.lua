@@ -7,7 +7,7 @@
 require "sqlite3"
 local lfs = require "lfs"
 local storyboard = require "storyboard"
-local path = system.pathForFile("JaVaMiaDb.sqlite3", system.DocumentsDirectory)
+local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 
 storyboard.gotoScene( "startmenu")
@@ -29,9 +29,6 @@ storyboard.gotoScene( "startmenu")
 --local profile= [[CREATE TABLE IF NOT EXISTS Profile(id INTEGER PRIMARY KEY autoincrement, name, age);]]
 --db:exec(profile)
 
-
---for row in db:nrows("DELETE FROM Words") do end
-
 for row in db:nrows("PRAGMA table_info(Words);") do print(row.name) end
 
 print("**DATABASE**")
@@ -41,7 +38,7 @@ end
 
 for row in db:nrows("UPDATE Words SET name = 'legs' where name ='leg'") do	print(row.name) end
 --for row in db:nrows("SELECT * FROM Words where firstGameCategory = 'hard'") do	print(row.name .. "\t" .. row.livingThingCategory) end
---for row in db:nrows("SELECT * FROM SecondGameAnalytics") do	print(row.id..row.gamenumber..row.roundnumber) end
+--for row in db:nrows("SELECT * FROM FirstGame") do	print(row.id) end
 --for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do	print(row.count) end
 
 

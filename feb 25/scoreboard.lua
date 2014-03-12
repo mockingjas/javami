@@ -140,7 +140,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 		{ 89, 116, 152, 255 }, "down" )
 
 	-- Create toolbar to go at the top of the screen
-	local titleBar = display.newRect( -33, 0, display.contentWidth + 66, 32 )
+	local titleBar = display.newRect( -60, 0, display.contentWidth + 120, 32 )
 	titleBar.y = display.statusBarHeight + ( titleBar.contentHeight * 0.5 )
 	titleBar:setFillColor( titleGradient )
 	titleBar.y = display.screenOriginY + titleBar.contentHeight * 0.5
@@ -158,7 +158,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 		--local isCategory = row.isCategory
 	
 		local rowTitle = display.newText( row, rowTitles[row.index], 0, 0, font, 16 )
-		rowTitle.x = display.contentCenterX + 30
+		rowTitle.x = display.contentCenterX + 60
 		rowTitle.y = row.contentHeight * 0.5
 		rowTitle:setTextColor( 0,0,0 )
 	end
@@ -166,9 +166,9 @@ function displayScores(easyScores, mediumScores, hardScores)
 	-- Create a tableView
 	list = widget.newTableView
 	{
-		left = -33,
+		left = -60,
 		top = 32,
-		width = display.contentWidth + 66, 
+		width = display.contentWidth + 120, 
 		height = 350,
 		onRowRender = onRowRender,
 		onRowTouch = onRowTouch,
@@ -224,7 +224,6 @@ function displayScores(easyScores, mediumScores, hardScores)
 			}
 		end
 	end
-
 end
 
 function displayGame1()
@@ -233,7 +232,7 @@ function displayGame1()
 		widgetGroup:removeSelf()
 		bg:removeSelf()
 	end
-	bg = display.newImageRect("images/menu/scoresgame3.png", 550, 320)
+	bg = display.newImageRect("images/menu/scoresgame3.png", 600, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
@@ -258,7 +257,7 @@ function displayGame2()
 		widgetGroup:removeSelf()
 		bg:removeSelf()
 	end
-	bg = display.newImageRect("images/menu/scoresgame2.png", 550, 320)
+	bg = display.newImageRect("images/menu/scoresgame2.png", 600, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
@@ -283,7 +282,7 @@ function displayGame3()
 		widgetGroup:removeSelf()
 		bg:removeSelf()
 	end
-	bg = display.newImageRect("images/menu/scoresgame1.png", 550, 320)
+	bg = display.newImageRect("images/menu/scoresgame1.png", 600, 320)
 	bg.x = display.contentWidth/2;
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
@@ -347,8 +346,8 @@ function scene:createScene( event )
 	demoTabs = widget.newTabBar
 	{
 		top = display.contentHeight - 50,
-		left = -33,
-		width = display.contentWidth + 66,
+		left = -60,
+		width = display.contentWidth + 120,
 		backgroundFile = "assets/tabbar.png",
 		tabSelectedLeftFile = "assets/tabBar_tabSelectedLeft.png",
 		tabSelectedMiddleFile = "assets/tabBar_tabSelectedMiddle.png",
