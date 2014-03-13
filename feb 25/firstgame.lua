@@ -6,6 +6,7 @@ local physics = require("physics")
 local lfs = require("lfs")
 local stopwatch =require "stopwatch"
 local scene = storyboard.newScene()
+scene.purgeOnSceneChange = true
 local toast = require("toast");
 
 ------- Global variables ---------
@@ -28,6 +29,9 @@ local origx, origy
 local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
 local userAge, username, emailaddress
+
+--Listeners
+local rect, name, age, playBtn, homeBtn, emailBtn, instance1, pausedialog, hintBtn, pauseBtn, unmuteBtn, muteBtn, clearBtn
 
 -------- Analytics------------
 -- *per item
@@ -503,8 +507,9 @@ local function ageListener( event )
 	end
 end
 
-function showlevelDialog()
+function showanalyticsDialog()
  	
+ 	print("boo")
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
@@ -549,6 +554,7 @@ function showlevelDialog()
 
    	name:addEventListener( "userInput", nameListener)
 	age:addEventListener( "userInput", ageListener)
+
 
 end
 
@@ -638,8 +644,10 @@ local function spriteListener( event )
 	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 50, font, 25) 
 	    gameovergroup:insert(emailtext)
 
-	    showlevelDialog()
-	 end
+	    screenGroup:insert(gameovergroup)
+
+	    showanalyticsDialog()
+	end
 end
 
 
@@ -762,25 +770,16 @@ end
  
  --------------- RESTART GAME ----------------------
 function restart_onBtnRelease()
-	if (timer ~= nil) then
-		pausegroup:removeSelf()
-		timerText:removeSelf()
-		pausegroup = nil
-		timerText = nil
-		timer = nil
-	else
-		gameovergroup.isVisible = false
-	end
 	if category == "easy" then
-		currTime = 61
+		currTime = 62
 	elseif category == "medium" then
-		currTime = 121
+		currTime = 122
 	elseif category == "hard" then
-		currTime = 181
+		currTime = 182
 	end
 	option =	{
 		effect = "fade",
-		time = 100,
+		time = 1000,
 		params = {
 			categ = category,
 			first = true,
@@ -796,50 +795,29 @@ function restart_onBtnRelease()
 		}
 	}
 	audio.stop()
-	storyboard.removeScene("reload")
+	Runtime:removeEventListener("enterFrame", onFrame)
 	storyboard.gotoScene("reload", option)
 end
 
 --------------- RESUME FROM PAUSE -----------------
 function resume_onBtnRelease()
 	pausegroup.isVisible = false
-	--pausegroup = nil
-	--pausegroup:removeSelf()
 	if (muted == 0) then 
 		audio.resume(game1MusicChannel)
 	end
 	timer:resume()
 	submit:setEnabled(true)
---[[	for i = 1, #letterbox do
-		MultiTouch.activate(letterboxGroup[i], "move", "single")
-	end]]
     pauseBtn.isVisible = true
 	return true
 end
 
 ---------------- EXIT FROM PAUSE ----------------
 function exit_onBtnRelease()
-	pausegroup:removeSelf()
-	timerText:removeSelf()
-	pausegroup = nil
-	timerText = nil
-	timer = nil
-	storyboard.removeScene("firstgame")
-	storyboard.removeScene("mainmenu")
-	
-
 	audio.stop()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
-	option =	{
-		effect = "fade",
-		time = 100,
-		params = {
-			music = backgroundMusicChannel
-		}
-	}
-	storyboard.gotoScene("mainmenu", option)
+	storyboard.gotoScene("mainmenu", "fade", 100, {music = backgroundMusicChannel})
 end
 
 ----------------- PAUSE DIALOG ------------------
@@ -847,7 +825,6 @@ function showpauseDialog()
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentWidth/2;
--- 	pausedialog:addEventListener("touch", function() return true end)
 	pausedialog:addEventListener("tap", function() return true end)
 	pausegroup:insert(pausedialog)
 
@@ -857,19 +834,9 @@ function showpauseDialog()
 		onEvent = resume_onBtnRelease -- event listener function
 	}
 	resumeBtn:setReferencePoint( display.CenterReferencePoint )
-	resumeBtn.x = bg.x - 100
+	resumeBtn.x = bg.x - 80
 	resumeBtn.y = 170
 	pausegroup:insert(resumeBtn)
-
-	local restartBtn = widget.newButton{
-		defaultFile="images/pause/restart_button.png",
-		overFile="images/pause/restart_button.png",
-		onEvent = restart_onBtnRelease -- event listener function
-	}
-	restartBtn:setReferencePoint( display.CenterReferencePoint )
-	restartBtn.x = bg.x + 100
-	restartBtn.y = 170
-	pausegroup:insert(restartBtn)
 
 	local exitBtn = widget.newButton{
 		defaultFile="images/pause/exit_button.png",
@@ -877,9 +844,11 @@ function showpauseDialog()
 		onEvent = exit_onBtnRelease -- event listener function
 	}
 	exitBtn:setReferencePoint( display.CenterReferencePoint )
-	exitBtn.x = bg.x + 5
-	exitBtn.y = 220
+	exitBtn.x = bg.x + 100
+	exitBtn.y = 170
 	pausegroup:insert(exitBtn)
+
+	screenGroup:insert(pausegroup)
 end
 
 local function networkListener( event )
@@ -935,7 +904,6 @@ local function displayScreenElements()
     pauseBtn.x = 410
     pauseBtn.y = 37
     pauseBtn:addEventListener("touch", pauseGame)
-    pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
 
     -- UN/MUTE
@@ -1078,7 +1046,24 @@ function scene:createScene(event)
 	screenGroup:insert(timerText)
 end
 
+function scene:enterScene(event)
+	print("went here")
+end
+
+function scene:destroyScene(event)
+	print("went here")
+end
+function scene:exitScene(event)
+	print("went here")
+end
+
+
 scene:addEventListener("createScene", scene)
+scene:addEventListener( "enterScene", scene )
+scene:addEventListener( "exitScene", scene )
+scene:addEventListener( "destroyScene", scene )
 Runtime:addEventListener("enterFrame", onFrame)
+
+
 
 return scene

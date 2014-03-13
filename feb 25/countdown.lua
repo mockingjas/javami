@@ -55,34 +55,43 @@ function loadgame()
 
 	if(game == "one")  then
 		if(categ == "easy") then
+			storyboard.removeScene("firstgame")
 			storyboard.gotoScene("firstgame", easy)
 			storyboard.removeScene("countdown")
 		elseif(categ == "medium") then
+			storyboard.removeScene("firstgame")
 			storyboard.gotoScene("firstgame", medium)
 			storyboard.removeScene("countdown")
 		else
+			storyboard.removeScene("firstgame")
 			storyboard.gotoScene("firstgame", hard)	
 			storyboard.removeScene("countdown")
 		end
 	elseif(game == "two")  then
 		if(categ == "easy") then
+			storyboard.removeScene("secondgame")
 			storyboard.gotoScene("secondgame", easy)
 			storyboard.removeScene("countdown")
 		elseif(categ == "medium") then
+			storyboard.removeScene("secondgame")
 			storyboard.gotoScene("secondgame", medium)
 			storyboard.removeScene("countdown")
 		else
+			storyboard.removeScene("secondgame")
 			storyboard.gotoScene("secondgame", hard)	
 			storyboard.removeScene("countdown")
 		end	
 	else
 		if(categ == "easy") then
+			storyboard.removeScene("thirdgame")
 			storyboard.gotoScene("thirdgame", easy)
 			storyboard.removeScene("countdown")
 		elseif(categ == "medium") then
+			storyboard.removeScene("thirdgame")
 			storyboard.gotoScene("thirdgame", medium)
 			storyboard.removeScene("countdown")
 		else
+			storyboard.removeScene("thirdgame")
 			storyboard.gotoScene("thirdgame", hard)	
 			storyboard.removeScene("countdown")
 		end

@@ -2,6 +2,7 @@
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
+scene.purgeOnSceneChange = true
 local category, boolFirst, gameTimer, currScore, boolNew, pauseCtr, roundNumber, muted, gameMusic
 
 function scene:createScene(event)
@@ -21,7 +22,7 @@ function scene:enterScene(event)
 	local screenGroup = self.view	
 	option = {
 		effect = "fade",
-		time = 50,
+		time = 400,
 		params = {
 			categ = category,
 			first = boolFirst,
@@ -40,6 +41,8 @@ function scene:enterScene(event)
 
 	storyboard.removeScene("secondgame")
 	storyboard.gotoScene("secondgame", option)
+	storyboard.removeScene("reloadsecond")
+
 end
 
 scene:addEventListener("createScene", scene)

@@ -222,7 +222,7 @@ function closedialog()
 end
 
 ---- END: PROFILE MODAL
-function showlevelDialog()
+function showanalyticsDialog()
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
@@ -314,6 +314,8 @@ local function finalmenu( )
     local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
     emailtext:setTextColor(0,0,0)
     gameovergroup:insert(emailtext)
+
+    screenGroup:insert(gameovergroup)
 end
 
 -- END: GAME OVER SPRITE
@@ -330,7 +332,7 @@ local fallover = function(event)
 	else
 		maintimer = nil
 		finalmenu()
-		showlevelDialog()
+		showanalyticsDialog()
 	end
 end
 
@@ -364,6 +366,8 @@ function gameoverdialog()
 	rect.y = display.contentHeight - 5
 	physics.addBody( rect, "static" )
 	gameover:insert(rect)
+
+	screenGroup:insert(gameover)
 
 	i = 1
 	x = 20
@@ -444,31 +448,16 @@ end
  
 -- BUTTON: RESTART
 function restart_onBtnRelease()
-	if (maintimer ~= nil) then
-		pausegroup:removeSelf()
-		timerText:removeSelf()
-		gameBoard:removeSelf()
-		boxGroup:removeSelf()
-		pausegroup = nil
-		timerText = nil
-		gameBoard = nil
-		boxGroup = nil
-		scoreToDisplay.isVisible = false
-		maintimer = nil
-	else
-		gameovergroup.isVisible = false
-		gameover.isVisible = false
-	end
 	if category == "easy" then
-		currTime = 61
+		currTime = 62
 	elseif category == "medium" then
-		currTime = 121
+		currTime = 122
 	elseif category == "hard" then
-		currTime = 181
+		currTime = 182
 	end
 	option =	{
 		effect = "fade",
-		time = 100,
+		time = 1000,
 		params = {
 			categ = category,
 			first = true,
@@ -481,37 +470,17 @@ function restart_onBtnRelease()
 		}
 	}
 	audio.stop()
-	storyboard.removeScene("reloadsecond")
+	Runtime:removeEventListener("enterFrame", onFrame)
 	storyboard.gotoScene("reloadsecond", option)
 end
 
 -- BUTTON: EXIT PAUSE MODAL
 function exit_onBtnRelease()
-	pausegroup:removeSelf()
-	timerText:removeSelf()
-	boxGroup:removeSelf()
-	gameBoard:removeSelf()
-	pausegroup = nil
-	timerText = nil
-	boxGroup = nil
-	gameBoard = nil
-	scoreToDisplay.isVisible = false
-	maintimer = nil
-	storyboard.removeScene("secondgame")
-	storyboard.removeScene("mainmenu")
-
+	audio.stop()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
-	option =	{
-		effect = "fade",
-		time = 100,
-		params = {
-			music = backgroundMusicChannel
-		}
-	}
-	audio.stop()
-	storyboard.gotoScene("mainmenu", option)	
+	storyboard.gotoScene("mainmenu", "fade", 100, {music = backgroundMusicChannel})	
 end
 
 -- PAUSE MODAL
@@ -529,19 +498,9 @@ function showpauseDialog()
 		onEvent = resume_onBtnRelease -- event listener function
 	}
 	resumeBtn:setReferencePoint( display.CenterReferencePoint )
-	resumeBtn.x = bg.x - 100
+	resumeBtn.x = bg.x - 80
 	resumeBtn.y = 170
 	pausegroup:insert(resumeBtn)
-
-	local restartBtn = widget.newButton{
-		defaultFile="images/pause/restart_button.png",
-		overFile="images/pause/restart_button.png",
-		onEvent = restart_onBtnRelease -- event listener function
-	}
-	restartBtn:setReferencePoint( display.CenterReferencePoint )
-	restartBtn.x = bg.x + 100
-	restartBtn.y = 170
-	pausegroup:insert(restartBtn)
 
 	local exitBtn = widget.newButton{
 		defaultFile="images/pause/exit_button.png",
@@ -549,9 +508,11 @@ function showpauseDialog()
 		onEvent = exit_onBtnRelease -- event listener function
 	}
 	exitBtn:setReferencePoint( display.CenterReferencePoint )
-	exitBtn.x = bg.x + 5
-	exitBtn.y = 220
+	exitBtn.x = bg.x + 100
+	exitBtn.y = 170
 	pausegroup:insert(exitBtn)
+
+	screenGroup:insert(pausegroup)
 end
 
 -- GAME: RELOAD
@@ -756,6 +717,8 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		MultiTouch.activate(images[i], "move", "single");
 		images[i]:addEventListener(MultiTouch.MULTITOUCH_EVENT, imageDrag);
 	end
+
+	screenGroup:insert(gameBoard)
 end
 
 -- WORD: EASY RAND
@@ -1120,6 +1083,7 @@ function scene:createScene(event)
 	end
 	screenGroup:insert(scoreToDisplay)
 	screenGroup:insert(boxGroup)
+	screenGroup:insert(timerText)
 
 	--gridX, gridY, photoArray, photoTextArray, columnNumber, paddingX, paddingY, photoWidth, photoHeight
 	drawGrid(gridX, 30, photos, labels, length/4, 5, 5, 50, 50)

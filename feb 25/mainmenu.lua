@@ -2,6 +2,7 @@ require "physics"
 local storyboard = require ("storyboard")
 local widget= require ("widget")
 local scene = storyboard.newScene()
+scene.purgeOnSceneChange = true
 
 -- Level Select Modal Variables --
 local levelgroup, easy, medium, hard
