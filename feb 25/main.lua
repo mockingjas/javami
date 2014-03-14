@@ -36,8 +36,19 @@ for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
 	print(row.name)
 end
 
-for row in db:nrows("UPDATE Words SET name = 'legs' where name ='leg'") do	print(row.name) end
---for row in db:nrows("SELECT * FROM Words where firstGameCategory = 'hard'") do	print(row.name .. "\t" .. row.livingThingCategory) end
+for row in db:nrows("UPDATE Words SET colorCategory = 'blue' where name ='blanket'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='keep'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET colorCategory = 'yellow' where name ='pizza'") do	print(row.name) end
+--rect: stove, cut, close, flags
+--red: slippers, teeth, circus, bed, she
+--[[bodypart: wash
+tri: christmas
+circle: lonely, clock, flower, time
+yellow: planet
+blue: legs
+green: laugh]]
+
+--for row in db:nrows("SELECT * FROM Words where name = 'slippers'") do	print(row.name .. "\t" .. row.colorCategory) end
 --for row in db:nrows("SELECT * FROM FirstGame") do	print(row.id) end
 --for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do	print(row.count) end
 
