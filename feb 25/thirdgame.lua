@@ -316,6 +316,8 @@ local function finalmenu()
     emailtext:setTextColor(0,0,0)
     gameovergroup:insert(emailtext)
 
+    screenGroup:insert(gameovergroup)
+
 end
 ------------------- GAME OVER ---------------------------
 
@@ -393,6 +395,9 @@ function gameoverdialog()
 	gameover.enterFrame = moveBG
     Runtime:addEventListener("enterFrame", gameover)
 
+    screenGroup:insert(gameover)
+
+
 end
 
 
@@ -417,33 +422,16 @@ end
  
  --------------- RESTART GAME ----------------------
 function restart_onBtnRelease()
-	if (timerr ~= nil) then
-		objectGroup:removeSelf()
-		pausegroup:removeSelf()
-		timerText:removeSelf()
-		objectGroup = nil
-		pausegroup = nil
-		timerText = nil
-		timerr = nil
-		timer.cancel(blinker)
-	else
-		gameovergroup.isVisible = false
-		gameover.isVisible = false
-		scoreToDisplay.isVisible = false
-		roundToDisplay.isVisible = false
-		timerText:removeSelf()
-		timerText = nil
-	end
 	if category == "easy" then
-		currTime = 61
+		currTime = 62
 	elseif category == "medium" then
-		currTime = 121
+		currTime = 122
 	elseif category == "hard" then
-		currTime = 181
+		currTime = 182
 	end
 	option = {
 		effect = "fade",
-		time = 100,
+		time = 1000,
 		params = {
 			categ = category,
 			first = true,
@@ -452,7 +440,8 @@ function restart_onBtnRelease()
 		}
 	}
 	audio.stop()
-	storyboard.removeScene("reloadthird")
+	Runtime:removeEventListener("touch", gestures)
+	Runtime:removeEventListener("accelerometer", gestures)
 	storyboard.gotoScene("reloadthird", option)
 end
 
@@ -476,19 +465,9 @@ end
 
 ---------------- EXIT FROM PAUSE ----------------
 function exit_onBtnRelease()
-	objectGroup:removeSelf()
-	pausegroup:removeSelf()
-	timerText:removeSelf()
-	objectGroup = nil
-	pausegroup = nil
-	timerText = nil
-	timerr = nil
-	timer.cancel(blinker)
-	timer = nil
+	
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
-	storyboard.removeScene("thirdgame")
-	storyboard.removeScene("mainmenu")
 
 	audio.stop()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
@@ -520,19 +499,9 @@ function showpauseDialog()
 		onEvent = resume_onBtnRelease -- event listener function
 	}
 	resumeBtn:setReferencePoint( display.CenterReferencePoint )
-	resumeBtn.x = bg.x - 100
+	resumeBtn.x = bg.x - 80
 	resumeBtn.y = 170
 	pausegroup:insert(resumeBtn)
-
-	local restartBtn = widget.newButton{
-		defaultFile="images/pause/restart_button.png",
-		overFile="images/pause/restart_button.png",
-		onEvent = restart_onBtnRelease -- event listener function
-	}
-	restartBtn:setReferencePoint( display.CenterReferencePoint )
-	restartBtn.x = bg.x + 100
-	restartBtn.y = 170
-	pausegroup:insert(restartBtn)
 
 	local exitBtn = widget.newButton{
 		defaultFile="images/pause/exit_button.png",
@@ -540,9 +509,11 @@ function showpauseDialog()
 		onEvent = exit_onBtnRelease -- event listener function
 	}
 	exitBtn:setReferencePoint( display.CenterReferencePoint )
-	exitBtn.x = bg.x + 5
-	exitBtn.y = 220
+	exitBtn.x = bg.x + 100
+	exitBtn.y = 170
 	pausegroup:insert(exitBtn)
+
+	screenGroup:insert(pausegroup)
 end
 
 function shuffle(array)
@@ -555,7 +526,7 @@ function shuffle(array)
 end
 
 function canClick()
-	toast.new("images/go.png", 600, 80, 0, "thirdgame")
+	toast.new("images/go.png", 300, 80, 0, "thirdgame")
 	isClick = true
 end
 
@@ -707,6 +678,7 @@ function scene:createScene(event)
     pauseBtn:addEventListener("touch", pauseGame)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
+    screenGroup:insert(timerText)
 
     -- GAME
 	objectGroup = display.newGroup()
