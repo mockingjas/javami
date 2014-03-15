@@ -320,6 +320,7 @@ local function checkanswer(event)
 			}
 			timerText:removeSelf()
 			timer = nil
+			storyboard.removeScene("reload")
 			storyboard.gotoScene("reload", option)
 		else
 			toast.new("images/wrong.png", 500, 0, 0, "firstgame_image")
