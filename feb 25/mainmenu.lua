@@ -270,6 +270,8 @@ end
 
 function scene:createScene(event)
 
+	print("Main Menu!")
+	storyboard.removeAll()
 	local screenGroup = self.view
 
 	bgMusic = event.params.music

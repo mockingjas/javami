@@ -321,7 +321,7 @@ end
 -- END: GAME OVER SPRITE
 local fallover = function(event)
 	if (i < 9) then
-		local crate1 = display.newImage( "images/secondgame/" .. game[i].. ".png" )
+		local crate1 = display.newImage( "images/secondgame/" .. game:sub(i,i).. ".png" )
 		crate1.x = x; crate1.y = 10
 		physics.addBody( crate1, { density=0.6, friction=0.6, bounce=0.3, radius= 19 } )
 		crate1.isFixedRotation= true
@@ -371,9 +371,7 @@ function gameoverdialog()
 
 	i = 1
 	x = 20
-
-	getmetatable('').__index = function(str,i) return string.sub(str,i,i) end
-	game = 'GAMEOVER'
+	game = "GAMEOVER"
 	timer.performWithDelay( 500, fallover, 9)
 end
 
@@ -538,7 +536,6 @@ function generateNew()
 	boxGroup:removeSelf()
 	timerText:removeSelf()
 	maintimer = nil
-	storyboard.removeScene("reloadsecond")
 	storyboard.gotoScene("reloadsecond", option)
 end
 

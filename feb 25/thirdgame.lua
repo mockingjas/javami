@@ -878,7 +878,6 @@ function reload()
 	}
 	timerr = nil
 	audio.stop()
-	storyboard.removeScene("reloadthird")
 	storyboard.gotoScene("reloadthird", option)
 end
 
