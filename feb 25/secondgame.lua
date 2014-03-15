@@ -353,8 +353,8 @@ function gameoverdialog()
 	muteBtn.isVisible = false
 	progressBar.isVisible = false
 	progressBarFill.isVisible = false
-	if selected ~= nil then
-		selected.isVisible = false
+	for i = 1, #images do
+		images[i].isVisible = false
 	end
 
 	gameover = display.newGroup()
@@ -697,7 +697,7 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		images[i].initialY = images[i].y
 		images[i].label = photoTextArray[i]
 		images[i]:addEventListener("tap", zoomIn)
-		screenGroup:insert(images[i])
+--		screenGroup:insert(images[i])
 		gameBoard:insert(images[i])
 
 		local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2
