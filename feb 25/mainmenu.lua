@@ -6,7 +6,7 @@ scene.purgeOnSceneChange = true
 
 -- Level Select Modal Variables --
 local levelgroup, easy, medium, hard
-local instance1, instance2, instance3, scores, howtoplay, bgMusic
+local instance1, instance2, instance3, scores, howtoplay, bgMusic, about, aboutgroup
 
 ------ GAME 1 Level Select Modal -------
 local function button1 ( event )
@@ -268,6 +268,64 @@ function showlevelDialog()
 
 end
 
+function exit_about()
+	howtoplay:setEnabled(true)
+	scores:setEnabled(true)
+	aboutgroup.isVisible = false
+	return true
+end
+
+function showaboutDialog(event)
+	physics.pause()
+	howtoplay:setEnabled(false)
+	scores:setEnabled(false)
+ 	
+ 	aboutgroup = display.newGroup()
+
+	local rectx = display.newImage("images/modal/gray.png")
+ 	rectx.x = display.contentWidth/2;
+ 	rectx:addEventListener("touch", function() return true end)
+	rectx:addEventListener("tap", function() return true end)
+	aboutgroup:insert(rectx)
+
+	local dialogx = display.newImage("images/modal/about.png")
+ 	dialogx.x = display.contentWidth/2;
+ 	aboutgroup:insert(dialogx)
+
+ 	local myText1 = display.newText( "Developers", 100, 120, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 16 )
+ 	myText1:setTextColor( black )
+ 	local myText = display.newText( "Balayan, Maricia Polene A.\nConoza, Vanessa Viel B.\nTolentino, Jasmine Mae M.", 100, 140, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 14 )
+ 	aboutgroup:insert(myText)
+ 	aboutgroup:insert(myText1)
+
+ 	local uplogo = display.newImage("images/uplogo.jpg")
+ 	uplogo.x = 330
+ 	uplogo.y = 170
+ 	uplogo.width = 100
+ 	uplogo.height = 100
+ 	aboutgroup:insert(uplogo)
+
+ 	local upitdc = display.newImage("images/upitdc.png")
+ 	upitdc.x = 200
+ 	upitdc.y = 220
+ 	upitdc.width = 200
+ 	upitdc.height = 50
+ 	aboutgroup:insert(upitdc)
+
+
+
+	local exit = widget.newButton{
+		defaultFile="images/modal/closebutton.png",
+		overFile="images/modal/closebutton.png",
+		onEvent = exit_about-- event listener function
+	}
+	exit:setReferencePoint( display.CenterReferencePoint )
+	exit.x = bg.x + 170
+	exit.y = 85
+	aboutgroup:insert(exit)
+
+end
+
 function scene:createScene(event)
 
 	print("Main Menu!")
@@ -318,7 +376,7 @@ function scene:createScene(event)
 		emboss = true,
 		onEvent = function() storyboard.gotoScene( "instructions", "fade", 400 ); end,
 	}
-	howtoplay.x = (display.contentWidth/2) + 20;
+	howtoplay.x = (display.contentWidth/2);
 	howtoplay.y = (display.contentHeight/2) - 100;
 	screenGroup:insert(howtoplay)
 	
@@ -337,10 +395,18 @@ function scene:createScene(event)
 		emboss = true,
 		onEvent = function() storyboard.gotoScene( "scoreboard", option); end,
 	}
-	scores.x = (display.contentWidth/2) + 160;
-	scores.y = (display.contentHeight/2) - 65;
+	scores.x = (display.contentWidth/2) + 130;
+	scores.y = (display.contentHeight/2) - 75;
 	screenGroup:insert(scores)
-	
+
+	about = display.newImage("images/menu/about.png", 45, 45)
+	about.x = (display.contentWidth/2) + 220;
+	about.y = (display.contentHeight/2) - 100;
+	about.width = 60
+	about.height = 60
+	about:addEventListener("tap", showaboutDialog)
+	screenGroup:insert(about)
+
 	bg_ground = display.newImageRect("images/menu/ground2.png", 570, 320)
 	bg_ground.x = display.contentWidth/2;
 	bg_ground.y = display.contentHeight/2;

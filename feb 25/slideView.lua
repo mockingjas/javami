@@ -39,7 +39,6 @@ local g
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
 function home(event)
 	g.isVisible = false
-	storyboard.removeScene("reloadinstructions")
 	storyboard.gotoScene("reloadinstructions")
 end
 
