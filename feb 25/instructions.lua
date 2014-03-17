@@ -6,6 +6,7 @@ local gameScreen, tabGroup
 
 function scene:createScene( event )
 
+	storyboard.removeAll()
 	local slideView = require("slideView")
 	
 	local myImages = {

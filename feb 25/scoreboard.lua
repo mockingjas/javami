@@ -303,6 +303,7 @@ end
 
 function scene:createScene( event )
 
+	storyboard.removeAll()
 	screenGroup = self.view
 
 	bgMusic = event.params.music

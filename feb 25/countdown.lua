@@ -27,7 +27,7 @@ function loadgame()
 			categ = "easy",
 			first = true,
 			score = 0,
-			time = 5
+			time = 62
 		}
 	}
 

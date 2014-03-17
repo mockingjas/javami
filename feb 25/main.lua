@@ -48,6 +48,10 @@ yellow: planet
 blue: legs
 green: laugh]]
 
+--for row in db:nrows("DELETE FROM FirstGame")do end
+--for row in db:nrows("DELETE FROM SecondGame")do end
+--for row in db:nrows("DELETE FROM ThirdGame")do end
+
 --for row in db:nrows("SELECT * FROM Words where name = 'slippers'") do	print(row.name .. "\t" .. row.colorCategory) end
 --for row in db:nrows("SELECT * FROM FirstGame") do	print(row.id) end
 --for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do	print(row.count) end
