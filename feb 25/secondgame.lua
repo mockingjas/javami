@@ -23,7 +23,7 @@ local gameovergroup, round, score, x, y, i
 --for sounds
 local muted, muteBtn, unmuteBtn
 --for analytics
-local profileName, pauseCtr, count, roundNumber
+local profileName, pauseCtr, count, roundNumber, profileAge
 local boolNew = false
 --for after modal
 local levelgroup
@@ -54,22 +54,24 @@ local function onSendEmail( event )
 	local options =
 	{
 	   to = "",
-	   subject = "Game 2 Analytics",
-	   body = "Name: "..username.text.." Age: "..userAge.text,
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 2.txt", type="text" },
+	   subject = "Game 2 Single Game Assessment",
+	   body = "<html>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 2 Single Assessment.txt", type="text" },
+	   isBodyHtml = true
 	}
 	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 
 -- END: SAVE SCORE TO DB
-function insertToDB(category, score, name, timestamp, pausectr)
+function insertToDB(category, score, name, age, timestamp, pausectr)
 	local query = [[INSERT INTO SecondGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
 	timestamp .. [[',']] ..
-	pausectr.. [[');]]
+	pausectr.. [[',']] ..
+	age.. [[');]]
 	db:exec(query)
 
 	for row in db:nrows("SELECT id FROM SecondGame") do
@@ -101,7 +103,7 @@ function saveToFile()
 		report = ""
 		report = report .. "GAME # " .. latestId .. "\n"
 		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. latestId .. "'") do
-			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
+			report = report .. "\nPlayer:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
 	else
 		gamenumber = {}
@@ -163,7 +165,7 @@ function saveToFile()
 		end
 	end	
 	print(report)
-	local path = system.pathForFile( "Game 2.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "Game 2 Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write(report)
 	io.close( file )
@@ -171,7 +173,7 @@ function saveToFile()
 
 	-- Append
 	report = report .. "\n----------------------------------\n"
-	local path = system.pathForFile( "Game 2 Analytics.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "Game 2 General Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "a" )
 	file:write(report)
 	io.close( file )
@@ -186,6 +188,7 @@ function saveProfile(dbname, dbage)
 	db:exec(query)
 
 	for row in db:nrows("UPDATE SecondGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE SecondGame SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
 
 -- END: GET NAME
@@ -212,13 +215,17 @@ function closedialog()
 	username.isVisible = false
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
-	levelgroup.isVisible = false
-	name.isVisible = false
-	age.isVisible = false
 
 	-- SAVE TO PROFILE
-	saveProfile(username.text, userAge.text)
-	saveToFile()
+	if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+	else
+		levelgroup.isVisible = false
+		name.isVisible = false
+		age.isVisible = false
+		saveProfile(username.text, userAge.text)
+		saveToFile()
+	end
 end
 
 ---- END: PROFILE MODAL
@@ -342,7 +349,7 @@ function gameoverdialog()
 	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
 	local timeStamp = date .. ", " .. time
 
-	latestId = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+	latestId = insertToDB(category, currScore, profileName, profileAge, timeStamp, pauseCtr)
 	
 	timerText:removeSelf()
 	scoreToDisplay.isVisible = false
@@ -382,7 +389,6 @@ function home(event)
 		gameover.isVisible = false
   		storyboard.removeScene("secondgame")
   		storyboard.removeScene("mainmenu")
-
   		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
@@ -596,9 +602,12 @@ function checkanswer(target)
 	end	
 
 	if correctCtr == 0 then
+		local gamenumber = 0
 		for row in db:nrows("SELECT id FROM SecondGame ORDER BY id DESC") do
-			gamenumber = row.id
-			break
+			if row.id ~= nil then
+				gamenumber = row.id				
+				break
+			end
 		end
 		gamenumber = gamenumber + 1
 
@@ -931,6 +940,7 @@ function scene:createScene(event)
 	roundNumber = event.params.round
 
 	profileName = "Cha" --temp
+	profileAge = 4
 	count = 0
 
 	-- Start timer

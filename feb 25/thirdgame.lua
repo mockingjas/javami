@@ -25,7 +25,7 @@ local rand, dimensions, order, current, answer
 local obj, objectGroup
 local r, g, b
 --for analytics
-local roundNumber, correctCtr, roundSpeed, pauseCtr, profileName
+local roundNumber, correctCtr, roundSpeed, pauseCtr, profileName, profileAge
 --for after modal
 local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
@@ -62,13 +62,14 @@ end
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --save score
-function insertToDB(category, score, name, timestamp, pausectr)
+function insertToDB(category, score, name, age, timestamp, pausectr)
 	local query = [[INSERT INTO ThirdGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
 	timestamp .. [[',']] ..
-	pausectr.. [[');]]
+	pausectr.. [[',']] ..
+	age.. [[');]]
 	db:exec(query)
 
 	for row in db:nrows("SELECT id FROM ThirdGame") do
@@ -88,13 +89,14 @@ function insertAnalyticsToDB(gameid, roundid, roundscore, roundspeed)
 end
 
 function saveProfile(dbname, dbage)
-	print("SAVE PROFILE " .. latestId)
+--	print("SAVE PROFILE " .. latestId)
 	local query = [[INSERT INTO Profile VALUES (NULL, ']] .. 
 	dbname .. [[',']] ..
 	dbage .. [[');]]
 	db:exec(query)
 
 	for row in db:nrows("UPDATE ThirdGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE ThirdGame SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
 
 ---------------------------------------------------------
@@ -142,15 +144,16 @@ end
 
 --------------------------- EMAIL RESULTS -----------------------------
 local function onSendEmail( event )
-	print("\nFUNCTION OnSendMail")
+--	print("\nFUNCTION OnSendMail")
 	local options =
 	{
 	   to = "",
-	   subject = "Game 3 Analytics",
-	   body = "Name: "..username.text.." Age: "..userAge.text,
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 3.txt", type="text" },
+	   subject = "Game 1 Single Game Assessment",
+	   body = "<html>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1 Single Assessment.txt", type="text" },
+	   isBodyHtml = true
 	}
-	print("  SHOWPOPUP: " .. native.showPopup("mail", options))
+--	print("  SHOWPOPUP: " .. native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 
@@ -161,12 +164,16 @@ function closedialog()
 	username.isVisible = false
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
-	levelgroup.isVisible = false
-	name.isVisible = false
-	age.isVisible = false
 
-	saveProfile(username.text, userAge.text)
-	queryAndSaveToFile(latestId)
+	if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+	else
+		levelgroup.isVisible = false
+		name.isVisible = false
+		age.isVisible = false
+		saveProfile(username.text, userAge.text)
+		queryAndSaveToFile(latestId)
+	end
 end
 
 local function nameListener( event )
@@ -335,8 +342,11 @@ end
 
 function queryAndSaveToFile(id)
 	local report = ""
+
+	--complete
+
 	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
-		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.."\nFinal Score: "..row.score.."\nNumber of rounds: "..roundNumber
+		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nAge: "..row.age.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.. "\nPause count: " .. row.pausecount.."\nFinal Score: "..row.score.."\nNumber of rounds: "..roundNumber
 		--add longest time, shortest time, average time
 
 		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
@@ -346,29 +356,30 @@ function queryAndSaveToFile(id)
 	end
 
 	-- Save to file
-	print("REPORT: " .. report)
-	local path = system.pathForFile( "Game 3.txt", system.DocumentsDirectory )
+--	print("REPORT: " .. report)
+	local path = system.pathForFile( "Game 1 Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
 	file = nil
 
-	--Append
+--[[	--Append
 	report = report .. "\n----------------------------------\n"
-	local path = system.pathForFile( "Game 3 Analytics.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "Game 1 General Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "a" )
 	file:write( report )
 	io.close( file )
-	file = nil
+	file = nil]]
 end
 
 function gameoverdialog()
 
 	-- ANALYTICS ----------------------
-	local date = os.date( "*t" )
-	local timeStamp = date.month .. "-" .. date.day .. "-" .. date.year .. " ; " .. date.hour .. ":" .. date.min
+	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
+	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
+	local timeStamp = date .. ", " .. time
 	--save to DB
-	latestId = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+	latestId = insertToDB(category, currScore, profileName, profileAge, timeStamp, pauseCtr)
 
 	--per round
 	for i = 1, roundNumber do
@@ -531,35 +542,35 @@ function canClick()
 end
 
 local function playBlink(event)
-		print("\nFUNCTION playBlink")
-		print(isClick)
+--		print("\nFUNCTION playBlink")
+--		print(isClick)
 		local p1 = event.source.params.p1
 		n = string.byte(order,p1) % 96
-		print("  N: " .. n)
-		print("  CURRENT: " .. p1)
+--		print("  N: " .. n)
+--		print("  CURRENT: " .. p1)
 		obj = objectGroup[n]
 --		print("  OBJECT NAME: "..obj.name)
 		transition.to( obj, {time = 200, alpha = 0} )
 		
 		if (n % 5 == 0) then
 			audio.play(one)
-			print("  SOUND: 1")
+--			print("  SOUND: 1")
 		elseif (n % 5 == 1) then
 			audio.play(two)
-			print("  SOUND: 2")
+--			print("  SOUND: 2")
 		elseif (n % 5 == 2) then
 			audio.play(three)
-			print("  SOUND: 3")
+--			print("  SOUND: 3")
 		elseif (n % 5 == 3) then
 			audio.play(four)
-			print("  SOUND: 4")
+--			print("  SOUND: 4")
 		elseif (n % 5 == 4) then
 			audio.play(five)
-			print("  SOUND: 5")
+--			print("  SOUND: 5")
 		end
 
 		transition.to( obj, {delay = 200, time = 200, alpha = 1} )
-		print("BLINKS "..numOfBlinks)
+--		print("BLINKS "..numOfBlinks)
 
 		if p1 == numOfBlinks then
 			timer.performWithDelay( 800, canClick )
@@ -570,9 +581,9 @@ end
 local function startSequence(last)
 	numOfBlinks = last
 	isClick = false
-	print("\nFUNCTION startSequence")
+--	print("\nFUNCTION startSequence")
 	for i = 1, last do
-		print("  I/CURRENT: " .. i)
+--		print("  I/CURRENT: " .. i)
 		blinker = timer.performWithDelay(i*750, playBlink, 1)
 		blinker.params = { p1 = i }
 		current = i
@@ -584,6 +595,7 @@ end
 function scene:createScene(event)
 	muted = 0
 	profileName = "Cha" --temp
+	profileAge = 4 --temp
 	isClick = false
 	--get passed parameters from previous scene
 	category = event.params.categ
@@ -622,7 +634,7 @@ function scene:createScene(event)
 		pauseCtr = event.params.pausecount
 	end
 
-	print("\n  ROUND NUMBER: " .. roundNumber .. "\n")
+--	print("\n  ROUND NUMBER: " .. roundNumber .. "\n")
 	-- Screen Elements
 
 	--bg
@@ -667,7 +679,7 @@ function scene:createScene(event)
 	screenGroup:insert(scoreToDisplay)
 
 	--round
-	roundToDisplay = display.newText("Round 1", (display.contentWidth/2)-35, 5, font, 18 )
+	roundToDisplay = display.newText("Round "..roundNumber, (display.contentWidth/2)-35, 5, font, 18 )
 	roundToDisplay:setTextColor(0,0,0)
 	screenGroup:insert(roundToDisplay)
 
@@ -758,13 +770,13 @@ function scene:createScene(event)
 		local r = math.random(i) -- select a random number between 1 and i
 		order = swap_char(i, r, order) -- swap the randomly selected item to position i
 	end 
-	print("  ORDER: " .. order)
+--	print("  ORDER: " .. order)
 	-- ---------------------
 
 	answer = ""
 	-- current = 0
-	print("BEFORE MAG PLAY ")
-	print(isClick)
+--	print("BEFORE MAG PLAY ")
+--	print(isClick)
 
 	startSequence(1)
 
@@ -776,56 +788,63 @@ function scene:createScene(event)
 		--obj:addEventListener("touch", checkanswer)
 	end
 	screenGroup:insert(objectGroup)
+
 end
 
 function checkanswer(event)
-	print("\nFUNCTION checkanswer")
+--	print("\nFUNCTION checkanswer")
 	local t = event.target
 --	print("  T.NAME: " .. t.name)
-	print(isClick)
+--	print(isClick)
 
 	if isClick == true then
 	-- if (event.phase == "ended") then
 		-- print("  EVENT.PHASE == ENDED: " .. t.name)
 		answer = answer .. t.name
-		print("  ANSWER: " .. answer)
+--		print("  ANSWER: " .. answer)
 		a,b = string.find(order, answer)
 
 		if(string.find(order, answer) ~= nil and a == 1) then
-			print("  A and B: " .. a .. b)
+--			print("  A and B: " .. a .. b)
 			n = string.byte(t.name) % 96
-			print("  THIS IS N: "..n)
+--			print("  THIS IS N: "..n)
 
 			obj = objectGroup[n]
 			transition.to( obj, {time = 200, alpha = 0} )
 
 			if (n % 5 == 0) then
 				audio.play(one)
-				print("  SOUND: 1") 
+--				print("  SOUND: 1") 
 			elseif (n % 5 == 1) then
 				audio.play(two)
-				print("  SOUND: 2")
+--				print("  SOUND: 2")
 			elseif (n % 5 == 2) then
 				audio.play(three)
-				print("  SOUND: 3")
+--				print("  SOUND: 3")
 			elseif (n % 5 == 3) then
 				audio.play(four)
-				print("  SOUND: 4")
+--				print("  SOUND: 4")
 			elseif (n % 5 == 4) then
 				audio.play(five)
-				print("  SOUND: 5")
+--				print("  SOUND: 5")
 			end
 
 			transition.to( obj, {delay = 200, time = 200, alpha = 1} )
 			
 			if (a == 1 and b == current) then
 				-- CORRECT YUNG BUONG PAGKAKASUNOD
-				print("  a == 1 and b == current: CORRECT!!!!")
+--				print("  a == 1 and b == current: CORRECT!!!!")
 				currScore = currScore + 1
 				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
+
+				print(correctCtr[roundNumber])
+				if (category == 'easy' and correctCtr[roundNumber] == 10) or (category == 'medium' and correctCtr[roundNumber] == 45) or (category == 'easy' and correctCtr[roundNumber] == 136) then
+					print("COMPLETE!!")
+				end
+
 				scoreToDisplay.text = "Score: "..currScore
 				toast.new("images/correct.png", 300, 80, 0, "thirdgame")
-				roundToDisplay.text = "Round "..current+1
+				roundToDisplay.text = "Round "..roundNumber
 				--next!
 				answer = ""
 				-- print("CURRENT SA CHECKANSWER ".. current+1)
@@ -835,7 +854,7 @@ function checkanswer(event)
 					reload()
 				end
 			elseif (a == 1 and b < current) then
-				print(" a == 1 and b < current: correct and continue")
+--				print(" a == 1 and b < current: correct and continue")
 				currScore = currScore + 1
 				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
 				scoreToDisplay.text = "Score: "..currScore
@@ -843,7 +862,7 @@ function checkanswer(event)
 		else
 			---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
 			---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
-			print("  WRONG!!!!")
+--			print("  WRONG!!!!")
 			audio.play(incorrectSound)
 			toast.new("images/wrong.png", 80, 80, 0, "thirdgame")
 			reload()

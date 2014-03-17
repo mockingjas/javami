@@ -37,7 +37,7 @@ local rect, name, age, playBtn, homeBtn, emailBtn, instance1, pausedialog, hintB
 -- *per item
 local item, itemSpeed, itemHint, itemTries
 -- *per game
-local pauseCtr, profileName, latestId
+local pauseCtr, profileName, latestId, profileAge
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -75,13 +75,14 @@ local function updateDB(word)
 end
 
 --DB: insert to first game
-local function insertToDB(category, score, name, timestamp, pausectr)
+local function insertToDB(category, score, name, age, timestamp, pausectr)
 	local insertQuery = [[INSERT INTO FirstGame VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
 	timestamp .. [[',']] ..
-	pausectr .. [[');]]
+	pausectr .. [[',']] ..
+	age .. [[');]]
 	db:exec(insertQuery)
 
 	for row in db:nrows("SELECT id FROM FirstGame") do
@@ -109,6 +110,7 @@ function saveProfile(dbname, dbage)
 	db:exec(query)
 
 	for row in db:nrows("UPDATE FirstGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE FirstGame SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
 
 --DB: reset all words to un-guessed
@@ -336,9 +338,10 @@ local function onSendEmail( event )
 	local options =
 	{
 	   to = "",
-	   subject = "Game 1 Analytics",
-	   body = "Name: "..username.text.." Age: "..userAge.text,
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1.txt", type="text" },
+	   subject = "Game 3 Single Game Assessment",
+	   body = "<html>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 3 Single Assessment.txt", type="text" },
+	   isBodyHtml = true
 	}
 
 	print(native.showPopup("mail", options))
@@ -375,7 +378,7 @@ function generateReport()
 	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
 		finalscore = row.score
 		print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
-		report = report .. "Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
+		report = report .. "Player:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
 		break
 	end
 
@@ -453,22 +456,22 @@ function generateReport()
 	print("\n\nSTARTX\n\n"..report.."\nENDX\n")
 
 	-- Save to file
-	local path = system.pathForFile( "Game 1.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "Game 3 Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
 	file = nil
 
 	-- Append to file
-	report = report .. "\n-------------------------------------------------------------\n"
-	local path2 = system.pathForFile( "Game 1 Analytics.txt", system.DocumentsDirectory )
+--[[	report = report .. "\n-------------------------------------------------------------\n"
+	local path2 = system.pathForFile( "Game 3 General Assessment.txt", system.DocumentsDirectory )
 	local file2 = io.open( path2, "a" )
 	file2:write( report )
 	file2:flush()
 	io.close( file2 )
 	file2 = nil
 
-	print("\n\nSTART\n\n"..report.."\nEND\n")
+	print("\n\nSTART\n\n"..report.."\nEND\n")]]
 
 end
 
@@ -478,16 +481,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
---	if username.text == "" or userAge.text == "" then
---		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
---	else
+	if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
---		toast.new(name.text, 1000, 80, -105, "firstgame_text")
 		saveProfile(username.text, userAge.text)
 		generateReport()
---	end
+	end
 end
 
 local function nameListener( event )
@@ -659,7 +661,7 @@ function gameoverdialog()
 	local timeStamp = date .. ", " .. time
 	print( "time"..timeStamp )
 
-	latestId = insertToDB(category, currScore, profileName, timeStamp, pauseCtr)
+	latestId = insertToDB(category, currScore, profileName, profileAge, timeStamp, pauseCtr)
 	print("NEW ID " .. latestId)
 
 	-- SAVE ANALYTICS
@@ -928,6 +930,7 @@ function scene:createScene(event)
 	-- ** VARIABLES  ** --
 	screenGroup = self.view
 	profileName = "javami"
+	profileAge = 4
 	item = {}
 	itemTries = {0}
 	itemHint = {0}
