@@ -33,7 +33,7 @@ local userAge, username, emailaddress, latestId
 local isClick, numOfBlinks
 
 local roundToDisplay
-
+local isPaused = false
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
@@ -427,6 +427,7 @@ function pauseGame(event)
         pauseBtn.isVisible = false
         --audio.pause(game3MusicChannel)
         showpauseDialog()
+      
         return true
     end
 end
@@ -537,7 +538,10 @@ function shuffle(array)
 end
 
 function canClick()
-	toast.new("images/go.png", 300, 80, 0, "thirdgame")
+	local done = timerr:isElapsed()
+	if(not done) then
+		toast.new("images/go.png", 300, 80, 0, "thirdgame")
+	end
 	isClick = true
 end
 
@@ -570,8 +574,7 @@ local function playBlink(event)
 		end
 
 		transition.to( obj, {delay = 200, time = 200, alpha = 1} )
---		print("BLINKS "..numOfBlinks)
-
+		print("BLINKS "..numOfBlinks)
 		if p1 == numOfBlinks then
 			timer.performWithDelay( 800, canClick )
 		end

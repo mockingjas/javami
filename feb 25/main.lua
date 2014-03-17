@@ -58,4 +58,3 @@ yellow: planet
 blue: legs
 green: laugh]]
 
---for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do	print(row.count) end
