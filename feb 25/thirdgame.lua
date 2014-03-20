@@ -597,7 +597,7 @@ end
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	muted = 0
-	profileName = "Cha" --temp
+	profileName = "test" --temp
 	profileAge = 4 --temp
 	isClick = false
 	--get passed parameters from previous scene

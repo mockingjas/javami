@@ -95,12 +95,16 @@ end
 -- END: GENERATE REPORT & SAVE TO FILE
 function saveToFile()
 	report = ""
+	report = report .. "------------------------------------------------------------"
+	report = report .. "\nGAME 2 ANALYTICS\n"
+	report = report .. "------------------------------------------------------------\n"
+	report = report .. "The following information contains the analytics for the most recently played game for Game 2: Searching and Sorting (ORANGE HOUSE). Note: For Game 2, the image of the word is the basis for its category, not the meaning of the word. To complete one round, user must be able to categorize 10, 15 and 20 items respectively for each level.\n\n"
+
 	for row in db:nrows("SELECT COUNT(*) as count FROM SecondGameAnalytics where gamenumber = '"..latestId.."'") do
 		dbcount = row.count
 	end
 
 	if dbcount == 0 then
-		report = ""
 		report = report .. "GAME # " .. latestId .. "\n"
 		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. latestId .. "'") do
 			report = report .. "\nPlayer:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
@@ -167,14 +171,6 @@ function saveToFile()
 	print(report)
 	local path = system.pathForFile( "Game 2 Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
-	file:write(report)
-	io.close( file )
-	file = nil
-
-	-- Append
-	report = report .. "\n----------------------------------\n"
-	local path = system.pathForFile( "Game 2 General Assessment.txt", system.DocumentsDirectory )
-	local file = io.open( path, "a" )
 	file:write(report)
 	io.close( file )
 	file = nil
@@ -694,7 +690,6 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		images[i].initialY = images[i].y
 		images[i].label = photoTextArray[i]
 		images[i]:addEventListener("tap", zoomIn)
---		screenGroup:insert(images[i])
 		gameBoard:insert(images[i])
 
 		local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2
@@ -753,9 +748,23 @@ end
 -- WORD: RANDOMIZE CATEGORY
 function randomizeCategory(categories)
 	rand = {}
+
 	rand[1] = math.random(#categories)
+	if category == 'medium' then
+		--wag 1 or 2
+		while (rand[1] == 1 or rand[1] == 2) do
+			rand[1] = math.random(#categories)
+		end
+	end
+
 	for i = 2, numberOfCategories do
-		rand[i] = math.random(#categories)			
+		rand[i] = math.random(#categories)
+		if category == 'medium' then
+			while (rand[i] == 1 or rand[i] == 2) do
+				rand[i] = math.random(#categories)
+			end
+		end			
+
 		for j = 1, i-1 do
 			while(rand[i] == rand[j]) do
 				rand[i] = math.random(#categories)

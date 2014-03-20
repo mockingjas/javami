@@ -12,34 +12,22 @@ db = sqlite3.open( path )
 
 storyboard.gotoScene( "startmenu")
 
---for row in db:nrows("ALTER TABLE ThirdGame ADD COLUMN pausecount") do end
---local createTableGame2= [[CREATE TABLE IF NOT EXISTS SecondGame(id INTEGER PRIMARY KEY autoincrement, category, score, name, timestamp);]]
---db:exec(createTableGame2)
---local createTableGame3= [[CREATE TABLE IF NOT EXISTS ThirdGame(id INTEGER PRIMARY KEY autoincrement, category, score, name, timestamp);]]
---db:exec(createTableGame3)
 --for row in db:nrows("DROP TABLE ThirdGameAnalytics")do end
 --for row in db:nrows("ALTER TABLE FirstGame ADD COLUMN age") do end
---for row in db:nrows("ALTER TABLE SecondGame ADD COLUMN age") do end
---for row in db:nrows("DELETE FROM SecondGame") do end
---for row in db:nrows("DELETE FROM SecondGameAnalytics") do end
---[[for row in db:nrows("DELETE FROM FirstGame") do end
-
+--[[for row in db:nrows("DELETE FROM SecondGame") do end
+for row in db:nrows("DELETE FROM SecondGameAnalytics") do end
 for row in db:nrows("DELETE FROM ThirdGame") do end
 for row in db:nrows("DELETE FROM FirstGameAnalytics") do end
-for row in db:nrows("DELETE FROM SecondGameAnalytics") do end
-for row in db:nrows("DELETE FROM ThirdGameAnalytics") do end]]
---local game2analytics= [[CREATE TABLE IF NOT EXISTS SecondGameAnalytics(id INTEGER PRIMARY KEY autoincrement, gamenumber, roundnumber, word, category, isCorrect, speed);]]
---db:exec(game2analytics)
+for row in db:nrows("DELETE FROM ThirdGameAnalytics") do end
+for row in db:nrows("DELETE FROM FirstGame") do end]]
 
---local game3analytics= [[CREATE TABLE IF NOT EXISTS ThirdGameAnalytics(id INTEGER PRIMARY KEY autoincrement, gamenumber, roundnumber, score, speed);]]
---db:exec(game3analytics)
+for row in db:nrows("SELECT COUNT(*) as count FROM SecondGame") do
+	if row.count == 0 then
+		for row in db:nrows("UPDATE SQLITE_SEQUENCE SET seq = -1 WHERE name = 'SecondGame' ") do end		
+	end
+end
 
--- BAGO
---local profile= [[CREATE TABLE IF NOT EXISTS Profile(id INTEGER PRIMARY KEY autoincrement, name, age);]]
---db:exec(profile)
-
---for row in db:nrows("ALTER TABLE ThirdGameAnalytics DROP COLUMN isRoundComplete") do end
-for row in db:nrows("PRAGMA table_info(FirstGameAnalytics);") do print(row.name) end
+for row in db:nrows("PRAGMA table_info(SecondGameAnalytics);") do print(row.name) end
 
 print("**DATABASE**")
 for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
@@ -49,12 +37,3 @@ end
 --for row in db:nrows("UPDATE Words SET colorCategory = 'blue' where name ='blanket'") do	print(row.name) end
 --for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='keep'") do	print(row.name) end
 --for row in db:nrows("UPDATE Words SET colorCategory = 'yellow' where name ='pizza'") do	print(row.name) end
---rect: stove, cut, close, flags
---red: slippers, teeth, circus, bed, she
---[[bodypart: wash
-tri: christmas
-circle: lonely, clock, flower, time
-yellow: planet
-blue: legs
-green: laugh]]
-

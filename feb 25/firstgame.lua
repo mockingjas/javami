@@ -461,18 +461,6 @@ function generateReport()
 	file:write( report )
 	io.close( file )
 	file = nil
-
-	-- Append to file
---[[	report = report .. "\n-------------------------------------------------------------\n"
-	local path2 = system.pathForFile( "Game 3 General Assessment.txt", system.DocumentsDirectory )
-	local file2 = io.open( path2, "a" )
-	file2:write( report )
-	file2:flush()
-	io.close( file2 )
-	file2 = nil
-
-	print("\n\nSTART\n\n"..report.."\nEND\n")]]
-
 end
 
 function closedialog()
@@ -929,7 +917,7 @@ function scene:createScene(event)
 
 	-- ** VARIABLES  ** --
 	screenGroup = self.view
-	profileName = "javami"
+	profileName = "test"
 	profileAge = 4
 	item = {}
 	itemTries = {0}

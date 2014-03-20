@@ -37,14 +37,11 @@ local isPaused = false
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
---local thirdGameMusic = audio.loadSound("music/ThirdGame.mp3")
---local game3MusicChannel
 local one = audio.loadSound("music/1.mp3")
 local two = audio.loadSound("music/2.mp3")
 local three = audio.loadSound("music/3.mp3")
 local four = audio.loadSound("music/4.mp3")
 local five = audio.loadSound("music/5.mp3")
-local muted = 0
 
 ------- Load font ---------
 local font
@@ -71,11 +68,9 @@ function insertToDB(category, score, name, age, timestamp, pausectr)
 	pausectr.. [[',']] ..
 	age.. [[');]]
 	db:exec(query)
-
-	for row in db:nrows("SELECT id FROM ThirdGame") do
-		id = row.id
+	for row in db:nrows("SELECT id FROM ThirdGame order by id desc") do
+		return row.id
 	end
-	return id
 end
 
 --save analytics
@@ -89,12 +84,10 @@ function insertAnalyticsToDB(gameid, roundid, roundscore, roundspeed)
 end
 
 function saveProfile(dbname, dbage)
---	print("SAVE PROFILE " .. latestId)
 	local query = [[INSERT INTO Profile VALUES (NULL, ']] .. 
 	dbname .. [[',']] ..
 	dbage .. [[');]]
 	db:exec(query)
-
 	for row in db:nrows("UPDATE ThirdGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
 	for row in db:nrows("UPDATE ThirdGame SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
@@ -122,7 +115,6 @@ function swap_char (pos1, pos2, str)
 	return str
 end
 
-
 --------------- TIMER: RUNTIME FUNCTION --------------------
 timerText = display.newText("", 480, 5, font, 18) 
 timerText:setTextColor(0,0,0)
@@ -131,8 +123,6 @@ local function onFrame(event)
    		timerText.text = timerr:toRemainingString()
    		local done = timerr:isElapsed()
  		local secs = timerr:getElapsedSeconds()
--- 		print("done:" .. secs)
-
    		if(done) then
    			Runtime:removeEventListener("enterFrame", onFrame)
    			objectGroup:removeSelf()
@@ -144,7 +134,6 @@ end
 
 --------------------------- EMAIL RESULTS -----------------------------
 local function onSendEmail( event )
---	print("\nFUNCTION OnSendMail")
 	local options =
 	{
 	   to = "",
@@ -153,7 +142,6 @@ local function onSendEmail( event )
 	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1 Single Assessment.txt", type="text" },
 	   isBodyHtml = true
 	}
---	print("  SHOWPOPUP: " .. native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 
@@ -165,15 +153,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
-	if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
-	else
+--	if username.text == "" or userAge.text == "" then
+--		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+--	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		queryAndSaveToFile(latestId)
-	end
+--	end
 end
 
 local function nameListener( event )
@@ -193,7 +181,6 @@ local function ageListener( event )
 end
 
 function showUserDialog()
- 	
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
@@ -238,7 +225,6 @@ function showUserDialog()
 
    	name:addEventListener( "userInput", nameListener)
 	age:addEventListener( "userInput", ageListener)
-
 end
 
 
@@ -269,28 +255,9 @@ function home(event)
   	end
 end
 
----------------- UNMUTE GAME ---------------------------
---[[
-function unmuteGame(event)
-	audio.resume(game3MusicChannel)
-	unmuteBtn.isVisible = false
-	muteBtn.isVisible = true
-	muted = 0
-end
-
----------------- MUTE GAME ---------------------------
-function muteGame(event)
-	audio.pause(game3MusicChannel)
-	muteBtn.isVisible = false
-	unmuteBtn.isVisible = true
-	muted = 1
-end]]
-
 ------------------------ FINAL MENU --------------------------------
 
 local function finalmenu()
---    print(event.phase)
-   		
 	gameovergroup = display.newGroup()
 
 	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
@@ -324,12 +291,10 @@ local function finalmenu()
     gameovergroup:insert(emailtext)
 
     screenGroup:insert(gameovergroup)
-
 end
 ------------------- GAME OVER ---------------------------
 
 function moveBG(self,event)
-	--print(self.x)
 	if(self.x == 241) then
 		Runtime:removeEventListener("enterFrame", gameover)
 		finalmenu()
@@ -342,13 +307,13 @@ end
 
 function queryAndSaveToFile(id)
 	local report = ""
-
-	--complete
+	report = report .. "------------------------------------------------------------"
+	report = report .. "\nGAME 1 ANALYTICS\n"
+	report = report .. "------------------------------------------------------------\n"
+	report = report .. "The following information contains the analytics for the most recently played game Game 1: Memory (BLUE HOUSE).\n\n"
 
 	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
 		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nAge: "..row.age.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.. "\nPause count: " .. row.pausecount.."\nFinal Score: "..row.score.."\nNumber of rounds: "..roundNumber
-		--add longest time, shortest time, average time
-
 		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
 			report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
 		end
@@ -356,30 +321,22 @@ function queryAndSaveToFile(id)
 	end
 
 	-- Save to file
---	print("REPORT: " .. report)
 	local path = system.pathForFile( "Game 1 Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
 	file = nil
-
---[[	--Append
-	report = report .. "\n----------------------------------\n"
-	local path = system.pathForFile( "Game 1 General Assessment.txt", system.DocumentsDirectory )
-	local file = io.open( path, "a" )
-	file:write( report )
-	io.close( file )
-	file = nil]]
 end
 
 function gameoverdialog()
-
 	-- ANALYTICS ----------------------
 	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
 	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
 	local timeStamp = date .. ", " .. time
 	--save to DB
+	print(category .. " " .. currScore .. " " .. profileName .. " " .. profileAge .. " " .. timeStamp .. " " .. pauseCtr)
 	latestId = insertToDB(category, currScore, profileName, profileAge, timeStamp, pauseCtr)
+	print("LASTEST ID!!! " .. latestId)
 
 	--per round
 	for i = 1, roundNumber do
@@ -392,11 +349,8 @@ function gameoverdialog()
 	end
 
 	-------------------
-
 	objectGroup:removeSelf()
 	pauseBtn.isVisible = false
---	unmuteBtn.isVisible = false
---	muteBtn.isVisible = false
 
 	gameover= display.newImage( "images/thirdgame/gameover.png" )
 	gameover.x = 700
@@ -407,8 +361,6 @@ function gameoverdialog()
     Runtime:addEventListener("enterFrame", gameover)
 
     screenGroup:insert(gameover)
-
-
 end
 
 
@@ -459,9 +411,6 @@ end
 
 --------------- RESUME FROM PAUSE -----------------
 function resume_onBtnRelease()
---[[	if (muted == 0) then 
-		audio.resume(game2MusicChannel)
-	end]]
 	audio.resume(one)
 	audio.resume(two)
 	audio.resume(three)
@@ -477,7 +426,6 @@ end
 
 ---------------- EXIT FROM PAUSE ----------------
 function exit_onBtnRelease()
-	
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
 
@@ -497,7 +445,6 @@ end
 
 ----------------- PAUSE DIALOG ------------------
 function showpauseDialog()
-
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentWidth/2;
@@ -597,7 +544,7 @@ end
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
 	muted = 0
-	profileName = "Cha" --temp
+	profileName = "test" --temp
 	profileAge = 4 --temp
 	isClick = false
 	--get passed parameters from previous scene
@@ -622,13 +569,11 @@ function scene:createScene(event)
 	roundSpeed = {}
 
 	if(boolFirst) then
-		--game3MusicChannel = audio.play( thirdGameMusic, { loops=-1}  )
 		roundNumber = 1
 		correctCtr[1] = 0
 		roundSpeed[1] = 0
 		pauseCtr = 0
 	else
-		--game3MusicChannel = event.params.music
 		roundNumber = event.params.roundctr
 		correctCtr = event.params.correctcount
 		correctCtr[roundNumber] = 0
@@ -637,16 +582,11 @@ function scene:createScene(event)
 		pauseCtr = event.params.pausecount
 	end
 
---	print("\n  ROUND NUMBER: " .. roundNumber .. "\n")
 	-- Screen Elements
-
 	--bg
 	width = 550; height = 320;
-
 	imageCategory = math.random(5)
-
 	local filename = "images/thirdgame/game3bg.png"
-
 	if (imageCategory == 1) then
 		filename = "images/thirdgame/bg/bg_garden.png"
 	elseif (imageCategory == 2) then
@@ -775,12 +715,7 @@ function scene:createScene(event)
 	end 
 --	print("  ORDER: " .. order)
 	-- ---------------------
-
 	answer = ""
-	-- current = 0
---	print("BEFORE MAG PLAY ")
---	print(isClick)
-
 	startSequence(1)
 
 	for i = 1, dimensions*dimensions do
@@ -788,7 +723,6 @@ function scene:createScene(event)
 		obj.isVisible = true
 		obj.alpha = 1
 		obj:addEventListener("tap", checkanswer)
-		--obj:addEventListener("touch", checkanswer)
 	end
 	screenGroup:insert(objectGroup)
 
@@ -797,9 +731,6 @@ end
 function checkanswer(event)
 --	print("\nFUNCTION checkanswer")
 	local t = event.target
---	print("  T.NAME: " .. t.name)
---	print(isClick)
-
 	if isClick == true then
 	-- if (event.phase == "ended") then
 		-- print("  EVENT.PHASE == ENDED: " .. t.name)
@@ -870,9 +801,6 @@ function checkanswer(event)
 			toast.new("images/wrong.png", 80, 80, 0, "thirdgame")
 			reload()
 		end
-	-- else
-	-- 	print("  ELSE")
-	-- end
 	end
 end
 

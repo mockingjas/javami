@@ -352,7 +352,6 @@ end
 
 -----------------------FUNCTIONS FOR GETTING NAME ------------------------------------
 function generateReport()
-	print("GENERATE REPORT!!!!")
 	gamenumber = {}
 	roundnumber = {}
 	speed = {}
@@ -373,7 +372,10 @@ function generateReport()
 	last = gamenumber[#gamenumber]
 
 	local report = ""
-
+	report = report .. "------------------------------------------------------------"
+	report = report .. "\nGAME 3 ANALYTICS"
+	report = report .. "\n------------------------------------------------------------\n"
+	report = report .. "The following information contains the analytics for the most recently played game for Game 3: Language and Spelling (PURPLE HOUSE). The speed for each correctly answered word, the number of times user asked for a hint and the number of tries before being corrected are recorded for every word that appears.\n\n" 
 	print("BAGO: GAME# " .. last)
 	report = report .. "GAME# " .. last .. "\n\n"
 	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
@@ -482,15 +484,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
-	if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
-	else
+--	if username.text == "" or userAge.text == "" then
+--		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+--	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		generateReport()
-	end
+--	end
 end
 
 local function nameListener( event )

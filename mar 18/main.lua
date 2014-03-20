@@ -3,7 +3,6 @@
 -- main.lua
 --
 -----------------------------------------------------------------------------------------
-
 require "sqlite3"
 local lfs = require "lfs"
 local storyboard = require "storyboard"
@@ -11,52 +10,49 @@ local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 
 storyboard.gotoScene( "startmenu")
-
---for row in db:nrows("ALTER TABLE ThirdGame ADD COLUMN pausecount") do end
---local createTableGame2= [[CREATE TABLE IF NOT EXISTS SecondGame(id INTEGER PRIMARY KEY autoincrement, category, score, name, timestamp);]]
---db:exec(createTableGame2)
---local createTableGame3= [[CREATE TABLE IF NOT EXISTS ThirdGame(id INTEGER PRIMARY KEY autoincrement, category, score, name, timestamp);]]
---db:exec(createTableGame3)
---for row in db:nrows("DROP TABLE ThirdGameAnalytics")do end
---for row in db:nrows("ALTER TABLE FirstGame ADD COLUMN age") do end
---for row in db:nrows("ALTER TABLE SecondGame ADD COLUMN age") do end
---for row in db:nrows("DELETE FROM SecondGame") do end
---for row in db:nrows("DELETE FROM SecondGameAnalytics") do end
---[[for row in db:nrows("DELETE FROM FirstGame") do end
-
-for row in db:nrows("DELETE FROM FirstGameAnalytics") do end
+--[[for row in db:nrows("DELETE FROM SecondGame") do end
 for row in db:nrows("DELETE FROM SecondGameAnalytics") do end
-for row in db:nrows("DELETE FROM ThirdGameAnalytics") do end]]
---local game2analytics= [[CREATE TABLE IF NOT EXISTS SecondGameAnalytics(id INTEGER PRIMARY KEY autoincrement, gamenumber, roundnumber, word, category, isCorrect, speed);]]
---db:exec(game2analytics)
+for row in db:nrows("DELETE FROM FirstGame") do end
+for row in db:nrows("DELETE FROM FirstGameAnalytics") do end]]
 
---local game3analytics= [[CREATE TABLE IF NOT EXISTS ThirdGameAnalytics(id INTEGER PRIMARY KEY autoincrement, gamenumber, roundnumber, score, speed);]]
---db:exec(game3analytics)
-
--- BAGO
---local profile= [[CREATE TABLE IF NOT EXISTS Profile(id INTEGER PRIMARY KEY autoincrement, name, age);]]
---db:exec(profile)
-
---for row in db:nrows("ALTER TABLE ThirdGameAnalytics DROP COLUMN isRoundComplete") do end
-for row in db:nrows("PRAGMA table_info(FirstGameAnalytics);") do print(row.name) end
+for row in db:nrows("SELECT COUNT(*) as count FROM SecondGame") do
+	if row.count == 0 then
+		for row in db:nrows("UPDATE SQLITE_SEQUENCE SET seq = -1 WHERE name = 'SecondGame' ") do end		
+	end
+end
 
 print("**DATABASE**")
 for row in db:nrows("SELECT name FROM sqlite_master WHERE type='table';") do
 	print(row.name)
 end
 
-for row in db:nrows("SELECT * FROM Words where name = 'circus'") do print(row.category) end
+for row in db:nrows("PRAGMA table_info(Words);") do print(row.name) end
 
+--for row in db:nrows("UPDATE Words SET bodyPartCategory = '1' where name ='buy'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET bodyPartCategory = '1' where name ='lonely'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET colorCategory = 'blue' where name ='today'") do	print(row.name) end
 
---for row in db:nrows("UPDATE Words SET colorCategory = 'blue' where name ='blanket'") do	print(row.name) end
---for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='keep'") do	print(row.name) end
---for row in db:nrows("UPDATE Words SET colorCategory = 'yellow' where name ='pizza'") do	print(row.name) end
---rect: stove, cut, close, flags
---red: slippers, teeth, circus, bed, she
---[[bodypart: wash
-tri: christmas
-circle: lonely, clock, flower, time
-yellow: planet
-blue: legs
-green: laugh]]
+--[[for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='white'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='brown'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='black'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='blue'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='green'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='orange'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='purple'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='red'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='yellow'") do	print(row.name) end]]
+
+--[[
+print("\n\n")
+words = ""
+for row in db:nrows("SELECT * FROM Words where bodyPartCategory = '1'") do
+	words = words .. "\n" .. row.name
+	print(row.name)
+end
+-- Save to file
+local path = system.pathForFile( "g2.txt", system.DocumentsDirectory )
+local file = io.open( path, "w" )
+file:write( words )
+io.close( file )
+file = nil]]
 
