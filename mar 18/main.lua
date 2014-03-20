@@ -10,10 +10,13 @@ local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 
 storyboard.gotoScene( "startmenu")
---[[for row in db:nrows("DELETE FROM SecondGame") do end
+
+for row in db:nrows("DELETE FROM SecondGame") do end
 for row in db:nrows("DELETE FROM SecondGameAnalytics") do end
 for row in db:nrows("DELETE FROM FirstGame") do end
-for row in db:nrows("DELETE FROM FirstGameAnalytics") do end]]
+for row in db:nrows("DELETE FROM FirstGameAnalytics") do end
+for row in db:nrows("DELETE FROM ThirdGame") do end
+for row in db:nrows("DELETE FROM ThirdGameAnalytics") do end
 
 for row in db:nrows("SELECT COUNT(*) as count FROM SecondGame") do
 	if row.count == 0 then
@@ -37,10 +40,10 @@ for row in db:nrows("UPDATE Words SET name = 'truck' where name ='today'") do	pr
 for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='truck'") do	print(row.name) end
 for row in db:nrows("UPDATE Words SET colorCategory = 'green' where name ='truck'") do	print(row.name) end]]
 
-for row in db:nrows("UPDATE Words SET shapeCategory = 'circle' where name ='rocket'") do	print(row.name) end
-for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='angle'") do	print(row.name) end
-for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='close'") do	print(row.name) end
-for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='head'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET shapeCategory = 'circle' where name ='rocket'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='angle'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='close'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='head'") do	print(row.name) end
 
 --for row in db:nrows("SELECT * from Words where name = 'head'") do	print(row.livingThingCategory) end
 
