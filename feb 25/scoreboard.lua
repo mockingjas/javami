@@ -6,7 +6,6 @@ local scene = storyboard.newScene()
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --Game
---local bgMusic
 local homeBtn, tabGroup, scores, emailBtn1, emailBtn2, emailBtn3
 local boolFirst = false
 local widgetGroup, demoTabs, screenGroup, bg
@@ -19,14 +18,12 @@ if "Win" == system.getInfo( "platformName" ) then
 elseif "Android" == system.getInfo( "platformName" ) then
     font = "inky"
 else
-    -- Mac and iOS
     font = "inky"
 end
 
 -----------------FUNCTION FOR EMAIL
 
 local function onSendEmail1( event )
-	print("\n\n1!!!!!\n\n")
 	local options =
 	{
 	   subject = "Game 1 Overall Analytics",
@@ -38,7 +35,6 @@ local function onSendEmail1( event )
 end
 
 local function onSendEmail2( event )
-	print("\n\n2!!!!!\n\n")
 	local options =
 	{
 	   subject = "Game 2 Overall Analytics",
@@ -50,7 +46,6 @@ local function onSendEmail2( event )
 end
 
 local function onSendEmail3( event )
-	print("\n\n3!!!!!\n\n")
 	local options =
 	{
 	   subject = "Game 3 Overall Analytics",
@@ -259,6 +254,7 @@ function getGameTwoAverages(table, category)
 	for row in db:nrows("SELECT id from '"..table.."' where category = '"..category.."'") do
 		IDs[#IDs+1] = row.id
 	end
+
 	-- ave # of rounds
 	avgRounds = 0	
 	for i = 1, gameTwoCount do
@@ -271,9 +267,9 @@ function getGameTwoAverages(table, category)
 	avgRounds = avgRounds / gameTwoCount
 	print("AVERAGE NUMBER OF ROUNDS:\t" .. string.format("%.2f",avgRounds))
 	report = report .. "AVERAGE NUMBER OF ROUNDS:\t" .. string.format("%.2f",avgRounds).."\n"
-
 	print("\n**PER ROUND AVERAGES**")
 	report = report .. "\n**PER ROUND AVERAGES**\n"
+
 	--AVG ROUND SPEED
 	avgSpeed = 0
 	ctr = countRounds("SecondGameAnalytics", table, category)
@@ -298,6 +294,7 @@ function getGameTwoAverages(table, category)
 			end
 		end
 	end
+	
 	--AVG # OF INCORRECT 
 	avgCorrect = avgCorrect / gameTwoCount
 	print("AVERAGE # OF CORRECT ANSWERS:\t" .. string.format("%.2f",avgCorrect))
@@ -415,7 +412,7 @@ end
 function generateReport1()
 
 	report = ""
-	report = report .. "\n------------------------------------------------------------"
+	report = report .. "------------------------------------------------------------"
 	report = report .. "\nGENERAL ANALYTICS"
 	report = report .. "\n------------------------------------------------------------\n"
 	report = report .. "The following information contains the analytics for all the game plays for Game 1: Memory (BLUE HOUSE). Note: Completed rounds are the ones correctly answered up until the last sequence. For easy, there are 4 sequences, for medium, 9 sequences and for hard, 16 sequences.\n\n"
@@ -450,24 +447,22 @@ function generateReport1()
 		getGameOneAverages("ThirdGame", "hard", 136)
 	end
 
---	if gameOneCount > 0 then
---	end
-
 	-- ALL ANALYTICS
-	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
-		roundNumber = 0
-	--	if row.age ~= nil then
+	for row in db:nrows("SELECT COUNT(*) as count, * FROM ThirdGame ORDER BY id DESC") do
+		if row.count > 0 then
 			report = report .. "\n------------------------------------------------------------"
 			report = report .. "\nALL ANALYTICS\n"
 			report = report .. "------------------------------------------------------------\n"
 			report = report .. "The following information contains the analytics for each of the game plays for Game 1: Memory (BLUE HOUSE).\n"
-			report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nAge: "..row.age.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.. "\nPause count: " .. row.pausecount.."\nFinal Score: "..row.score
-			for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
-				report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
-				roundNumber = roundNumber + 1
-			end
-			report = report .. "\n\nTotal number of rounds: "..roundNumber.."\n"
---		end
+		end
+		roundNumber = 0
+		report = report .. "\n------------------------------------------------------------\n"
+		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nAge: "..row.age.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.. "\nPause count: " .. row.pausecount.."\nFinal Score: "..row.score
+		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
+			report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
+			roundNumber = roundNumber + 1
+		end
+		report = report .. "\n\nTotal number of rounds: "..roundNumber.."\n"
 	end
 
 	--save to file
@@ -506,12 +501,13 @@ end
 
 function generateReport2()
 	report = ""
-	report = report .. "\n------------------------------------------------------------"
+	report = report .. "------------------------------------------------------------"
 	report = report .. "\nGENERAL ANALYTICS"
 	report = report .. "\n------------------------------------------------------------\n"
+	report = report .. "The following information contains the analytics for all the game plays for Game 2: Searching and Sorting (ORANGE HOUSE).\n"
 
-	print("\n**EASY**")
-	report = report .. "*****EASY*****\n"
+	print("\n\n**EASY**")
+	report = report .. "\n*****EASY*****\n"
 	gameTwoCount = getCount("SecondGame", "easy")
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
 	if gameTwoCount > 0 then
@@ -519,8 +515,8 @@ function generateReport2()
 		getGameTwoAverages("SecondGame", "easy")
 	end
 
-	print("\n--medium--")
-	report = report .. "*****MEDIUM*****\n"
+	print("\n\n**MEDIUM**")
+	report = report .. "\n*****MEDIUM*****\n"
 	gameTwoCount = getCount("SecondGame", "medium")
 	print("NO. OF ENTRIES:\t"..gameTwoCount)
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
@@ -529,8 +525,8 @@ function generateReport2()
 		getGameTwoAverages("SecondGame", "medium")
 	end
 
-	print("\n--hard--")
-	report = report .. "*****HARD*****\n"
+	print("\n\n**HARD**")
+	report = report .. "\n*****HARD*****\n"
 	gameTwoCount = getCount("SecondGame", "hard")
 	print("NO. OF ENTRIES:\t"..gameTwoCount)
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
@@ -538,6 +534,100 @@ function generateReport2()
 		getAverageScore("SecondGame", "hard")
 		getGameTwoAverages("SecondGame", "hard")
 	end
+
+	-- ALL
+	secondGameAnalyticsIDs = {}
+	for row in db:nrows("SELECT DISTINCT(gamenumber) FROM SecondGameAnalytics") do
+		secondGameAnalyticsIDs[#secondGameAnalyticsIDs+1] = row.gamenumber
+	end
+
+	secondGameIDs = {}
+	for row in db:nrows("SELECT * FROM SecondGame") do
+		secondGameIDs[#secondGameIDs+1] = row.id
+	end
+
+	if #secondGameAnalyticsIDs > 0 then
+		report = report .. "\n------------------------------------------------------------"
+		report = report .. "\nALL ANALYTICS\n"
+		report = report .. "------------------------------------------------------------\n"
+		report = report .. "\nThe following information contains the analytics for EACH of the game plays for Game 2: Searching and Sorting (ORANGE HOUSE). Note: For Game 2, the image of the word is the basis for its category, not the meaning of the word. To complete one round, user must be able to categorize 20, 30 and 40 items respectively for each level.\n"
+	end
+
+	for j = 1, #secondGameAnalyticsIDs do 
+		for i = 1, #secondGameIDs do	
+			print(secondGameAnalyticsIDs[j] .. " and " .. secondGameIDs[i])
+			if tonumber(secondGameAnalyticsIDs[j]) == tonumber(secondGameIDs[i]) then
+				report = report .. "\n-----------------------------------------------------\n"
+				report = report .. "\nGAME # " .. i
+				for row in db:nrows("SELECT * FROM SecondGame where id = '" .. secondGameIDs[i] .. "'") do
+					report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
+				end
+				--get round #
+				allRoundNumbers = {}
+				rounds = {}
+				for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. secondGameIDs[i] .. "'") do
+					allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
+				end
+				rounds = cleanArray(allRoundNumbers)
+
+				for j = 1, #rounds do
+					report = report .. "\n\nROUND "..rounds[j]
+					--round speed
+					for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+						report = report .. "\nRound time: "..row.speed.." seconds"
+						break
+					end
+					-- get categories
+					allCategories = {}
+					categories = {}
+					for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+						allCategories[#allCategories+1] = row.category
+					end
+					categories = cleanArray(allCategories)
+
+					for k = 1, #categories do
+						report = report .. "\n\nCATEGORY: " .. categories[k]
+						-- get correct
+						words = {}
+						for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+							words[#words+1] = row.word
+						end
+						report = report .. "\nCorrect Words: "..#words
+						for w = 1, #words do
+							report = report .. "\n\t"..words[w]
+						end
+						--get incorrect
+						words = {}
+						for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+							words[#words+1] = row.word
+						end
+						report = report .. "\nIncorrect Words: "..#words
+						for w = 1, #words do
+							report = report .. "\n\t"..words[w]
+						end
+					end
+				end
+				break
+			else
+				if i == #secondGameIDs then
+					report = report .. "\n-----------------------------------------------------\n"
+					report = report .. "\nGAME # " .. secondGameAnalyticsIDs[j] .. "\n"
+					for row in db:nrows("SELECT * FROM SecondGame where id = '" .. secondGameIDs[i] .. "'") do
+						report = report .. "\nPlayer:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
+					end
+					break
+				end
+			end
+		end
+	end
+	print("\n\n")
+	print(report)
+
+	local path = system.pathForFile( "Game 2 General Assessment.txt", system.DocumentsDirectory )
+	local file = io.open( path, "w" )
+	file:write( report )
+	io.close( file )
+	file = nil
 end
 
 
@@ -558,10 +648,10 @@ end
 
 function generateReport3()
 	report = ""
-	report = report .. "\n------------------------------------------------------------"
+	report = report .. "------------------------------------------------------------"
 	report = report .. "\nGENERAL ANALYTICS"
 	report = report .. "\n------------------------------------------------------------\n"
-	report = report .. "\nThe following information contains the analytics for all the game plays for Game 3: Language and Spelling (PURPLE HOUSE).\n\n"
+	report = report .. "The following information contains the analytics for all the game plays for Game 3: Language and Spelling (PURPLE HOUSE).\n\n"
 	print("\n**EASY**")
 	report = report .. "*****EASY*****\n"
 	gameThreeCount = getCount("FirstGame", "easy")
@@ -571,7 +661,7 @@ function generateReport3()
 		getGameThreeAverages("FirstGame", "easy")
 	end
 
-	report = report .. "*****MEDIUM*****\n"
+	report = report .. "\n*****MEDIUM*****\n"
 	gameThreeCount = getCount("FirstGame", "medium")
 	report = report .. "NO. OF ENTRIES:\t"..gameThreeCount.."\n"
 	if gameThreeCount > 0 then
@@ -579,7 +669,7 @@ function generateReport3()
 		getGameThreeAverages("FirstGame", "medium")
 	end
 
-	report = report .. "*****HARD*****\n"
+	report = report .. "\n*****HARD*****\n"
 	gameThreeCount = getCount("FirstGame", "hard")
 	report = report .. "NO. OF ENTRIES:\t"..gameThreeCount.."\n"
 	if gameThreeCount > 0 then
@@ -611,9 +701,11 @@ function generateReport3()
 if #gamenumber > 0 then
 	report = report .. "\n------------------------------------------------------------"
 	report = report .. "\nALL ANALYTICS"
+	report = report .. "\n------------------------------------------------------------\n"
+	report = report .. "The following information contains the analytics for EACH of the game plays for Game 3: Language and Spelling (PURPLE HOUSE). The speed for each correctly answered word, the number of times user asked for a hint and the number of tries before being corrected are recorded for every word that appears.\n\n" 
+
 	for i = last, first, -1 do
 		report = report .. "\n------------------------------------------------------------\n"
-		report = report .. "The following information contains the analytics for EACH of the game plays for Game 3: Language and Spelling (PURPLE HOUSE). The speed for each correctly answered word, the number of times user asked for a hint and the number of tries before being corrected are recorded for every word that appears.\n\n" 
 		report = report .. "GAME# " .. i .. "\n\n"
 		for row in db:nrows("SELECT * FROM FirstGame where id = '" .. i .. "'") do
 --			if row.age ~= nil then

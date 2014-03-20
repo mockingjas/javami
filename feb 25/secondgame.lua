@@ -939,7 +939,7 @@ function scene:createScene(event)
 	pauseCtr = event.params.pause
 	roundNumber = event.params.round
 
-	profileName = "Cha" --temp
+	profileName = "test" --temp
 	profileAge = 4
 	count = 0
 
