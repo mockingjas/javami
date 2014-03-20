@@ -153,15 +153,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
---	if username.text == "" or userAge.text == "" then
---		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
---	else
+	if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		queryAndSaveToFile(latestId)
---	end
+	end
 end
 
 local function nameListener( event )
@@ -350,8 +350,6 @@ function gameoverdialog()
 
 	-------------------
 	objectGroup:removeSelf()
-	pauseBtn.isVisible = false
-
 	gameover= display.newImage( "images/thirdgame/gameover.png" )
 	gameover.x = 700
 	gameover.y =  display.contentHeight/2 - 10;
@@ -363,25 +361,6 @@ function gameoverdialog()
     screenGroup:insert(gameover)
 end
 
-
----------------- PAUSE GAME ---------------------------
-function pauseGame(event)
-    if(event.phase == "ended") then
-       	pauseCtr = pauseCtr + 1
-    	timerr:pause()
-    	timer.pause(blinker)
-    	audio.pause(one)
-    	audio.pause(two)
-    	audio.pause(three)
-    	audio.pause(four)
-    	audio.pause(five)
-
-        pauseBtn.isVisible = false
-        showpauseDialog()
-              return true
-    end
-end
- 
  --------------- RESTART GAME ----------------------
 function restart_onBtnRelease()
 	if category == "easy" then
@@ -407,23 +386,12 @@ function restart_onBtnRelease()
 	storyboard.gotoScene("reloadthird", option)
 end
 
---------------- RESUME FROM PAUSE -----------------
-function resume_onBtnRelease()
-	audio.resume(one)
-	audio.resume(two)
-	audio.resume(three)
-	audio.resume(four)
-	audio.resume(five)
---	pausegroup:removeSelf()
-	pausegroup.isVisible = false
-	timerr:resume()
-	timer.resume(blinker)
-    pauseBtn.isVisible = true
-	return true
-end
-
 ---------------- EXIT FROM PAUSE ----------------
-function exit_onBtnRelease()
+function exitGame(event)
+	timerr = nil
+	timerText.isVisible =false
+	storyboard.removeScene("thirdgame")
+	storyboard.removeScene("mainmenu")
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
 
@@ -441,38 +409,6 @@ function exit_onBtnRelease()
 	storyboard.gotoScene("mainmenu", option)
 end
 
------------------ PAUSE DIALOG ------------------
-function showpauseDialog()
-	pausegroup = display.newGroup()
-	local pausedialog = display.newImage("images/pause/pause_modal.png")
- 	pausedialog.x = display.contentWidth/2;
- 	pausedialog:addEventListener("touch", function() return true end)
-	pausedialog:addEventListener("tap", function() return true end)
-	pausegroup:insert(pausedialog)
-
-	local resumeBtn = widget.newButton{
-		defaultFile="images/pause/resume_button.png",
-		overFile="images/pause/resume_button.png",
-		onEvent = resume_onBtnRelease -- event listener function
-	}
-	resumeBtn:setReferencePoint( display.CenterReferencePoint )
-	resumeBtn.x = bg.x - 80
-	resumeBtn.y = 170
-	pausegroup:insert(resumeBtn)
-
-	local exitBtn = widget.newButton{
-		defaultFile="images/pause/exit_button.png",
-		overFile="images/pause/exit_button.png",
-		onEvent = exit_onBtnRelease -- event listener function
-	}
-	exitBtn:setReferencePoint( display.CenterReferencePoint )
-	exitBtn.x = bg.x + 100
-	exitBtn.y = 170
-	pausegroup:insert(exitBtn)
-
-	screenGroup:insert(pausegroup)
-end
-
 function shuffle(array)
 	for i = 1, #array*2 do
 		local a = math.random(#array)
@@ -483,14 +419,17 @@ function shuffle(array)
 end
 
 function canClick()
-	local done = timerr:isElapsed()
-	if(not done) then
-		toast.new("images/go.png", 300, 80, 0, "thirdgame")
+	if timerr ~= nil then
+		local done = timerr:isElapsed()
+		if(not done) then
+			toast.new("images/go.png", 300, 80, 0, "thirdgame")
+		end
+		isClick = true
 	end
-	isClick = true
 end
 
 local function playBlink(event)
+	if timerr ~= nil then
 --		print("\nFUNCTION playBlink")
 --		print(isClick)
 		local p1 = event.source.params.p1
@@ -523,6 +462,7 @@ local function playBlink(event)
 		if p1 == numOfBlinks then
 			timer.performWithDelay( 800, canClick )
 		end
+	end
 end
 
 
@@ -624,13 +564,13 @@ function scene:createScene(event)
 	roundToDisplay:setTextColor(0,0,0)
 	screenGroup:insert(roundToDisplay)
 
-	--pause button
-	pauseBtn = display.newImageRect( "images/secondgame/pause.png", 20, 20)
-    pauseBtn.x = 445
-    pauseBtn.y = 15
-    pauseBtn:addEventListener("touch", pauseGame)
-    pauseBtn:addEventListener("tap", pauseGame)
-    screenGroup:insert( pauseBtn )
+	--exit button
+	exitBtn  = display.newImageRect( "images/exit.png", 20, 20)
+	exitBtn.x = 445
+	exitBtn.y = 15
+	exitBtn:addEventListener("tap", exitGame)
+--	exitBtn:addEventListener("touch", exitGame)
+	screenGroup:insert(exitBtn)
     screenGroup:insert(timerText)
 
     -- GAME

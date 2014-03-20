@@ -28,6 +28,22 @@ end
 
 for row in db:nrows("PRAGMA table_info(Words);") do print(row.name) end
 
+--[[for row in db:nrows("UPDATE Words SET name = 'chili' where name ='catch'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='chili'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET animalCategory = '0' where name ='chili'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET colorCategory = 'red' where name ='chili'") do	print(row.name) end
+
+for row in db:nrows("UPDATE Words SET name = 'truck' where name ='today'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='truck'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET colorCategory = 'green' where name ='truck'") do	print(row.name) end]]
+
+for row in db:nrows("UPDATE Words SET shapeCategory = 'circle' where name ='rocket'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='angle'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='close'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '1' where name ='head'") do	print(row.name) end
+
+--for row in db:nrows("SELECT * from Words where name = 'head'") do	print(row.livingThingCategory) end
+
 --for row in db:nrows("UPDATE Words SET animalCategory = '1' where name ='show'") do	print(row.name) end
 --[[for row in db:nrows("UPDATE Words SET name = 'catch' where name ='chili'") do	print(row.name) end
 for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='chili'") do	print(row.name) end

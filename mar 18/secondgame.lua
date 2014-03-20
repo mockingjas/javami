@@ -213,15 +213,15 @@ function closedialog()
 	userAge.isVisible = false
 
 	-- SAVE TO PROFILE
-	-- if username.text == "" or userAge.text == "" then
-	--	toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
-	--else
+	 if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		saveToFile()
-	--end 
+	end 
 end
 
 ---- END: PROFILE MODAL
