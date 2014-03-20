@@ -11,12 +11,12 @@ db = sqlite3.open( path )
 
 storyboard.gotoScene( "startmenu")
 
-for row in db:nrows("DELETE FROM SecondGame") do end
+--[[for row in db:nrows("DELETE FROM SecondGame") do end
 for row in db:nrows("DELETE FROM SecondGameAnalytics") do end
 for row in db:nrows("DELETE FROM FirstGame") do end
 for row in db:nrows("DELETE FROM FirstGameAnalytics") do end
 for row in db:nrows("DELETE FROM ThirdGame") do end
-for row in db:nrows("DELETE FROM ThirdGameAnalytics") do end
+for row in db:nrows("DELETE FROM ThirdGameAnalytics") do end]]
 
 for row in db:nrows("SELECT COUNT(*) as count FROM SecondGame") do
 	if row.count == 0 then
