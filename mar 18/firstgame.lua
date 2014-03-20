@@ -52,11 +52,9 @@ local game1MusicChannel
 ------- Load font ---------
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Eraser"
+    font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "EraserRegular"
-else
-    font = "Eraser-Regular"
+    font = "Cartwheel Regular"
 end
 
 --------- FUNCTIONS FOR DATABASE ------------
@@ -251,7 +249,7 @@ local function objectDrag (event)
 		elseif t.y < 30 then
 			t.y = 30
 		end	
-		---------- BOUNDARIES ----------
+		---------- BLANK BOUNDARIES ----------
 			
 		for i = 1, wordToGuess:len() do
 			if ( get_char(i, wordToGuess) == "_" ) then
@@ -514,7 +512,7 @@ function showanalyticsDialog()
  	dialog.x = display.contentWidth/2;
  	levelgroup:insert(dialog)
 
-	namelabel = display.newText("Kid's name", 190, 100, font, 20)
+	namelabel = display.newText("Kid's name", 190, 100, font, 25)
 	namelabel:setTextColor(0,0,0)
 	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
     name:setTextColor( 0,0,0)
@@ -523,7 +521,7 @@ function showanalyticsDialog()
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
-   	agelabel = display.newText("Kid's Age", 200, 160, font, 20)
+   	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
    	agelabel:setTextColor(0,0,0)
 	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
     age:setTextColor( 0,0,0)
@@ -683,18 +681,20 @@ function gameoverdialog()
 	instance1:addEventListener( "sprite", spriteListener )
 	screenGroup:insert(instance1)
 
-	round= display.newText("ROUND: "..category, 0, 0, font, 20)
+	round= display.newText("ROUND: "..category, 0, 0, font, 25)
 	round.x = display.contentCenterX
-	round.y = display.contentCenterY + 25
+	round.y = display.contentCenterY + 30
 
-	score= display.newText("SCORE: "..currScore, 0, 0, font, 20)
+	score= display.newText("SCORE: "..currScore, 0, 0, font, 25)
 	score.x = display.contentCenterX
-	score.y = display.contentCenterY + 45
+	score.y = display.contentCenterY + 65
 
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
-timerText = display.newText("", 453, 25, font, 18) 
+timerText = display.newText("", 0, 0, font, 25)
+timerText.x = 458
+timerText.y = 37
 local function onFrame(event)
 	if (timer ~= nil) then
    		timerText.text = timer:toRemainingString()
@@ -866,7 +866,7 @@ local function displayScreenElements()
 	bg.y = display.contentHeight/2;
 	screenGroup:insert(bg)
 	--SCORE
-	scoreToDisplay = display.newText("Score: "..currScore, 0, 25, font, 18 )	
+	scoreToDisplay = display.newText("Score: "..currScore, 0, 25, font, 25 )	
 
 	------ BUTTONS -------
 	--SUBMIT
@@ -985,7 +985,8 @@ function scene:createScene(event)
 			filename = filename .. "newblank.png"
 			chalkLetter = display.newImage(filename)
 		else
-			chalkLetter = display.newText( c:upper(), x, y, font, 35)
+			chalkLetter = display.newText( c:upper(), x, y, font, 45)
+			chalkLetter:setTextColor(240,225,25)
 		end		
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then
@@ -1014,7 +1015,8 @@ function scene:createScene(event)
 
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
-		chalkLetter = display.newText( c:upper(), x, y, font, 35)
+		chalkLetter = display.newText( c:upper(), x, y, font, 45)
+		chalkLetter:setTextColor(240,225,25)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if(i == 6) then

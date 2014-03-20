@@ -6,14 +6,10 @@ local easy, medium, hard, house, categ, game
 
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Eraser"
+    font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "EraserRegular"
-else
-    -- Mac and iOS
-    font = "Eraser-Regular"
+    font = "Cartwheel Regular"
 end
-
 ------- Load sounds ---------
 local countsound = audio.loadSound("music/countdown.mp3")
 local gosound = audio.loadSound("music/go.mp3")
@@ -149,10 +145,10 @@ function scene:createScene(event)
 	local screenGroup = self.view
 	
 	--countdown
-	one = display.newText("1", display.contentWidth/2 - 40, display.contentHeight/2 - 100, font, 180 )	
-	two = display.newText("2", display.contentWidth/2 - 60, display.contentHeight/2 - 110, font, 180 )	
-	three = display.newText("3", display.contentWidth/2 - 60, display.contentHeight/2 - 100, font, 180)
-	go = display.newText("GO", display.contentWidth/2 - 110, display.contentHeight/2 - 100, font, 160)
+	one = display.newText("1", display.contentWidth/2 - 30, display.contentHeight/2 - 100, font, 200 )	
+	two = display.newText("2", display.contentWidth/2 - 50, display.contentHeight/2 - 110, font, 200 )	
+	three = display.newText("3", display.contentWidth/2 - 50, display.contentHeight/2 - 100, font, 200)
+	go = display.newText("GO!", display.contentWidth/2 - 110, display.contentHeight/2 - 100, font, 200)
 
 	if(game == "one") then
 		bg = display.newImageRect("images/firstgame/board.png", 550, 320)
