@@ -28,8 +28,17 @@ end
 
 for row in db:nrows("PRAGMA table_info(Words);") do print(row.name) end
 
---for row in db:nrows("UPDATE Words SET bodyPartCategory = '1' where name ='buy'") do	print(row.name) end
-for row in db:nrows("UPDATE Words SET bodyPartCategory = '1' where name ='lonely'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET animalCategory = '1' where name ='show'") do	print(row.name) end
+--[[for row in db:nrows("UPDATE Words SET name = 'catch' where name ='chili'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='chili'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET animalCategory = '0' where name ='chili'") do	print(row.name) end
+for row in db:nrows("UPDATE Words SET livingThingCategory = '-1' where name ='leaf'") do	print(row.name) end]]
+
+--for row in db:nrows("UPDATE Words SET livingThingCategory = '-1' where name ='fall'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET livingThingCategory = '0' where name ='key'") do	print(row.name) end
+--for row in db:nrows("SELECT * from Words where name = 'key'") do	print(row.shapeCategory) end
+--for row in db:nrows("UPDATE Words SET animalCategory = '1' where name ='worm'") do	print(row.name) end
+--for row in db:nrows("UPDATE Words SET colorCategory = 'blue' where name ='good'") do	print(row.name) end
 --for row in db:nrows("UPDATE Words SET colorCategory = 'blue' where name ='today'") do	print(row.name) end
 
 --[[for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='white'") do	print(row.name) end
@@ -41,6 +50,7 @@ for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='o
 for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='purple'") do	print(row.name) end
 for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='red'") do	print(row.name) end
 for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='yellow'") do	print(row.name) end]]
+
 
 --[[
 print("\n\n")

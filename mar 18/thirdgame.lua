@@ -137,9 +137,9 @@ local function onSendEmail( event )
 	local options =
 	{
 	   to = "",
-	   subject = "Game 1 Single Game Assessment",
-	   body = "<html>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1 Single Assessment.txt", type="text" },
+	   subject = "SkillVille: Game 1 Memory Single Assessment",
+	   body = "<html>Attached is the assessment for the most recently played Memory Game.<br>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 1 Memory Single Assessment.txt", type="text" },
 	   isBodyHtml = true
 	}
 	native.showPopup("mail", options)
@@ -321,7 +321,7 @@ function queryAndSaveToFile(id)
 	end
 
 	-- Save to file
-	local path = system.pathForFile( "Game 1 Single Assessment.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "SkillVille - Game 1 Memory Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
@@ -377,10 +377,8 @@ function pauseGame(event)
     	audio.pause(five)
 
         pauseBtn.isVisible = false
-        --audio.pause(game3MusicChannel)
         showpauseDialog()
-      
-        return true
+              return true
     end
 end
  

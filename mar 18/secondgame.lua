@@ -54,9 +54,9 @@ local function onSendEmail( event )
 	local options =
 	{
 	   to = "",
-	   subject = "Game 2 Single Game Assessment",
-	   body = "<html>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 2 Single Assessment.txt", type="text" },
+	   subject = "SkillVille: Game 2 Searching and Sorting Single Assessment",
+	   body = "<html>Attached is the assessment for the most recently played Searching and Sorting game.<br>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 2 Searching and Sorting Single Assessment.txt", type="text" },
 	   isBodyHtml = true
 	}
 	print(native.showPopup("mail", options))
@@ -169,7 +169,7 @@ function saveToFile()
 		end
 	end	
 	print(report)
-	local path = system.pathForFile( "Game 2 Single Assessment.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "SkillVille - Game 2 Searching and Sorting Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write(report)
 	io.close( file )
@@ -847,6 +847,7 @@ local function getWords(type, limit)
 
 	-- max count
 	for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do
+		print("NL"..row.count)
 		maxcount = row.count
 	end
 

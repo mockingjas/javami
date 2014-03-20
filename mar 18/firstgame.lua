@@ -339,9 +339,9 @@ local function onSendEmail( event )
 	local options =
 	{
 	   to = "",
-	   subject = "Game 3 Single Game Assessment",
-	   body = "<html>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 3 Single Assessment.txt", type="text" },
+	   subject = "SkillVille: Game 3 Language and Spelling Single Assessment",
+	   body = "<html>Attached is the assessment for the most recently played Language and Spelling game.<br>Name: "..username.text.."<br>Age: "..userAge.text.."</html>",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 3 Language and Spelling Single Assessment.txt", type="text" },
 	   isBodyHtml = true
 	}
 
@@ -459,23 +459,11 @@ function generateReport()
 	print("\n\nSTARTX\n\n"..report.."\nENDX\n")
 
 	-- Save to file
-	local path = system.pathForFile( "Game 3 Single Assessment.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "SkillVille - Game 3 Language and Spelling Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
 	file = nil
-
-	-- Append to file
---[[	report = report .. "\n-------------------------------------------------------------\n"
-	local path2 = system.pathForFile( "Game 3 General Assessment.txt", system.DocumentsDirectory )
-	local file2 = io.open( path2, "a" )
-	file2:write( report )
-	file2:flush()
-	io.close( file2 )
-	file2 = nil
-
-	print("\n\nSTART\n\n"..report.."\nEND\n")]]
-
 end
 
 function closedialog()

@@ -27,9 +27,9 @@ end
 local function onSendEmail1( event )
 	local options =
 	{
-	   subject = "Game 1 Overall Analytics",
-	   body = "Game 1 Overall Analytics",
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 3 General Assessment.txt", type="text" },
+	   subject = "SkillVille: Game 1 Memory Overall Assessment",
+	   body = "Attached is a text file of the overall assessment of all plays for game 1.",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 1 Memory Overall Assessment.txt", type="text" },
 	}
 	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
@@ -38,9 +38,9 @@ end
 local function onSendEmail2( event )
 	local options =
 	{
-	   subject = "Game 2 Overall Analytics",
-	   body = "Game 2 Overall Analytics",
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 2 General Assessment.txt", type="text" },
+	   subject = "SkillVille: Game 2 Searching and Sorting Overall Assessment",
+	   body = "Attached is a text file of the overall assessment of all plays for game 2.",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 2 Searching and Sorting Overall Assessment.txt", type="text" },
 	}
 	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
@@ -49,9 +49,9 @@ end
 local function onSendEmail3( event )
 	local options =
 	{
-	   subject = "Game 3 Overall Analytics",
-	   body = "Game 3 Overall Analytics",
-	   attachment = { baseDir=system.DocumentsDirectory, filename="Game 1 General Assessment.txt", type="text" },
+	   subject = "SkillVille: Game 3 Language and Spelling Overall Assessment",
+	   body = "Attached is a text file of the overall assessment of all plays for game 3.",
+	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 3 Language and Spelling Overall Assessment.txt", type="text" },
 	}
 	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
@@ -413,7 +413,7 @@ function generateReport3()
 		print(report)
 	end
 	-- Save to file
-	local path = system.pathForFile( "Game 3 General Assessment.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "SkillVille - Game 3 Language and Spelling Overall Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
@@ -614,7 +614,7 @@ function generateReport2()
 	print("\n\nGAME 2 REPORT\n")
 	print(report)
 
-	local path = system.pathForFile( "Game 2 General Assessment.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "SkillVille - Game 2 Searching and Sorting Overall Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
@@ -725,7 +725,7 @@ function generateReport1()
 
 	print("\n\nGAME 1\n"..report)
 	--save to file
-	local path = system.pathForFile( "Game 1 General Assessment.txt", system.DocumentsDirectory )
+	local path = system.pathForFile( "SkillVille - Game 1 Memory Overall Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write( report )
 	io.close( file )
