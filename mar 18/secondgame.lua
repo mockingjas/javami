@@ -41,11 +41,9 @@ local game2MusicChannel
 ------- Load font ---------
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Eraser"
+    font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "EraserRegular"
-else
-    font = "Eraser-Regular"
+    font = "Cartwheel Regular"
 end
 --------------------------------------------------- FUNCTIONS ------------------------------------------------------------------------
 
@@ -238,7 +236,7 @@ function showanalyticsDialog()
  	dialog.x = display.contentWidth/2;
  	levelgroup:insert(dialog)
 
-	namelabel = display.newText("Kid's name", 190, 100, font, 20)
+	namelabel = display.newText("Kid's name", 190, 100, font, 25)
 	namelabel:setTextColor(0,0,0)
 	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
     name:setTextColor( 0,0,0)
@@ -247,7 +245,7 @@ function showanalyticsDialog()
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
-   	agelabel = display.newText("Kid's Age", 200, 160, font, 20)
+   	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
    	agelabel:setTextColor(0,0,0)
 	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
     age:setTextColor( 0,0,0)

@@ -10,12 +10,9 @@ local name, email, age, namedisplay, agedisplay, emaildisplay-- forward referenc
 ------- Load font ---------
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Eraser"
+    font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "EraserRegular"
-else
-    -- Mac and iOS
-    font = "Eraser-Regular"
+    font = "Cartwheel Regular"
 end
 
 --temp

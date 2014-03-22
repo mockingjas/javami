@@ -46,12 +46,9 @@ local five = audio.loadSound("music/5.mp3")
 ------- Load font ---------
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Eraser"
+    font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "EraserRegular"
-else
-    -- Mac and iOS
-    font = "Eraser-Regular"
+    font = "Cartwheel Regular"
 end
 
 ---------- DB FUNCTIONS ---------------------------------
@@ -116,7 +113,7 @@ function swap_char (pos1, pos2, str)
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
-timerText = display.newText("", 480, 5, font, 18) 
+timerText = display.newText("", 480, 5, font, 25) 
 timerText:setTextColor(0,0,0)
 local function onFrame(event)
 	if (timerr ~= nil) then
@@ -193,7 +190,7 @@ function showUserDialog()
  	dialog.x = display.contentWidth/2;
  	levelgroup:insert(dialog)
 
-	namelabel = display.newText("Kid's name", 190, 100, font, 20)
+	namelabel = display.newText("Kid's name", 190, 100, font, 25)
 	namelabel:setTextColor(0,0,0)
 	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
     name:setTextColor( 0,0,0)
@@ -202,7 +199,7 @@ function showUserDialog()
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
-   	agelabel = display.newText("Kid's Age", 200, 160, font, 20)
+   	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
    	agelabel:setTextColor(0,0,0)
 	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
     age:setTextColor( 0,0,0)
@@ -295,7 +292,7 @@ end
 ------------------- GAME OVER ---------------------------
 
 function moveBG(self,event)
-	if(self.x == 241) then
+	if(self.x == 240) then
 		Runtime:removeEventListener("enterFrame", gameover)
 		finalmenu()
 		showUserDialog()
@@ -353,7 +350,7 @@ function gameoverdialog()
 	gameover= display.newImage( "images/thirdgame/gameover.png" )
 	gameover.x = 700
 	gameover.y =  display.contentHeight/2 - 10;
-	gameover.speed = 3
+	gameover.speed = 5
 
 	gameover.enterFrame = moveBG
     Runtime:addEventListener("enterFrame", gameover)
@@ -548,26 +545,21 @@ function scene:createScene(event)
 	rect.y = 10
 	screenGroup:insert(rect)
 
-	rect2 = display.newRect( 0, 0, 570, 20)
-	rect2:setFillColor( 75, 75, 755, 100 )
-	rect2.x = display.contentWidth/2;
-	rect2.y = 320
-	screenGroup:insert(rect2)
-
 	--score
-	scoreToDisplay = display.newText("Score: "..currScore, -30, 5, font, 18 )	
+	scoreToDisplay = display.newText("Score: "..currScore, -30, 5, font, 25 )	
 	scoreToDisplay:setTextColor(0,0,0)
 	screenGroup:insert(scoreToDisplay)
 
 	--round
-	roundToDisplay = display.newText("Round "..roundNumber, (display.contentWidth/2)-35, 5, font, 18 )
+	roundToDisplay = display.newText("Round "..roundNumber, (display.contentWidth/2)-35, 5, font, 25 )
 	roundToDisplay:setTextColor(0,0,0)
 	screenGroup:insert(roundToDisplay)
 
 	--exit button
-	local exitBtn  = display.newImageRect( "images/exit.png", 20, 20)
-	exitBtn.x = 445
-	exitBtn.y = 15
+
+	exitBtn  = display.newImageRect( "images/exit.png", 20, 20)
+	exitBtn.x = 443
+	exitBtn.y = 17
 	exitBtn:addEventListener("tap", exitGame)
 --	exitBtn:addEventListener("touch", exitGame)
 	screenGroup:insert(exitBtn)
