@@ -12,8 +12,8 @@ local instance1, instance2, instance3, scores, howtoplay, bgMusic, about, aboutg
 local function button1 ( event )
 
 	-- PARAMETERS TO PASS TO NEXT SCENE
-	howtoplay:setEnabled(false)
-	scores:setEnabled(false)
+--	howtoplay:setEnabled(false)
+--	scores:setEnabled(false)
 
 	easy =	{
 		effect = "fade",
@@ -64,8 +64,8 @@ local function button1 ( event )
 	end
 
 	function exit_onBtnRelease()
-		howtoplay:setEnabled(true)
-		scores:setEnabled(true)
+--		howtoplay:setEnabled(true)
+--		scores:setEnabled(true)
 		levelgroup:removeSelf()
 		return true
 	end
@@ -80,8 +80,8 @@ end
 local function button2 ( event )
 
 	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
-	howtoplay:setEnabled(false)
-	scores:setEnabled(false)
+--	howtoplay:setEnabled(false)
+--	scores:setEnabled(false)
 
 	easy =	{
 		effect = "fade",
@@ -132,8 +132,8 @@ local function button2 ( event )
 	end
 
 	function exit_onBtnRelease()
-		howtoplay:setEnabled(true)
-		scores:setEnabled(true)
+--		howtoplay:setEnabled(true)
+--		scores:setEnabled(true)
 		levelgroup:removeSelf()
 		return true
 	end
@@ -147,8 +147,8 @@ end
 ------ GAME 3 Level Select Modal -------
 local function button3 ( event )
 
-	howtoplay:setEnabled(false)
-	scores:setEnabled(false)
+--	howtoplay:setEnabled(false)
+--	scores:setEnabled(false)
 
 	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
 	easy =	{
@@ -200,8 +200,8 @@ local function button3 ( event )
 	end
 
 	function exit_onBtnRelease()
-		howtoplay:setEnabled(true)
-		scores:setEnabled(true)
+--		howtoplay:setEnabled(true)
+--		scores:setEnabled(true)
 		levelgroup:removeSelf()
 		return true
 	end
@@ -269,16 +269,16 @@ function showlevelDialog()
 end
 
 function exit_about()
-	howtoplay:setEnabled(true)
-	scores:setEnabled(true)
+--	howtoplay:setEnabled(true)
+--	scores:setEnabled(true)
 	aboutgroup.isVisible = false
 	return true
 end
 
 function showaboutDialog(event)
 	physics.pause()
-	howtoplay:setEnabled(false)
-	scores:setEnabled(false)
+--	howtoplay:setEnabled(false)
+--	scores:setEnabled(false)
  	
  	aboutgroup = display.newGroup()
 

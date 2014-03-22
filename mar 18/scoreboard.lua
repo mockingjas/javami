@@ -6,10 +6,12 @@ local scene = storyboard.newScene()
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --Game
-local homeBtn, tabGroup, scores, emailBtn1, emailBtn2, emailBtn3
+local tabGroup, scores, emailBtn1, emailBtn2, emailBtn3
+--local homeBtn
 local boolFirst = false
-local widgetGroup, demoTabs, screenGroup, bg
-local avgRounds, avgSpeed, avgScore, IDs, getOneCount, getTwoCount, getThreeCount, report, roundNumber
+local widgetGroup, demoTabs, bg
+--local screenGroup
+--local avgRounds, avgSpeed, avgScore, IDs, getOneCount, getTwoCount, getThreeCount, report, roundNumber
 
 -- Font
 local font
@@ -108,7 +110,7 @@ function getScoresFromDB(tableName)
 		break
 	end
 	for row in db:nrows("SELECT * FROM " .. tableName .. " where category = 'hard' order by id desc") do
-		if #hardScores == 5 then		
+		if #hardScores == 6 then		
 			break
 		else
 			hardScores[3] = "★RECENT SCORES★"
@@ -153,7 +155,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 		left = -60,
 		top = 32,
 		width = display.contentWidth + 120, 
-		height = 350,
+		height = 235,
 		onRowRender = onRowRender,
 		onRowTouch = onRowTouch,
 		hideBackground = true,
@@ -808,7 +810,7 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
 function scene:createScene( event )
-	storyboard.removeAll()
+--	storyboard.removeAll()
 	screenGroup = self.view
 	bgMusic = event.params.music
 

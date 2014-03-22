@@ -11,7 +11,7 @@ local scene = storyboard.newScene()
 
 ------- Global variables ---------
 --for the blackboard
-local screenGroup
+--local screenGroup
 --for the timer and reloading
 local timerr, timerText, blinker
 --for reloading params
@@ -153,15 +153,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
-	if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
-	else
+--	if username.text == "" or userAge.text == "" then
+--		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+--	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		queryAndSaveToFile(latestId)
-	end
+--	end
 end
 
 local function nameListener( event )
@@ -390,10 +390,8 @@ end
 function exitGame(event)
 	timerr = nil
 	timerText.isVisible =false
-	storyboard.removeScene("thirdgame")
-	storyboard.removeScene("mainmenu")
-	Runtime:removeEventListener("touch", gestures)
-	Runtime:removeEventListener("accelerometer", gestures)
+--	Runtime:removeEventListener("touch", gestures)
+--	Runtime:removeEventListener("accelerometer", gestures)
 
 	audio.stop()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
@@ -406,6 +404,8 @@ function exitGame(event)
 			music = backgroundMusicChannel
 		}
 	}
+	storyboard.removeScene("thirdgame")
+--	storyboard.removeScene("mainmenu")
 	storyboard.gotoScene("mainmenu", option)
 end
 
@@ -565,7 +565,7 @@ function scene:createScene(event)
 	screenGroup:insert(roundToDisplay)
 
 	--exit button
-	exitBtn  = display.newImageRect( "images/exit.png", 20, 20)
+	local exitBtn  = display.newImageRect( "images/exit.png", 20, 20)
 	exitBtn.x = 445
 	exitBtn.y = 15
 	exitBtn:addEventListener("tap", exitGame)

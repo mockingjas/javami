@@ -71,12 +71,12 @@ for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='r
 for row in db:nrows("UPDATE Words SET shapeCategory = 'rectangle' where name ='yellow'") do	print(row.name) end]]
 
 
---[[
-print("\n\n")
+
+--[[print("\n\n")
 words = ""
-for row in db:nrows("SELECT * FROM Words where bodyPartCategory = '1'") do
-	words = words .. "\n" .. row.name
-	print(row.name)
+for row in db:nrows("SELECT * FROM Words") do
+	words = words .. "\n" .. row.firstGameCategory
+	print(row.name .. row.firstGameCategory)
 end
 -- Save to file
 local path = system.pathForFile( "g2.txt", system.DocumentsDirectory )
@@ -84,4 +84,3 @@ local file = io.open( path, "w" )
 file:write( words )
 io.close( file )
 file = nil]]
-

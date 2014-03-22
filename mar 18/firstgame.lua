@@ -12,7 +12,8 @@ local toast = require("toast");
 ------- Global variables ---------
 --for the blackboard
 local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox, image
-local wordFromDB, submit, screenGroup
+local wordFromDB, submit
+--local screenGroup
 --for the timer and reloading
 local timer, timerText
 --for reloading params
