@@ -41,9 +41,9 @@ local game2MusicChannel
 ------- Load font ---------
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Cartwheel"
-elseif "Android" == system.getInfo( "platformName" ) then
     font = "Cartwheel Regular"
+elseif "Android" == system.getInfo( "platformName" ) then
+    font = "Cartwheel"
 end
 --------------------------------------------------- FUNCTIONS ------------------------------------------------------------------------
 
