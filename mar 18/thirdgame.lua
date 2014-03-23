@@ -49,9 +49,6 @@ if "Win" == system.getInfo( "platformName" ) then
     font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
     font = "Cartwheel"
-else
-    -- Mac and iOS
-    font = "Cartwheel"
 end
 
 ---------- DB FUNCTIONS ---------------------------------
