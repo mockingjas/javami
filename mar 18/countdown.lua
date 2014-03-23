@@ -6,9 +6,9 @@ local easy, medium, hard, house, categ, game
 
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Cartwheel"
+    font = "Cartwheel.otf"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "Cartwheel Regular"
+    font = "Cartwheel"
 end
 ------- Load sounds ---------
 local countsound = audio.loadSound("music/countdown.mp3")

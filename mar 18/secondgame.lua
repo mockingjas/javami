@@ -43,7 +43,7 @@ local font
 if "Win" == system.getInfo( "platformName" ) then
     font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
-    font = "Cartwheel Regular"
+    font = "Cartwheel"
 end
 --------------------------------------------------- FUNCTIONS ------------------------------------------------------------------------
 
@@ -745,31 +745,29 @@ end
 
 -- WORD: RANDOMIZE CATEGORY
 function randomizeCategory(categories)
-	rand = {}
 
-	rand[1] = math.random(#categories)
-	if category == 'medium' then
-		--wag 1 or 2
-		while (rand[1] == 1 or rand[1] == 2) do
-			rand[1] = math.random(#categories)
-		end
+	local numbers = {}
+	for i = 1, numberOfCategories do
+		local uniq, num
+		while not uniq do
+			num = math.random(#categories)
+	    	uniq = true -- assume number is unique
+		  	if category == 'medium' then
+			--wag 1 or 2
+				while (num == 1 or num == 2) do
+				    num = math.random(#categories)
+				end
+			end
+	    
+	    -- check if it really is
+	   		for k = 1,i-1 do
+	      		if numbers[k] == num then uniq = false end
+	    	end
+	  	end
+	  	numbers[i] = num
 	end
 
-	for i = 2, numberOfCategories do
-		rand[i] = math.random(#categories)
-		if category == 'medium' then
-			while (rand[i] == 1 or rand[i] == 2) do
-				rand[i] = math.random(#categories)
-			end
-		end			
-
-		for j = 1, i-1 do
-			while(rand[i] == rand[j]) do
-				rand[i] = math.random(#categories)
-			end
-		end
-	end
-	return rand
+	return numbers
 end
 
 -- WORD: RE-RANDOMIZE
