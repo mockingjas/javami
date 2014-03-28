@@ -12,9 +12,6 @@ local instance1, instance2, instance3, scores, howtoplay, bgMusic, about, aboutg
 local function button1 ( event )
 
 	-- PARAMETERS TO PASS TO NEXT SCENE
---	howtoplay:setEnabled(false)
---	scores:setEnabled(false)
-
 	easy =	{
 		effect = "fade",
 		time = 400,
@@ -331,8 +328,6 @@ function showaboutDialog(event)
 end
 
 function scene:createScene(event)
-
-	print("Main Menu!")
 	storyboard.removeAll()
 	local screenGroup = self.view
 

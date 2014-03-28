@@ -99,7 +99,6 @@ end
 
 
 function show(event)
-	print("in function show".. i)
 	if(i == 1) then
 		two.isVisible = false
 		one.isVisible = true
@@ -139,11 +138,8 @@ function scene:createScene(event)
 	categ = event.params.categ
 	game = event.params.game
 	i = 3
-	print(i)
-
 	-- Screen Elements
-	local screenGroup = self.view
-	
+	local screenGroup = self.view	
 	--countdown
 	one = display.newText("1", display.contentWidth/2 - 30, display.contentHeight/2 - 100, font, 200 )	
 	two = display.newText("2", display.contentWidth/2 - 50, display.contentHeight/2 - 110, font, 200 )	

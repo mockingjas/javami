@@ -150,15 +150,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
---	if username.text == "" or userAge.text == "" then
---		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
---	else
+	if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		queryAndSaveToFile(latestId)
---	end
+	end
 end
 
 local function nameListener( event )
@@ -331,10 +331,7 @@ function gameoverdialog()
 	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
 	local timeStamp = date .. ", " .. time
 	--save to DB
-	print(category .. " " .. currScore .. " " .. profileName .. " " .. profileAge .. " " .. timeStamp .. " " .. pauseCtr)
 	latestId = insertToDB(category, currScore, profileName, profileAge, timeStamp, pauseCtr)
-	print("LASTEST ID!!! " .. latestId)
-
 	--per round
 	for i = 1, roundNumber do
 		-- if last
@@ -427,35 +424,24 @@ end
 
 local function playBlink(event)
 	if timerr ~= nil then
---		print("\nFUNCTION playBlink")
---		print(isClick)
 		local p1 = event.source.params.p1
 		n = string.byte(order,p1) % 96
---		print("  N: " .. n)
---		print("  CURRENT: " .. p1)
 		obj = objectGroup[n]
---		print("  OBJECT NAME: "..obj.name)
 		transition.to( obj, {time = 200, alpha = 0} )
 		
 		if (n % 5 == 0) then
 			audio.play(one)
---			print("  SOUND: 1")
 		elseif (n % 5 == 1) then
 			audio.play(two)
---			print("  SOUND: 2")
 		elseif (n % 5 == 2) then
 			audio.play(three)
---			print("  SOUND: 3")
 		elseif (n % 5 == 3) then
 			audio.play(four)
---			print("  SOUND: 4")
 		elseif (n % 5 == 4) then
 			audio.play(five)
---			print("  SOUND: 5")
 		end
 
 		transition.to( obj, {delay = 200, time = 200, alpha = 1} )
-		print("BLINKS "..numOfBlinks)
 		if p1 == numOfBlinks then
 			timer.performWithDelay( 800, canClick )
 		end
@@ -466,9 +452,7 @@ end
 local function startSequence(last)
 	numOfBlinks = last
 	isClick = false
---	print("\nFUNCTION startSequence")
 	for i = 1, last do
---		print("  I/CURRENT: " .. i)
 		blinker = timer.performWithDelay(i*750, playBlink, 1)
 		blinker.params = { p1 = i }
 		current = i
@@ -643,7 +627,6 @@ function scene:createScene(event)
 		local r = math.random(i) -- select a random number between 1 and i
 		order = swap_char(i, r, order) -- swap the randomly selected item to position i
 	end 
---	print("  ORDER: " .. order)
 	-- ---------------------
 	answer = ""
 	startSequence(1)
@@ -659,66 +642,43 @@ function scene:createScene(event)
 end
 
 function checkanswer(event)
---	print("\nFUNCTION checkanswer")
 	local t = event.target
 	if isClick == true then
-	-- if (event.phase == "ended") then
-		-- print("  EVENT.PHASE == ENDED: " .. t.name)
 		answer = answer .. t.name
---		print("  ANSWER: " .. answer)
 		a,b = string.find(order, answer)
 
 		if(string.find(order, answer) ~= nil and a == 1) then
---			print("  A and B: " .. a .. b)
 			n = string.byte(t.name) % 96
---			print("  THIS IS N: "..n)
-
 			obj = objectGroup[n]
 			transition.to( obj, {time = 200, alpha = 0} )
-
 			if (n % 5 == 0) then
 				audio.play(one)
---				print("  SOUND: 1") 
 			elseif (n % 5 == 1) then
 				audio.play(two)
---				print("  SOUND: 2")
 			elseif (n % 5 == 2) then
 				audio.play(three)
---				print("  SOUND: 3")
 			elseif (n % 5 == 3) then
 				audio.play(four)
---				print("  SOUND: 4")
 			elseif (n % 5 == 4) then
 				audio.play(five)
---				print("  SOUND: 5")
 			end
 
 			transition.to( obj, {delay = 200, time = 200, alpha = 1} )
 			
 			if (a == 1 and b == current) then
-				-- CORRECT YUNG BUONG PAGKAKASUNOD
---				print("  a == 1 and b == current: CORRECT!!!!")
 				currScore = currScore + 1
 				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
-
-				print(correctCtr[roundNumber])
-				if (category == 'easy' and correctCtr[roundNumber] == 10) or (category == 'medium' and correctCtr[roundNumber] == 45) or (category == 'easy' and correctCtr[roundNumber] == 136) then
-					print("COMPLETE!!")
-				end
-
 				scoreToDisplay.text = "Score: "..currScore
 				toast.new("images/correct.png", 300, 80, 0, "thirdgame")
 				roundToDisplay.text = "Round "..roundNumber
 				--next!
 				answer = ""
-				-- print("CURRENT SA CHECKANSWER ".. current+1)
 				if (current + 1 <= dimensions*dimensions) then
 					startSequence(current+1)
 				else
 					reload()
 				end
 			elseif (a == 1 and b < current) then
---				print(" a == 1 and b < current: correct and continue")
 				currScore = currScore + 1
 				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
 				scoreToDisplay.text = "Score: "..currScore
@@ -726,7 +686,6 @@ function checkanswer(event)
 		else
 			---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
 			---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
---			print("  WRONG!!!!")
 			audio.play(incorrectSound)
 			toast.new("images/wrong.png", 80, 80, 0, "thirdgame")
 			reload()

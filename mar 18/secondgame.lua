@@ -57,7 +57,6 @@ local function onSendEmail( event )
 	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 2 Searching and Sorting Single Assessment.txt", type="text" },
 	   isBodyHtml = true
 	}
-	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 
@@ -166,7 +165,6 @@ function saveToFile()
 			end
 		end
 	end	
-	print(report)
 	local path = system.pathForFile( "SkillVille - Game 2 Searching and Sorting Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write(report)
@@ -738,8 +736,6 @@ function randomizeEasy(categories)
 		rand2[1] = shapes[rand2[1]]
 		rand2[2] = shapes[rand2[2]]
 	end
-
-	print("THIIIS "..categories[rand2[1]]..categories[rand2[2]])
 	return rand2
 end
 
@@ -843,7 +839,6 @@ local function getWords(type, limit)
 
 	-- max count
 	for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do
-		print("NL"..row.count)
 		maxcount = row.count
 	end
 
@@ -865,7 +860,6 @@ local function getWords(type, limit)
 
 	if type == "correct" then
 		words = correctWords
-		print("TOTAL CORRECT"..#words)
 	--query database:extra words
 	elseif type == "incorrect" then
 		words = {}
@@ -897,7 +891,6 @@ local function getWords(type, limit)
 				ctr = ctr + 1
 			end
 		end
-		print("TOTAL WRONG"..#words)
 	end
 
 	-- Shuffle and select n words

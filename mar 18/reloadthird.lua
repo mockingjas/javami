@@ -7,9 +7,7 @@ local text, category, boolFirst, gameTimer, currScore, roundNumber, correctCtr, 
 
 
 function scene:createScene(event)
-	
 	local screenGroup = self.view
-	print("RELOADING....")
 	boolFirst = event.params.first
 	gameTimer = event.params.time
 	category = event.params.categ
@@ -18,8 +16,6 @@ function scene:createScene(event)
 	correctCtr = event.params.correctcount
 	roundSpeed = event.params.roundspeed
 	pauseCtr = event.params.pausecount
-
-	print("CUUUUURTIME SA RELOAD "..gameTimer)
 end
 
 function scene:enterScene(event)

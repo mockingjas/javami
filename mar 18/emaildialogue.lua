@@ -21,7 +21,6 @@ local username = "Cha"
 local emailaddress = "mariciabalayan@gmail.com"
 
 local function onSendEmail( event )
-	print("sdklfksdlf")
 	local options =
 	{
 	   to = emailaddress,
@@ -29,7 +28,6 @@ local function onSendEmail( event )
 	   body = "Name: "..username.."/nAge: "..userAge,
 	   attachment = { baseDir=system.ResourceDirectory, filename="Game 1 Analytics.txt", type="text" },
 	}
-	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 

@@ -102,7 +102,6 @@ local function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, wo
 end
 
 function saveProfile(dbname, dbage)
-	print("SAVE PROFILE " .. latestId)
 	local query = [[INSERT INTO Profile VALUES (NULL, ']] .. 
 	dbname .. [[',']] ..
 	dbage .. [[');]]
@@ -158,7 +157,6 @@ local function getwordfromDB()
 		end
 		i = i + 1
 	end
-	print(wordToGuess)
 	item[currScore+1] = word
 end
 
@@ -296,14 +294,7 @@ local function checkanswer(event)
 			updateDB(word) --set isCorrect to true
 			currScore = currScore + 1
 			-- ANALYTICS PER ITEM
-			print("\n\n***ANALYTICS PER ITEM*** ")
 			itemSpeed[currScore] = timer:getElapsedSeconds()
-			print("WORD: "..item[currScore])
-			print("speed: " .. itemSpeed[currScore])
-			print("hint: " .. itemHint[currScore])
-			print("tries: " .. itemTries[currScore])
-			print("\n\n")
-
 			option = {
 				time = 400,
 				params = {
@@ -332,9 +323,6 @@ end
 
 --------------------------- EMAIL RESULTS -----------------------------
 local function onSendEmail( event )
-	print("sdklfksdlf")
-	print(latestId)
-
 	local options =
 	{
 	   to = "",
@@ -343,10 +331,7 @@ local function onSendEmail( event )
 	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 3 Language and Spelling Single Assessment.txt", type="text" },
 	   isBodyHtml = true
 	}
-
-	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
-
 end
 
 -----------------------FUNCTIONS FOR GETTING NAME ------------------------------------
@@ -375,11 +360,9 @@ function generateReport()
 	report = report .. "\nGAME 3 ANALYTICS"
 	report = report .. "\n------------------------------------------------------------\n"
 	report = report .. "The following information contains the analytics for the most recently played game for Game 3: Language and Spelling (PURPLE HOUSE). The speed for each correctly answered word, the number of times user asked for a hint and the number of tries before being corrected are recorded for every word that appears.\n\n" 
-	print("BAGO: GAME# " .. last)
 	report = report .. "GAME# " .. last .. "\n\n"
 	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
 		finalscore = row.score
-		print("Player:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n")
 		report = report .. "Player:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
 		break
 	end
@@ -398,10 +381,8 @@ function generateReport()
 
 	if maxVal ~= minVal then
 		max = queryAnalytics(last, "speed", maxVal)
-		print("Longest Time:\t"..max.." ("..maxVal.." seconds)")
 		report = report .. "Longest Time:\t"..max.." ("..maxVal.." seconds)\n"
 		min = queryAnalytics(last, "speed", minVal)
-		print("Shortest Time:\t"..min.." ("..minVal.. " seconds)")
 		report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
 	end
 
@@ -416,10 +397,8 @@ function generateReport()
 	end
 	if maxVal ~= minVal then
 		max = queryAnalytics(last, "hintcount", maxVal)
-		print("Most hints:\t"..max.." (" ..maxVal.." time/s)")
 		report = report .. "Most hints:\t"..max.." (" ..maxVal.." time/s)\n"
 		min = queryAnalytics(last, "hintcount", minVal)
-		print("Least hints:\t"..min.." ("..minVal.." time/s)")
 		report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
 	end
 
@@ -436,27 +415,19 @@ function generateReport()
 	end
 	if maxVal ~= minVal then
 		max = queryAnalytics(last, "triescount", maxVal)
-		print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
 		report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
 		min = queryAnalytics(last, "triescount", minVal)
-		print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
 		report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
 	end
 
 	--PER WORD
---	print("\nPER ITEM ANALYSIS:")
---	print("\nWORD\tSPEED\tHINTS\tTRIES")
 	report = report .. "\nPER ITEM ANALYSIS:"
 	report = report .. "\nWORD\tSPEED\tHINTS\tTRIES"
 	for j = 1, #roundnumber do
 		if tonumber(gamenumber[j]) == tonumber(last) then
---			print(words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j])
 			report = report .. "\n" .. words[j] .. "\t" .. speed[j] .. "\t" .. hint[j] .. "\t" .. tries[j]
 		end
 	end
-
-	print("\n\nSTARTX\n\n"..report.."\nENDX\n")
-
 	-- Save to file
 	local path = system.pathForFile( "SkillVille - Game 3 Language and Spelling Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
@@ -499,13 +470,10 @@ local function ageListener( event )
 end
 
 function showanalyticsDialog()
- 	
- 	print("boo")
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentWidth/2;
--- 	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
@@ -649,14 +617,10 @@ function gameoverdialog()
 	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
 	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
 	local timeStamp = date .. ", " .. time
-	print( "time"..timeStamp )
-
 	latestId = insertToDB(category, currScore, profileName, profileAge, timeStamp, pauseCtr)
-	print("NEW ID " .. latestId)
 
 	-- SAVE ANALYTICS
 	for i = 1, #item do
-		print(id.." "..i.." "..itemSpeed[i].." "..itemHint[i].. " "..itemTries[i] .. " "..item[i])
 		insertAnalyticsToDB(latestId, i, itemSpeed[i], itemHint[i], itemTries[i], item[i])
 	end
 

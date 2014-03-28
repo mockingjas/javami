@@ -5,8 +5,6 @@ local scene = storyboard.newScene()
 local gameScreen, tabGroup
 
 function scene:createScene( event )
-
---	storyboard.removeAll()
 	local slideView = require("slideView")
 	
 	local myImages = {
@@ -16,7 +14,6 @@ function scene:createScene( event )
 	}		
 
 	slideView.new( myImages )	
-
 end
 
 function scene:enterScene( event )
