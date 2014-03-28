@@ -645,7 +645,7 @@ function imageDrag (event)
 				selected.x = boxes[i].x;
 				selected.y = boxes[i].y;
 				isMoved = true
-			elseif (initX <= 30) and (initY <= 30) then
+			elseif (initX <= 5) and (initY <= 5) then
 				-- snap back to original position
 				selected.x = selected.initialX
 				selected.y = selected.initialY

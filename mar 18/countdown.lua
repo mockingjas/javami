@@ -6,7 +6,7 @@ local easy, medium, hard, house, categ, game
 
 local font
 if "Win" == system.getInfo( "platformName" ) then
-    font = "Cartwheel.otf"
+    font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
     font = "Cartwheel"
 end
