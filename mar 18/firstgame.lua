@@ -25,7 +25,6 @@ local gameovergroup, round, score
 local dialog, msgText, startTime
 --for sounds
 local muted, muteBtn, unmuteBtn, clearBtn
-local origx, origy
 --for after modal
 local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
@@ -672,24 +671,45 @@ local function onFrame(event)
 	end 
 end
 
----------------- new: CLEAR ---------------------------
-local function clear(event)
-	local newx = origx
-	local newy = origy
+function generateLetterbox()
+	x = (display.viewableContentWidth/2) + 25
+	y = (display.viewableContentHeight/2) - 80
+	letterboxGroup = display.newGroup()
 
 	for i = 1, #letterbox do
+		local c = get_char(i, letterbox)
+		chalkLetter = display.newText( c:upper(), x, y, font, 45)
+		chalkLetter:setTextColor(240,225,25)
+		letterboxGroup:insert(i, chalkLetter)
+		letterboxGroup[c] = chalkLetter
 		if(i == 6) then
-			newx = (display.viewableContentWidth/2) + 65
-			newy = newy + 40
+			x = (display.viewableContentWidth/2) + 65
+			y = y + 40
 		else
-			newx = newx + 40
+			x = x + 40
 		end
-		letterboxGroup[i].x = newx 
-		letterboxGroup[i].y = newy
+		letterboxGroup[i].x = x 
+		letterboxGroup[i].y = y
+		letterboxGroup[i].initX = x
+		letterboxGroup[i].initY = y
 		MultiTouch.activate(chalkLetter, "move", "single")
-		chalkLetter:addEventListener("tap", objectDrag);
---		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
+		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
+	screenGroup:insert(letterboxGroup)
+end
+
+---------------- new: CLEAR ---------------------------
+local function clear(event)
+	for i = 1, #letterbox do
+		letterboxGroup[i].isVisible = false
+		letterboxGroup[i] = nil
+	end
+	letterboxGroup = nil
+	generateLetterbox()
+	-- for i = 1, #letterbox do
+	-- 	letterboxGroup[i].x = letterboxGroup[i].initX
+	-- 	letterboxGroup[i].y = letterboxGroup[i].initY
+	-- end
 end
 
 ---------------- UNMUTE GAME ---------------------------
@@ -972,36 +992,11 @@ function scene:createScene(event)
     screenGroup:insert( clearBtn )
 	
 	--letters to fill up with
-	x = (display.viewableContentWidth/2) + 25
-	y = (display.viewableContentHeight/2) - 80
-	letterboxGroup = display.newGroup()
-	origx = x
-	origy = y
-
-	for i = 1, #letterbox do
-		local c = get_char(i, letterbox)
-		chalkLetter = display.newText( c:upper(), x, y, font, 45)
-		chalkLetter:setTextColor(240,225,25)
-		letterboxGroup:insert(i, chalkLetter)
-		letterboxGroup[c] = chalkLetter
-		if(i == 6) then
-			x = (display.viewableContentWidth/2) + 65
-			y = y + 40
-		else
-			x = x + 40
-		end
-		letterboxGroup[i].x = x 
-		letterboxGroup[i].y = y
-		letterboxGroup[i].initX = x
-		letterboxGroup[i].initY = y
-		MultiTouch.activate(chalkLetter, "move", "single")
-		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
-	end
+	generateLetterbox()
 
 	--- add to screen
 	screenGroup:insert(image)
 	screenGroup:insert(wordGroup)
-	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(scoreToDisplay)
 	screenGroup:insert(timerText)
 end

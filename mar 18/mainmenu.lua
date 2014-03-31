@@ -8,6 +8,14 @@ scene.purgeOnSceneChange = true
 local levelgroup, easy, medium, hard
 local instance1, instance2, instance3, scores, howtoplay, bgMusic, about, aboutgroup
 
+------- Load font ---------
+local font
+if "Win" == system.getInfo( "platformName" ) then
+    font = "Cartwheel"
+elseif "Android" == system.getInfo( "platformName" ) then
+    font = "Cartwheel"
+end
+
 ------ GAME 1 Level Select Modal -------
 local function button1 ( event )
 
@@ -411,6 +419,13 @@ function scene:createScene(event)
 	bg_ground.y = display.contentHeight/2;
 	screenGroup:insert(bg_ground)
 	
+	game1 = display.newText("Memory", 30, display.viewableContentHeight-55, font, 20)
+	game2 = display.newText("Search & Sort", display.viewableContentWidth/3+20, display.viewableContentHeight-27, font, 20)
+	game3 = display.newText("Spelling", display.viewableContentWidth-95, display.viewableContentHeight-30, font, 20)
+	screenGroup:insert(game1)
+	screenGroup:insert(game2)
+	screenGroup:insert(game3)
+
 end
 
 scene:addEventListener("createScene", scene)
