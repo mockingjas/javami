@@ -40,6 +40,8 @@ local g
 function home(event)
 	audio.stop()
 	g.isVisible = false
+	storyboard.removeScene("mainmenu")
+	storyboard.removeScene("slideView")
 	storyboard.gotoScene("reloadinstructions")
 end
 

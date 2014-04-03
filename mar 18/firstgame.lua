@@ -198,7 +198,6 @@ end
 
 ------- FUNCTION FOR SETTING THE WORD --------------
 local function setword()
-	getwordfromDB()
 	local blanks = math.floor(word:len()/2)
 	letterbox = ""
 	-- GET RANDOM BLANKS ---
@@ -695,7 +694,6 @@ function generateLetterbox()
 		MultiTouch.activate(chalkLetter, "move", "single")
 		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
-	screenGroup:insert(letterboxGroup)
 end
 
 ---------------- new: CLEAR ---------------------------
@@ -949,7 +947,7 @@ function scene:createScene(event)
 		itemSpeed[currScore+1] = 0
 	end
 
-	setword()
+	getwordfromDB()
 
 	--IMAGE
 	image = display.newImage( "images/firstgame/pictures/"..word..".png" )
@@ -957,6 +955,8 @@ function scene:createScene(event)
 		image = display.newImage( "images/firstgame/pictures/blank.png" )
 	end
 	image.x = 310/2; image.y = 260/2;
+
+	setword()
 
 	-- LETTERS
 	local x = -20
@@ -996,6 +996,7 @@ function scene:createScene(event)
 
 	--- add to screen
 	screenGroup:insert(image)
+	screenGroup:insert(letterboxGroup)
 	screenGroup:insert(wordGroup)
 	screenGroup:insert(scoreToDisplay)
 	screenGroup:insert(timerText)
