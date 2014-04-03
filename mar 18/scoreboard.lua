@@ -10,6 +10,9 @@ local tabGroup, scores, emailBtn1, emailBtn2, emailBtn3
 --local homeBtn
 local boolFirst = false
 local widgetGroup, demoTabs, bg
+--local screenGroup
+--local avgRounds, avgSpeed, avgScore, IDs, getOneCount, getTwoCount, getThreeCount, report, roundNumber
+
 -- Font
 local font
 if "Win" == system.getInfo( "platformName" ) then
@@ -30,6 +33,7 @@ local function onSendEmail1( event )
 	   body = "Attached is a text file of the overall assessment of all plays for game 1.",
 	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 1 Memory Overall Assessment.txt", type="text" },
 	}
+	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 
@@ -40,6 +44,7 @@ local function onSendEmail2( event )
 	   body = "Attached is a text file of the overall assessment of all plays for game 2.",
 	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 2 Searching and Sorting Overall Assessment.txt", type="text" },
 	}
+	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 
@@ -50,6 +55,7 @@ local function onSendEmail3( event )
 	   body = "Attached is a text file of the overall assessment of all plays for game 3.",
 	   attachment = { baseDir=system.DocumentsDirectory, filename="SkillVille - Game 3 Language and Spelling Overall Assessment.txt", type="text" },
 	}
+	print(native.showPopup("mail", options))
 	native.showPopup("mail", options)
 end
 
@@ -159,7 +165,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 	widgetGroup:insert( titleBar )
 	widgetGroup:insert( titleText )
 
-	-- Display only 3 recent scores
+	-- Display only 5 recent scores
 	--Items to show in our list
 	local listItems = {
 		{ title = "Easy", items = easyScores },
@@ -178,6 +184,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 			{ 
 				default = { 150, 160, 180, 200 },
 			},
+			--isCategory = true,
 			hideBackground = true
 		}
 
@@ -388,8 +395,10 @@ function generateReport3()
 			end
 			if maxVal ~= minVal then
 				max = queryAnalytics(i, "triescount", maxVal)
+				print("Most mistaken:\t"..max.." ("..maxVal.." attempt/s)")
 				report = report .. "Most mistaken:\t"..max.." ("..maxVal.." attempt/s)\n"
 				min = queryAnalytics(i, "triescount", minVal)
+				print("Least mistaken:\t"..min.." ("..minVal.." attempt/s)")
 				report = report .. "Least mistaken:\t"..min.." ("..minVal.." attempt/s)\n"
 			end
 			--PER WORD
@@ -401,6 +410,9 @@ function generateReport3()
 				end
 			end
 		end
+		--
+		print("\n\nGAME 3 REPORT\n")
+		print(report)
 	end
 	-- Save to file
 	local path = system.pathForFile( "SkillVille - Game 3 Language and Spelling Overall Assessment.txt", system.DocumentsDirectory )
@@ -501,6 +513,7 @@ function generateReport2()
 
 	report = report .. "\n*****MEDIUM*****\n"
 	gameTwoCount = getCount("SecondGame", "medium")
+	print("NO. OF ENTRIES:\t"..gameTwoCount)
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
 	if gameTwoCount > 0 then
 		getAverageScore("SecondGame", "medium")
@@ -509,6 +522,7 @@ function generateReport2()
 
 	report = report .. "\n*****HARD*****\n"
 	gameTwoCount = getCount("SecondGame", "hard")
+	print("NO. OF ENTRIES:\t"..gameTwoCount)
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
 	if gameTwoCount > 0 then
 		getAverageScore("SecondGame", "hard")
@@ -534,6 +548,7 @@ function generateReport2()
 
 	for j = #secondGameAnalyticsIDs, 1, -1 do 
 		for i = 1, #secondGameIDs do	
+			print(secondGameAnalyticsIDs[j] .. " and " .. secondGameIDs[i])
 			if tonumber(secondGameAnalyticsIDs[j]) == tonumber(secondGameIDs[i]) then
 				report = report .. "\n-----------------------------------------------------\n"
 				report = report .. "\nGAME # " .. i
@@ -598,6 +613,8 @@ function generateReport2()
 			end
 		end
 	end
+	print("\n\nGAME 2 REPORT\n")
+	print(report)
 
 	local path = system.pathForFile( "SkillVille - Game 2 Searching and Sorting Overall Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
@@ -707,6 +724,8 @@ function generateReport1()
 			report = report .. "\n\nTotal number of rounds: "..roundNumber.."\n"
 		end
 	end
+
+	print("\n\nGAME 1\n"..report)
 	--save to file
 	local path = system.pathForFile( "SkillVille - Game 1 Memory Overall Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
@@ -738,7 +757,7 @@ function displayGame1()
 	widgetGroup:insert(emailBtn1)
 
 	generateReport1()
-	emailBtn1:addEventListener("touch", onSendEmail1)
+	emailBtn1:addEventListener("touch", onSendEmail3)
 end
 
 function displayGame2()
@@ -786,7 +805,7 @@ function displayGame3()
 	emailBtn3.y = 90
 	widgetGroup:insert(emailBtn3)
 	generateReport3()
-	emailBtn3:addEventListener("touch", onSendEmail3)
+	emailBtn3:addEventListener("touch", onSendEmail1)
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -807,21 +826,21 @@ function scene:createScene( event )
 	{
 		{
 			width = 100, height = 32,
-			defaultFile = "images/scoreboard/blue.png",
-			overFile = "images/scoreboard/blue2.png",
+			defaultFile = "assets/blue.png",
+			overFile = "assets/blue2.png",
 			onPress = displayGame1,
 			selected = true
 		},
 		{
 			width = 100, height = 32,
-			defaultFile = "images/scoreboard/orange.png",
-			overFile = "images/scoreboard/orange2.png",
+			defaultFile = "assets/orange.png",
+			overFile = "assets/orange2.png",
 			onPress = displayGame2,
 		},
 		{
 			width = 100, height = 32,
-			defaultFile = "images/scoreboard/purple.png",
-			overFile = "images/scoreboard/purple2.png",
+			defaultFile = "assets/purple.png",
+			overFile = "assets/purple2.png",
 			onPress = displayGame3,
 		}
 	}
@@ -832,10 +851,10 @@ function scene:createScene( event )
 		top = display.contentHeight - 50,
 		left = -60,
 		width = display.contentWidth + 120,
-		backgroundFile = "images/scoreboard/tabbar.png",
-		tabSelectedLeftFile = "images/scoreboard/tabBar_tabSelectedLeft.png",
-		tabSelectedMiddleFile = "images/scoreboard/tabBar_tabSelectedMiddle.png",
-		tabSelectedRightFile = "images/scoreboard/tabBar_tabSelectedRight.png",
+		backgroundFile = "assets/tabbar.png",
+		tabSelectedLeftFile = "assets/tabBar_tabSelectedLeft.png",
+		tabSelectedMiddleFile = "assets/tabBar_tabSelectedMiddle.png",
+		tabSelectedRightFile = "assets/tabBar_tabSelectedRight.png",
 		tabSelectedFrameWidth = 20,
 		tabSelectedFrameHeight = 52,
 		buttons = tabButtons
