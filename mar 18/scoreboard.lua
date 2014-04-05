@@ -62,13 +62,13 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------- FUNCTION FOR GO BACK TO MENU ----------------------------------
 function home(event)
+	audio.stop(bgMusic)
 	homeBtn.isVisible = false
 	tabGroup.isVisible = false
 	widgetGroup.isVisible = false
 	storyboard.removeScene("mainmenu")
 	storyboard.removeScene("scoreboard")
-	audio.stop(bgMusic)
-	storyboard.gotoScene("reloadscores")
+	storyboard.gotoScene("reload_mainmenu")
 	return true
 end
 

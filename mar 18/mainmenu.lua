@@ -2,30 +2,54 @@ require "physics"
 local storyboard = require ("storyboard")
 local widget= require ("widget")
 local scene = storyboard.newScene()
-scene.purgeOnSceneChange = true
 
--- Level Select Modal Variables --
-local levelgroup, easy, medium, hard
+-- Declaration of Variables --
+local levelgroup, easy, medium, hard, gamenum, font
 local instance1, instance2, instance3, scores, howtoplay, bgMusic, about, aboutgroup
 
-------- Load font ---------
-local font
+--  Load font --
 if "Win" == system.getInfo( "platformName" ) then
     font = "Cartwheel"
 elseif "Android" == system.getInfo( "platformName" ) then
     font = "Cartwheel"
 end
 
------- GAME 1 Level Select Modal -------
-local function button1 ( event )
+-- Functions for level select --
+function easy_onBtnRelease()
+	levelgroup:removeSelf()
+	audio.stop( bgMusic )
+	storyboard.gotoScene("countdown", easy)
+	return true
+end
 
-	-- PARAMETERS TO PASS TO NEXT SCENE
+function medium_onBtnRelease()
+	levelgroup:removeSelf()
+	audio.stop( bgMusic )
+	storyboard.gotoScene("countdown", medium)
+	return true
+end
+
+function hard_onBtnRelease()
+	levelgroup:removeSelf()
+	audio.stop( bgMusic )
+	storyboard.gotoScene("countdown", hard)
+	return true
+end
+
+function exit_onBtnRelease()
+	levelgroup:removeSelf()
+	return true
+end
+
+-- Function for setting parameters --
+function setparams(gamenum)
+
 	easy =	{
 		effect = "fade",
 		time = 400,
 		params = {
 			categ = "easy",
-			game = "one"
+			game = gamenum
 		}
 	}
 
@@ -34,7 +58,7 @@ local function button1 ( event )
 		time = 400,
 		params = {
 			categ = "medium",
-			game = "one"
+			game = gamenum
 		}
 	}
 	hard =	{
@@ -42,179 +66,37 @@ local function button1 ( event )
 		time = 400,
 		params = {
 			categ = "hard",
-			game = "one"
+			game = gamenum
 		}
 	}
 
+end
+
+------ GAME 1 Level Select Modal -------
+local function button1 ( event )
 	
-	function easy_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", easy)
-		return true
-	end
-
-	function medium_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", medium)
-		return true
-	end
-
-	function hard_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", hard)
-		return true
-	end
-
-	function exit_onBtnRelease()
---		howtoplay:setEnabled(true)
---		scores:setEnabled(true)
-		levelgroup:removeSelf()
-		return true
-	end
-	-- 
-	
+	setparams("one")
 	showlevelDialog()
 	
 end
--------------- END OF GAME 1 ------------
 
 ------ GAME 2 Level Select Modal -------
 local function button2 ( event )
 
-	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
---	howtoplay:setEnabled(false)
---	scores:setEnabled(false)
-
-	easy =	{
-		effect = "fade",
-		time = 400,
-		params = {
-			categ = "easy",
-			game = "two"
-		}
-	}
-
-	medium =	{
-		effect = "fade",
-		time = 400,
-		params = {
-			categ = "medium",
-			game = "two"
-		}
-	}
-	hard =	{
-		effect = "fade",
-		time = 400,
-		params = {
-			categ = "hard",
-			game = "two"
-		}
-	}
-
-	
-	function easy_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", easy)
-		return true
-	end
-
-	function medium_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", medium)
-		return true
-	end
-
-	function hard_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", hard)
-		return true
-	end
-
-	function exit_onBtnRelease()
---		howtoplay:setEnabled(true)
---		scores:setEnabled(true)
-		levelgroup:removeSelf()
-		return true
-	end
-	-- 
-	
+	setparams("two")
 	showlevelDialog()
-	
+
 end
------- END OF GAME 2 -------
 
 ------ GAME 3 Level Select Modal -------
 local function button3 ( event )
 
---	howtoplay:setEnabled(false)
---	scores:setEnabled(false)
-
-	-- INSERT PARAMETERS TO PASS TO NEXT SCENE
-	easy =	{
-		effect = "fade",
-		time = 400,
-		params = {
-			categ = "easy",
-			game = "three"
-		}
-	}
-
-	medium =	{
-		effect = "fade",
-		time = 400,
-		params = {
-			categ = "medium",
-			game = "three"
-		}
-	}
-	hard =	{
-		effect = "fade",
-		time = 400,
-		params = {
-			categ = "hard",
-			game = "three"
-		}
-	}
-
-	
-	function easy_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", easy)
-		return true
-	end
-
-	function medium_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", medium)
-		return true
-	end
-
-	function hard_onBtnRelease()
-		levelgroup:removeSelf()
-		audio.stop( bgMusic )
-		storyboard.gotoScene("countdown", hard)
-		return true
-	end
-
-	function exit_onBtnRelease()
---		howtoplay:setEnabled(true)
---		scores:setEnabled(true)
-		levelgroup:removeSelf()
-		return true
-	end
+	setparams("three")
 	showlevelDialog()
-	
-end
--------- END OF GAME 3 ----------
 
+end
+
+-- Function for  Level Dialog Rendering -- 
 function showlevelDialog()
 	physics.pause()
 	isPause = true
@@ -236,9 +118,8 @@ function showlevelDialog()
 	local easyBtn = widget.newButton{
 		defaultFile="images/modal/Easy.png",
 		overFile="images/modal/Easy.png",
-		onRelease = easy_onBtnRelease -- event listener function
+		onRelease = easy_onBtnRelease 
 	}
-	-- easyBtn:setReferencePoint( display.CenterReferencePoint )
 	easyBtn.x = bg.x - 5
 	easyBtn.y = 115
 	levelgroup:insert(easyBtn)
@@ -246,9 +127,9 @@ function showlevelDialog()
 	local mediumBtn = widget.newButton{
 		defaultFile="images/modal/Medium.png",
 		overFile="images/modal/Medium.png",
-		onRelease = medium_onBtnRelease	-- event listener function
+		onRelease = medium_onBtnRelease
 	}
-	-- mediumBtn:setReferencePoint( display.CenterReferencePoint )
+
 	mediumBtn.x = bg.x
 	mediumBtn.y = 190
 	levelgroup:insert(mediumBtn)
@@ -256,9 +137,8 @@ function showlevelDialog()
 	local hardBtn = widget.newButton{
 		defaultFile="images/modal/Hard.png",
 		overFile="images/modal/Hard.png",
-		onRelease = hard_onBtnRelease	-- event listener function
+		onRelease = hard_onBtnRelease	
 	}
-	-- hardBtn:setReferencePoint( display.CenterReferencePoint )
 	hardBtn.x = bg.x - 5
 	hardBtn.y = 250
 	levelgroup:insert(hardBtn)
@@ -266,27 +146,22 @@ function showlevelDialog()
 	local exitBtn = widget.newButton{
 		defaultFile="images/modal/closebutton.png",
 		overFile="images/modal/closebutton.png",
-		onRelease = exit_onBtnRelease	-- event listener function
+		onRelease = exit_onBtnRelease
 	}
-	-- exitBtn:setReferencePoint( display.CenterReferencePoint )
 	exitBtn.x = bg.x + 115
 	exitBtn.y = 67
 	levelgroup:insert(exitBtn)
 
 end
 
+-- Function to remove about dialog -- 
 function exit_about()
---	howtoplay:setEnabled(true)
---	scores:setEnabled(true)
 	aboutgroup.isVisible = false
 	return true
 end
 
 function showaboutDialog(event)
 	physics.pause()
---	howtoplay:setEnabled(false)
---	scores:setEnabled(false)
- 	
  	aboutgroup = display.newGroup()
 
 	local rectx = display.newImage("images/modal/gray.png")
@@ -330,15 +205,15 @@ function showaboutDialog(event)
 	local exit = widget.newButton{
 		defaultFile="images/modal/closebutton.png",
 		overFile="images/modal/closebutton.png",
-		onEvent = exit_about-- event listener function
+		onEvent = exit_about
 	}
-	-- exit:setReferencePoint( display.CenterReferencePoint )
 	exit.x = bg.x + 170
 	exit.y = 85
 	aboutgroup:insert(exit)
 
 end
 
+-- Function for creating scene. Rendering mainmenu -- 
 function scene:createScene(event)
 	storyboard.removeAll()
 	local screenGroup = self.view
@@ -370,8 +245,7 @@ function scene:createScene(event)
 	screenGroup:insert(instance2)
 	instance2:addEventListener("tap", button2)
 	
-	
-	-- an image sheet with orange house
+	-- an image sheet with blue house
 	local sheet3 = graphics.newImageSheet( "images/menu/blue.png", { width=220, height=160, numFrames=2 } )
 	instance3 = display.newSprite( sheet3, { name="blue", start=1, count=2, time=1000 } )
 	instance3.x = 60

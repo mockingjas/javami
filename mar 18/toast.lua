@@ -20,11 +20,12 @@ function new(pText, pTime, xcoord, ycoord, game)
     if game == "firstgame_text" then 
         toast.text                      = display.newText(toast, pText, xcoord + 10, ycoord, native.systemFont, 12);
         toast.text.align                = "center"
-        toast.background                = display.newRoundedRect( toast, xcoord, -115, toast.text.width + 24, toast.text.height + 24, 16 );
+        toast.background                = display.newRoundedRect( toast, xcoord, -115, toast.text.width + 20, toast.text.height + 20, 16 );
         toast.background.strokeWidth    = 4
         toast.background:setFillColor(72, 64, 72)
         toast.background:setStrokeColor(96, 88, 96)
         toast.text:toFront();
+        toast.text:setFillColor(0,0,0)
         toast.x = display.contentWidth * .5
         toast.y = display.contentHeight * .9
     elseif game == "secondgame" then

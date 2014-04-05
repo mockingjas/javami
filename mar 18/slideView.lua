@@ -33,53 +33,79 @@ local imgNum = nil
 local images = nil
 local touchListener, nextImage, prevImage, cancelMove, initImage
 local background
-local imageNumberText, imageNumberTextShadow
-local g
+local imageNumberText, imageNumberTextShadow, g
 
---------------  FUNCTION FOR GO BACK TO MENU --------------------
 function home(event)
 	audio.stop()
 	g.isVisible = false
 	storyboard.removeScene("mainmenu")
 	storyboard.removeScene("slideView")
-	storyboard.gotoScene("reloadinstructions")
+	storyboard.gotoScene("reload_mainmenu")
 end
 
 function new( imageSet, slideBackground, top, bottom )	
-	local pad = 25
+	local pad = 20
 	local top = top or 0 
 	local bottom = bottom or 0
 
 	g = display.newGroup()
-	background = display.newRect( 0, 0, 570, 320)
-	background:setFillColor(0, 0, 0)
+		
+	if slideBackground then
+		background = display.newImage(slideBackground, 0, 0, true)
+	else
+		background = display.newRect(0, 0,screenW, screenH-(top+bottom))
+
+		-- set anchors on the background
+		background.anchorX = 0
+		background.anchorY = 0
+
+		background:setFillColor(0, 0, 0)
+	end
 	g:insert(background)
 	
 	images = {}
 	for i = 1,#imageSet do
 		local p = display.newImage(imageSet[i])
-		g:insert(p)
-	    p.x = display.contentCenterX;
-	    p.y = display.contentCenterY;
-
-	    if (i > 1) then
-			p.x = screenW * 2 + pad-- all images offscreen except the first one
+		local h = viewableScreenH-(top+bottom)
+		if p.width > viewableScreenW or p.height > h then
+			if p.width/viewableScreenW > p.height/h then 
+					p.xScale = viewableScreenW/p.width
+					p.yScale = viewableScreenW/p.width
+			else
+					p.xScale = h/p.height
+					p.yScale = h/p.height
+			end		 
 		end
+		g:insert(p)
+	    
+		if (i > 1) then
+			p.x = screenW*1.5 + pad -- all images offscreen except the first one
+		else 
+			p.x = screenW*.5
+		end
+		
+		p.y = h*.5
 
 		images[i] = p
 	end
 	
-	imgNum = 1
+	local defaultString = "1 of " .. #images
 
 	-- home button
 	homeBtn = display.newImage( "images/firstgame/home_button.png")
-	homeBtn.x = 0
-	homeBtn.y = 30
+	homeBtn.x = 20
+	homeBtn.y = 40
 	homeBtn:addEventListener("touch", home)
 	g:insert(homeBtn)
+
+	imgNum = 1
 	
+	g.x = 0
+	g.y = top + display.screenOriginY
+			
 	function touchListener (self, touch) 
 		local phase = touch.phase
+		print("slides", phase)
 		if ( phase == "began" ) then
             -- Subsequent touch events will target button even if they are outside the contentBounds of button
             display.getCurrentStage():setFocus( self )
@@ -91,8 +117,13 @@ function new( imageSet, slideBackground, top, bottom )
         elseif( self.isFocus ) then
         
 			if ( phase == "moved" ) then
+			
+				transition.to(navBar,  { time=400, alpha=0 } )
 						
-				if tween then transition.cancel(tween) end			
+				if tween then transition.cancel(tween) end
+	
+				print(imgNum)
+				
 				local delta = touch.x - prevPos
 				prevPos = touch.x
 				
@@ -109,27 +140,18 @@ function new( imageSet, slideBackground, top, bottom )
 			elseif ( phase == "ended" or phase == "cancelled" ) then
 				
 				dragDistance = touch.x - startPos
+				print("dragDistance: " .. dragDistance)
 				
-				
-				if (dragDistance < -40 and imgNum < #images and dragDistance ~= 0) then
-				
+				if (dragDistance < -40 and imgNum < #images) then
 					nextImage()
-				elseif (dragDistance > 40 and imgNum > 1 and dragDistance ~= 0) then
-					if(imgNum ~= 1) then
-						
-						prevImage()
-					end
+				elseif (dragDistance > 40 and imgNum > 1) then
+					prevImage()
 				else
-				
-					--cancelMove()
-					if(dragDistance ~= 0) then
-						cancelMove()
-					end
+					cancelMove()
 				end
 									
-				if ( phase == "cancelled" ) then	
-				
-					--cancelMove()
+				if ( phase == "cancelled" ) then		
+					cancelMove()
 				end
 
                 -- Allow touch events to be sent normally to the objects they "hit"
@@ -151,23 +173,23 @@ function new( imageSet, slideBackground, top, bottom )
 	end
 	
 	function nextImage()
-		tween = transition.to( images[imgNum], {time=400, x=(screenW*.5 + 110)*-1, transition=easing.outExpo } )
+		tween = transition.to( images[imgNum], {time=400, x=(screenW*.5 + pad)*-1, transition=easing.outExpo } )
 		tween = transition.to( images[imgNum+1], {time=400, x=screenW*.5, transition=easing.outExpo } )
 		imgNum = imgNum + 1
-		--initImage(imgNum)
+		initImage(imgNum)
 	end
 	
 	function prevImage()
-		tween = transition.to( images[imgNum], {time=400, x=(screenW*2)+pad+ 110, transition=easing.outExpo } )
+		tween = transition.to( images[imgNum], {time=400, x=screenW*1.5+pad, transition=easing.outExpo } )
 		tween = transition.to( images[imgNum-1], {time=400, x=screenW*.5, transition=easing.outExpo } )
 		imgNum = imgNum - 1
-		--initImage(imgNum)
+		initImage(imgNum)
 	end
 	
 	function cancelMove()
 		tween = transition.to( images[imgNum], {time=400, x=screenW*.5, transition=easing.outExpo } )
-		--tween = transition.to( images[imgNum-1], {time=400, x=screenW*.5, transition=easing.outExpo } )
-		--tween = transition.to( images[imgNum+1], {time=400, x=screenW*.5, transition=easing.outExpo } )
+		tween = transition.to( images[imgNum-1], {time=400, x=(screenW*.5 + pad)*-1, transition=easing.outExpo } )
+		tween = transition.to( images[imgNum+1], {time=400, x=screenW*1.5+pad, transition=easing.outExpo } )
 	end
 	
 	function initImage(num)
@@ -177,7 +199,6 @@ function new( imageSet, slideBackground, top, bottom )
 		if (num > 1) then
 			images[num-1].x = (screenW*.5 + pad)*-1
 		end
-		--setSlideNumber()
 	end
 
 	background.touch = touchListener
@@ -188,6 +209,8 @@ function new( imageSet, slideBackground, top, bottom )
 	
 	function g:jumpToImage(num)
 		local i
+		print("jumpToImage")
+		print("#images", #images)
 		for i = 1, #images do
 			if i < num then
 				images[i].x = -screenW*.5;
@@ -202,6 +225,7 @@ function new( imageSet, slideBackground, top, bottom )
 	end
 
 	function g:cleanUp()
+		print("slides cleanUp")
 		background:removeEventListener("touch", touchListener)
 	end
 

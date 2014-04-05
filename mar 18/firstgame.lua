@@ -482,19 +482,17 @@ function showanalyticsDialog()
  	dialog.y = display.contentCenterY;
  	levelgroup:insert(dialog)
 
-	namelabel = display.newText("Kid's name", 190, 100, font, 25)
+	namelabel = display.newText("Kid's name", display.contentCenterX, 100, font, 25)
 	namelabel:setFillColor(0,0,0)
-	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
-    name:setFillColor( 0,0,0)
+	name = native.newTextField( display.contentCenterX, 130, 220, 40 )    -- passes the text field object
     name.hintText= ""
    	name.text = name.hintText
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
-   	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
+   	agelabel = display.newText("Kid's Age", display.contentCenterX, 165, font, 25)
    	agelabel:setFillColor(0,0,0)
-	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
-    age:setFillColor( 0,0,0)
+	age = native.newTextField( display.contentCenterX, 200, 100, 40 )    -- passes the text field object
    	age.inputType = "number"
    	age.hintText = ""
    	age.text = age.hintText

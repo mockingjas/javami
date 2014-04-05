@@ -117,13 +117,8 @@ function scene:exitScene(event)
 	Runtime:removeEventListener("enterFrame", building2)
 end
 
-function scene:destroyScene(event)
-
-end
-
 scene:addEventListener("createScene", scene)
 scene:addEventListener("enterScene", scene)
 scene:addEventListener("exitScene", scene)
-scene:addEventListener("destroyScene", scene)
 
 return scene

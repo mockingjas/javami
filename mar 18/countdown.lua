@@ -1,6 +1,9 @@
-local storyboard = require ("storyboard")
+
 local widget = require( "widget" )
+local storyboard = require ("storyboard")
 local scene = storyboard.newScene()
+
+
 local easy, one, two, three, i, go
 local easy, medium, hard, house, categ, game
 
@@ -10,6 +13,7 @@ if "Win" == system.getInfo( "platformName" ) then
 elseif "Android" == system.getInfo( "platformName" ) then
     font = "Cartwheel"
 end
+
 ------- Load sounds ---------
 local countsound = audio.loadSound("music/countdown.mp3")
 local gosound = audio.loadSound("music/go.mp3")
@@ -23,7 +27,7 @@ function loadgame()
 			categ = "easy",
 			first = true,
 			score = 0,
-			time = 62
+			time = 3
 		}
 	}
 
@@ -138,9 +142,8 @@ function scene:createScene(event)
 	categ = event.params.categ
 	game = event.params.game
 	i = 3
-	-- Screen Elements
+
 	local screenGroup = self.view	
-	--countdown
 	one = display.newText("1", display.contentCenterX, display.contentCenterY, font, 200 )	
 	two = display.newText("2", display.contentCenterX, display.contentCenterY, font, 200 )	
 	three = display.newText("3", display.contentCenterX, display.contentCenterY, font, 200)
@@ -179,25 +182,6 @@ function scene:createScene(event)
 	timer.performWithDelay(1000, show, 5)
 
 end
-
-function scene:enterScene(event)
-	local screenGroup = self.view
-
-	--storyboard.removeScene("firstgame")
-	--storyboard.gotoScene("firstgame", option)
-end
-
-function scene:exitScene(event)
-	
-end
-
-function scene:destroyScene(event)
-
-end
-
 scene:addEventListener("createScene", scene)
-scene:addEventListener("enterScene", scene)
-scene:addEventListener("exitScene", scene)
-scene:addEventListener("destroyScene", scene)
 
 return scene
