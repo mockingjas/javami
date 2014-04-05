@@ -23,36 +23,36 @@ function scene:createScene(event)
 	backgroundMusicChannel = audio.play( bgMusic, { loops=-1}  )
 
 	bg = display.newImageRect("images/menu/bg_back.png", 600, 320)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 
 	building = display.newImage( "images/menu/building.png" )
 	building.x = 254
-	building.y =  display.contentHeight/2;
+	building.y =  display.contentCenterY;
 	building.speed = 1
 	screenGroup:insert(building)
 
 	building2 = display.newImage( "images/menu/building.png" )
 	building2.x = -315
-	building2.y = display.contentHeight/2;
+	building2.y = display.contentCenterY;
 	building2.speed = 1
 	screenGroup:insert(building2)
 	
 	ground = display.newImageRect( "images/menu/ground.png",600, 320)
-	ground.x = display.contentWidth/2;
-	ground.y =  display.contentHeight/2;
+	ground.x = display.contentCenterX;
+	ground.y =  display.contentCenterY;
 	screenGroup:insert(ground)
 	
 	clouds = display.newImage( "images/menu/bg2.png" )
 	clouds.x = 0
-	clouds.y =  display.contentHeight/2;
+	clouds.y =  display.contentCenterY;
 	clouds.speed = 2
 	screenGroup:insert(clouds)
 
 	clouds2 = display.newImage( "images/menu/bg2.png" )
 	clouds2.x = 570
-	clouds2.y = display.contentHeight/2;
+	clouds2.y = display.contentCenterY;
 	clouds2.speed = 2
 	screenGroup:insert(clouds2)
 	
@@ -64,13 +64,13 @@ function scene:createScene(event)
 		emboss = true,
 		onEvent = startGame,
 	}
-	title.x = (display.contentWidth/2);
-	title.y = (display.contentHeight/2) + 10;
+	title.x = (display.contentCenterX);
+	title.y = (display.contentCenterY) + 10;
 	title.width = 450
 	title.height = 100
 	screenGroup:insert(title)
 
-	helpText = display.newText("Tap the title to start game", (display.contentWidth/3)-15, (display.contentHeight/2) + 55, Arial, 18)
+	helpText = display.newText("Tap the title to start game", display.contentCenterX, (display.contentHeight/3)*2+15, Arial, 18)
 	helpText:setFillColor(255, 255, 255)
 	screenGroup:insert(helpText)
 	

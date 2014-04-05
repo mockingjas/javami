@@ -141,10 +141,10 @@ function scene:createScene(event)
 	-- Screen Elements
 	local screenGroup = self.view	
 	--countdown
-	one = display.newText("1", display.contentWidth/2 - 30, display.contentHeight/2 - 100, font, 200 )	
-	two = display.newText("2", display.contentWidth/2 - 50, display.contentHeight/2 - 110, font, 200 )	
-	three = display.newText("3", display.contentWidth/2 - 50, display.contentHeight/2 - 100, font, 200)
-	go = display.newText("GO!", display.contentWidth/2 - 110, display.contentHeight/2 - 100, font, 200)
+	one = display.newText("1", display.contentCenterX, display.contentCenterY, font, 200 )	
+	two = display.newText("2", display.contentCenterX, display.contentCenterY, font, 200 )	
+	three = display.newText("3", display.contentCenterX, display.contentCenterY, font, 200)
+	go = display.newText("GO!", display.contentCenterX, display.contentCenterY, font, 200)
 
 	if(game == "one") then
 		bg = display.newImageRect("images/firstgame/board.png", 550, 320)
@@ -163,8 +163,8 @@ function scene:createScene(event)
 	end
 
 
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 	screenGroup:insert(one)
 	screenGroup:insert(two)	

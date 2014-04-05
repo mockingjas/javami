@@ -225,15 +225,15 @@ function showanalyticsDialog()
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
- 	rect.x = display.contentWidth/2;
- 	rect.y = display.contentHeight/2;
+ 	rect.x = display.contentCenterX;
+ 	rect.y = display.contentCenterY;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/saveanalytics.png")
- 	dialog.x = display.contentWidth/2;
- 	dialog.y = display.contentHeight/2;
+ 	dialog.x = display.contentCenterX;
+ 	dialog.y = display.contentCenterY;
  	levelgroup:insert(dialog)
 
 	namelabel = display.newText("Kid's name", 190, 100, font, 25)
@@ -274,13 +274,13 @@ end
 local function finalmenu( )
 	gameovergroup = display.newGroup()
 
-    round= display.newText("ROUND: "..category, 0, 0, font, 15)
+    round = display.newText("ROUND: "..category, 0, 0, font, 15)
 	round.x = 150
 	round.y = display.contentCenterY - 120
 	round:setFillColor(0,0,0)
 	gameovergroup:insert(round)
 
-	score= display.newText("SCORE: "..currScore, 0, 0, font, 15)
+	score = display.newText("SCORE: "..currScore, 0, 0, font, 15)
 	score.x = 300
 	score.y = display.contentCenterY - 120
 	score:setFillColor(0,0,0)
@@ -409,7 +409,7 @@ end
 -- BUTTON: ZOOM IN
 function zoomIn(event)
 	filename = event.target.filename
-	toast.new(filename, 1000, 150, 80, "secondgame")
+	toast.new(filename, 1000, display.contentCenterX, display.contentCenterY, "secondgame")
 end
 
 -- BUTTON: PAUSE
@@ -476,8 +476,8 @@ end
 function showpauseDialog()
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
- 	pausedialog.x = display.contentWidth/2;
- 	pausedialog.y = display.contentHeight/2;
+ 	pausedialog.x = display.contentCenterX;
+ 	pausedialog.y = display.contentCenterY;
  	pausedialog:addEventListener("touch", function() return true end)
 	pausedialog:addEventListener("tap", function() return true end)
 	pausegroup:insert(pausedialog)
@@ -543,7 +543,7 @@ function checkanswer(target)
 	isCorrect = false
 	for j = 1, maxcount do
 		if answers[boxNumber][j] == target.label then
-			toast.new("images/correct.png", 300, 80, 0, "thirdgame")
+			toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
 			currScore = currScore + 1
 			scoreToDisplay.text = "Score: "..currScore
 			isCorrect = true
@@ -556,14 +556,14 @@ function checkanswer(target)
 			target:removeSelf()
 
 			progressBarFill.width = progressBarFill.width + (320/corrects)
-			progressBarFill.x = progressBarFill.x + (320/corrects) / 2
+			-- progressBarFill.x = progressBarFill.x + (320/corrects) / 2
 			break
 		end
 	end
 
 	if isCorrect == false then
 		audio.play(incorrectSound)
-		toast.new("images/wrong.png", 300, 80, 0, "thirdgame")
+		toast.new("images/wrong.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
 		if count == 0 then
 			boxes[boxNumber].wrongCtr = boxes[boxNumber].wrongCtr + 1
 			count = boxes[boxNumber].wrongCtr
@@ -907,8 +907,6 @@ local function getWords(type, limit)
 end
 
 -- GAME: TIMER
-timerText = display.newText("", 480, 0, font, 18) 
-timerText:setFillColor(0,0,0)
 local function onFrame(event)
 	if (maintimer ~= nil) then
    		timerText.text = maintimer:toRemainingString()
@@ -941,8 +939,11 @@ function scene:createScene(event)
 	screenGroup = self.view
 
 	-- Screen Elements
-	scoreToDisplay = display.newText("Score: "..currScore, -30, 0, font, 18 )	
+	scoreToDisplay = display.newText("Score: "..currScore, 15, 12, font, 25 )	
 	scoreToDisplay:setFillColor(0,0,0)
+
+	timerText = display.newText("", 482, 12, font, 25) 
+	timerText:setFillColor(0,0,0)
 	
     categories = {"living", "nonliving", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "animal", "bodypart"}
 	values = {"1", "0", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "1", "1"}
@@ -962,41 +963,43 @@ function scene:createScene(event)
 	--bg
 	width = 550; height = 320;
 	bg = display.newImageRect("images/secondgame/game2bg.png", width, height)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 	--pause button
 	pauseBtn = display.newImageRect( "images/secondgame/pause.png", 20, 20)
-    pauseBtn.x = 445
-    pauseBtn.y = 10
+    pauseBtn.x = 438
+    pauseBtn.y = 12
     pauseBtn:addEventListener("touch", pauseGame)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
     --unmute button
     unmuteBtn = display.newImageRect( "images/secondgame/mute_button.png", 20, 20)
-    unmuteBtn.x = 420
-    unmuteBtn.y = 10
+    unmuteBtn.x = 415
+    unmuteBtn.y = 12
 	unmuteBtn:addEventListener("touch", unmuteGame)
     unmuteBtn:addEventListener("tap", unmuteGame)
     screenGroup:insert( unmuteBtn )
     unmuteBtn.isVisible = false
     --mute button
 	muteBtn = display.newImageRect( "images/secondgame/unmute_button.png", 20, 20)
-    muteBtn.x = 420
-    muteBtn.y = 10
+    muteBtn.x = 415
+    muteBtn.y = 12
     muteBtn:addEventListener("touch", muteGame)
     muteBtn:addEventListener("tap", muteGame)
     screenGroup:insert( muteBtn )
     --outer rectangle
-    progressBar = display.newRect(display.viewableContentWidth/6 - 2, 3, 322, 15)
+    progressBar = display.newRect(display.contentCenterX, 10, 322, 15)
     -- progressBar:setReferencePoint(display.BottomLeftReferencePoint)
     progressBar.strokeWidth = 1
     progressBar:setStrokeColor( 0, 0, 0) 
     progressBar:setFillColor( 0, 0, 0 )  
     screenGroup:insert( progressBar )
     --inner rectangle which fills up
-    progressBarFill = display.newRect(display.viewableContentWidth/6,5,0,10)
-    progressBarFill:setFillColor(50,205,30)  
+    progressBarFill = display.newRect(display.contentWidth/6 + 2, 10, 0, 10)
+    progressBarFill:setFillColor(50,205,30)
+    progressBarFill.anchorX = 0
+
     -- progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
     screenGroup:insert( progressBarFill )
 

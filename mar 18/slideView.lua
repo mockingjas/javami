@@ -59,8 +59,8 @@ function new( imageSet, slideBackground, top, bottom )
 	for i = 1,#imageSet do
 		local p = display.newImage(imageSet[i])
 		g:insert(p)
-	    p.x = display.contentWidth/2;
-	    p.y = display.contentHeight/2;
+	    p.x = display.contentCenterX;
+	    p.y = display.contentCenterY;
 
 	    if (i > 1) then
 			p.x = screenW * 2 + pad-- all images offscreen except the first one

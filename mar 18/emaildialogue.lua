@@ -46,8 +46,8 @@ function scene:createScene(event)
 	bgMusic = event.params.music
 
 	bg = display.newImageRect("images/bgemail.png", 570, 320)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 	
 	-- Create our Text Field

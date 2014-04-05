@@ -123,19 +123,17 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 function displayScores(easyScores, mediumScores, hardScores)	
 	local rowTitles = {}
-	local titleGradient = graphics.newGradient( 
-		{ 189, 203, 220, 255 }, 
-		{ 89, 116, 152, 255 }, "down" )
+	local titleGradient = { type="gradient", color1={ 0.74, 0.8, 0.86, 1 }, color2={ 0.35, 0.45, 0.6, 1 }, direction = "down"}
 
 	-- Create toolbar to go at the top of the screen
-	local titleBar = display.newRect( -60, 0, display.contentWidth + 120, 32 )
+	local titleBar = display.newRect( display.contentCenterX, 16, display.contentWidth+76, 32 )
 	titleBar.y = display.statusBarHeight + ( titleBar.contentHeight * 0.5 )
 	titleBar:setFillColor( titleGradient )
 	titleBar.y = display.screenOriginY + titleBar.contentHeight * 0.5
 
 	-- create embossed text to go on toolbar
 	local titleText = display.newEmbossedText( "Scores", 0, 0, font, 20)
-	titleText:setFillColor( 255 )
+	titleText:setFillColor( 0,0,0 )
 	titleText.x = display.contentCenterX
 	titleText.y = titleBar.y
 
@@ -145,7 +143,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 		local row = event.row	
 		local rowTitle = display.newText( row, rowTitles[row.index], 0, 0, font, 16 )
 		rowTitle.x = display.contentCenterX + 60
-		rowTitle.y = row.contentHeight * 0.5
+		rowTitle.y = row.contentHeight * 0.4
 		rowTitle:setFillColor( 0,0,0 )
 	end
 
@@ -182,7 +180,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 			rowHeight = 30,
 			rowColor = 
 			{ 
-				default = { 150, 160, 180, 200 },
+				default = { 0.59, 0.63, 0.71, 0.79 },
 			},
 			--isCategory = true,
 			hideBackground = true
@@ -198,7 +196,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 				isCategory = false,
 				rowColor = 
 				{ 
-					default = { 255, 255, 255, 150 },
+					default = { 1, 1, 1, 0.59 },
 				},
 				hideBackground = true
 			}
@@ -741,8 +739,8 @@ function displayGame1()
 		bg:removeSelf()
 	end
 	bg = display.newImageRect("images/menu/scoresgame3.png", 600, 320)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()
@@ -766,8 +764,8 @@ function displayGame2()
 		bg:removeSelf()
 	end
 	bg = display.newImageRect("images/menu/scoresgame2.png", 600, 320)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()
@@ -790,8 +788,8 @@ function displayGame3()
 		bg:removeSelf()
 	end
 	bg = display.newImageRect("images/menu/scoresgame1.png", 600, 320)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()

@@ -28,17 +28,16 @@ function new(pText, pTime, xcoord, ycoord, game)
         toast.x = display.contentWidth * .5
         toast.y = display.contentHeight * .9
     elseif game == "secondgame" then
-        bg = display.newImage( text, 10, 10 )
+        bg = display.newImage( text )
         bg.xScale = bg.xScale * 1.5
         bg.yScale = bg.yScale * 1.5
         rect = display.newImage("images/modal/gray.png")
-        rect.x = xcoord - 50
-        rect.y = ycoord
         toast:insert(rect)
         toast:insert(bg)
         toast:insert(bg)
-        toast.x = xcoord
-        toast.y = ycoord
+        toast.anchorChildren = true
+        toast.x = display.contentCenterX
+        toast.y = display.contentCenterY
     else
         bg = display.newImage( text, 10, 10 )
         toast:insert(bg)

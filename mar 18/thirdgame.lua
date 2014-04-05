@@ -113,8 +113,7 @@ function swap_char (pos1, pos2, str)
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
-timerText = display.newText("", 480, 5, font, 25) 
-timerText:setFillColor(0,0,0)
+
 local function onFrame(event)
 	if (timerr ~= nil) then
    		timerText.text = timerr:toRemainingString()
@@ -181,15 +180,15 @@ function showUserDialog()
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
- 	rect.x = display.contentWidth/2;
- 	rect.y = display.contentHeight/2;
+ 	rect.x = display.contentCenterX;
+ 	rect.y = display.contentCenterY;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/saveanalytics.png")
- 	dialog.x = display.contentWidth/2;
- 	dialog.y = display.contentHeight/2;
+ 	dialog.x = display.contentCenterX;
+ 	dialog.y = display.contentCenterY;
  	levelgroup:insert(dialog)
 
 	namelabel = display.newText("Kid's name", 190, 100, font, 25)
@@ -348,7 +347,7 @@ function gameoverdialog()
 	objectGroup:removeSelf()
 	gameover= display.newImage( "images/thirdgame/gameover.png" )
 	gameover.x = 700
-	gameover.y =  display.contentHeight/2 - 10;
+	gameover.y =  display.contentCenterY - 10;
 	gameover.speed = 5
 
 	gameover.enterFrame = moveBG
@@ -418,7 +417,7 @@ function canClick()
 	if timerr ~= nil then
 		local done = timerr:isElapsed()
 		if(not done) then
-			toast.new("images/go.png", 300, 80, 0, "thirdgame")
+			toast.new("images/go.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
 		end
 		isClick = true
 	end
@@ -521,34 +520,37 @@ function scene:createScene(event)
 	end
 
 	bg = display.newImageRect(filename, width, height)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 
 	rect = display.newRect( 0, 0, 570, 50)
-	rect:setFillColor( 75, 75, 755, 100 )
-	rect.x = display.contentWidth/2;
+	rect:setFillColor( 0.5, 1, 0.5, 0.25 )
+	rect.x = display.contentCenterX;
 	rect.y = 10
 	screenGroup:insert(rect)
 
 	--score
-	scoreToDisplay = display.newText("Score: "..currScore, -30, 5, font, 25 )	
+	scoreToDisplay = display.newText("Score: "..currScore, 20, 17, font, 25 )	
 	scoreToDisplay:setFillColor(0,0,0)
 	screenGroup:insert(scoreToDisplay)
 
 	--round
-	roundToDisplay = display.newText("Round "..roundNumber, (display.contentWidth/2)-35, 5, font, 25 )
+	roundToDisplay = display.newText("Round "..roundNumber, display.contentCenterX, 17, font, 25 )
 	roundToDisplay:setFillColor(0,0,0)
 	screenGroup:insert(roundToDisplay)
 
 	--exit button
-
 	exitBtn  = display.newImageRect( "images/exit.png", 20, 20)
-	exitBtn.x = 443
+	exitBtn.x = 435
 	exitBtn.y = 17
 	exitBtn:addEventListener("tap", exitGame)
 --	exitBtn:addEventListener("touch", exitGame)
 	screenGroup:insert(exitBtn)
+
+	--timertext
+	timerText = display.newText("", 480, 17, font, 25) 
+	timerText:setFillColor(0,0,0)
     screenGroup:insert(timerText)
 
     -- GAME
@@ -614,7 +616,7 @@ function scene:createScene(event)
 		obj.isVisible = false
 	end
 
-	-- objectGroup:setReferencePoint(display.CenterReferencePoint)
+	objectGroup.anchorChildren = true
 	objectGroup.x = display.viewableContentWidth/2
 	objectGroup.y = display.viewableContentHeight/2 + 10
 
@@ -671,7 +673,7 @@ function checkanswer(event)
 				currScore = currScore + 1
 				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
 				scoreToDisplay.text = "Score: "..currScore
-				toast.new("images/correct.png", 300, 80, 0, "thirdgame")
+				toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
 				roundToDisplay.text = "Round "..roundNumber
 				--next!
 				answer = ""
@@ -689,7 +691,7 @@ function checkanswer(event)
 			---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
 			---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
 			audio.play(incorrectSound)
-			toast.new("images/wrong.png", 80, 80, 0, "thirdgame")
+			toast.new("images/wrong.png", 80, display.contentCenterX, display.contentCenterY, "thirdgame")
 			reload()
 		end
 	end

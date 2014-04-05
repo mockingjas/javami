@@ -222,15 +222,15 @@ function showlevelDialog()
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
- 	rect.x = display.contentWidth/2;
- 	rect.y = display.contentHeight/2;
+ 	rect.x = display.contentCenterX;
+ 	rect.y = display.contentCenterY;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/levelselect_wood.png")
- 	dialog.x = display.contentWidth/2;
- 	dialog.y = display.contentHeight/2;
+ 	dialog.x = display.contentCenterX;
+ 	dialog.y = display.contentCenterY;
  	levelgroup:insert(dialog)
 
 	local easyBtn = widget.newButton{
@@ -290,20 +290,20 @@ function showaboutDialog(event)
  	aboutgroup = display.newGroup()
 
 	local rectx = display.newImage("images/modal/gray.png")
- 	rectx.x = display.contentWidth/2;
- 	rectx.y = display.contentHeight/2;
+ 	rectx.x = display.contentCenterX;
+ 	rectx.y = display.contentCenterY;
  	rectx:addEventListener("touch", function() return true end)
 	rectx:addEventListener("tap", function() return true end)
 	aboutgroup:insert(rectx)
 
 	local dialogx = display.newImage("images/modal/about.png")
- 	dialogx.x = display.contentWidth/2;
- 	dialogx.y = display.contentHeight/2;
+ 	dialogx.x = display.contentCenterX;
+ 	dialogx.y = display.contentCenterY;
  	aboutgroup:insert(dialogx)
 
  	local myText1 = display.newText( "Developers", 100, 120, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 16 )
  	myText1:setFillColor( black )
- 	local myText = display.newText( "Balayan, Maricia Polene A.\nConoza, Vanessa Viel B.\nTolentino, Jasmine Mae M.", 100, 140, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 14 )
+ 	local myText = display.newText( "Balayan, Maricia Polene A.\nConoza, Vanessa Viel B.\nTolentino, Jasmine Mae M.", display.contentCenterX-60, display.contentCenterY, native.systemFont, 14 )
  	aboutgroup:insert(myText)
  	aboutgroup:insert(myText1)
 
@@ -322,7 +322,7 @@ function showaboutDialog(event)
  	aboutgroup:insert(upitdc)
 
  	local disclaimer = "Disclaimer: Some of the photos used for two of the games are from the following sites: www.clipartlord.com, www.freedigitalphotos.net, www.pixabay.com, www.vectorstock.com, www.clker.com, www.clipartsfree.net, and www.alloflife.com. Music used is by Kevin McLeod, owner of Incompetech.com"
- 	local myText2 = display.newText( disclaimer, 0, 280, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 8 )
+ 	local myText2 = display.newText( disclaimer, display.contentCenterX, display.contentHeight+40, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 8 )
  	aboutgroup:insert(myText2)
 
 
@@ -346,8 +346,8 @@ function scene:createScene(event)
 	bgMusic = event.params.music
 
 	bg = display.newImageRect("images/menu/bg.png", 570, 320)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 	
 	-- an image sheet with purple house
@@ -387,8 +387,8 @@ function scene:createScene(event)
 		emboss = true,
 		onEvent = function() storyboard.gotoScene( "instructions", "fade", 400 ); end,
 	}
-	howtoplay.x = (display.contentWidth/2);
-	howtoplay.y = (display.contentHeight/2) - 100;
+	howtoplay.x = (display.contentCenterX);
+	howtoplay.y = (display.contentCenterY) - 100;
 	screenGroup:insert(howtoplay)
 	
 	option =	{
@@ -406,26 +406,26 @@ function scene:createScene(event)
 		emboss = true,
 		onEvent = function() storyboard.gotoScene( "scoreboard", option); end,
 	}
-	scores.x = (display.contentWidth/2) + 130;
-	scores.y = (display.contentHeight/2) - 75;
+	scores.x = (display.contentCenterX) + 130;
+	scores.y = (display.contentCenterY) - 75;
 	screenGroup:insert(scores)
 
 	about = display.newImage("images/menu/about.png", 45, 45)
-	about.x = (display.contentWidth/2) + 220;
-	about.y = (display.contentHeight/2) - 100;
+	about.x = (display.contentCenterX) + 220;
+	about.y = (display.contentCenterY) - 100;
 	about.width = 60
 	about.height = 60
 	about:addEventListener("tap", showaboutDialog)
 	screenGroup:insert(about)
 
 	bg_ground = display.newImageRect("images/menu/ground2.png", 570, 320)
-	bg_ground.x = display.contentWidth/2;
-	bg_ground.y = display.contentHeight/2;
+	bg_ground.x = display.contentCenterX;
+	bg_ground.y = display.contentCenterY;
 	screenGroup:insert(bg_ground)
 	
-	game1 = display.newText("Memory", 30, display.viewableContentHeight-55, font, 20)
-	game2 = display.newText("Search & Sort", display.viewableContentWidth/3+20, display.viewableContentHeight-27, font, 20)
-	game3 = display.newText("Spelling", display.viewableContentWidth-95, display.viewableContentHeight-30, font, 20)
+	game1 = display.newText("Memory", 60, display.contentHeight-45, font, 20)
+	game2 = display.newText("Search & Sort", display.contentCenterX, display.contentHeight-20, font, 20)
+	game3 = display.newText("Spelling", 420, display.contentHeight-25, font, 20)
 	screenGroup:insert(game1)
 	screenGroup:insert(game2)
 	screenGroup:insert(game3)

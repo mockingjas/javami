@@ -314,7 +314,7 @@ local function checkanswer(event)
 			timer = nil
 			storyboard.gotoScene("reload", option)
 		else
-			toast.new("images/wrong.png", 500, 0, 0, "firstgame_image")
+			toast.new("images/wrong.png", 500, display.contentCenterX, display.contentCenterY, "firstgame_image")
 			audio.play(incorrectSound)
 		end
 	end
@@ -472,14 +472,14 @@ function showanalyticsDialog()
  	levelgroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
- 	rect.x = display.contentWidth/2;
- 	rect.y = display.contentHeight/2;
+ 	rect.x = display.contentCenterX;
+ 	rect.y = display.contentCenterY;
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/saveanalytics.png")
- 	dialog.x = display.contentWidth/2;
- 	dialog.y = display.contentHeight/2;
+ 	dialog.x = display.contentCenterX;
+ 	dialog.y = display.contentCenterY;
  	levelgroup:insert(dialog)
 
 	namelabel = display.newText("Kid's name", 190, 100, font, 25)
@@ -658,9 +658,6 @@ function gameoverdialog()
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
-timerText = display.newText("", 0, 0, font, 25)
-timerText.x = 458
-timerText.y = 37
 local function onFrame(event)
 	if (timer ~= nil) then
    		timerText.text = timer:toRemainingString()
@@ -803,8 +800,8 @@ end
 function showpauseDialog()
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
- 	pausedialog.x = display.contentWidth/2;
- 	pausedialog.y = display.contentHeight/2;
+ 	pausedialog.x = display.contentCenterX;
+ 	pausedialog.y = display.contentCenterY;
 	pausedialog:addEventListener("tap", function() return true end)
 	pausegroup:insert(pausedialog)
 
@@ -850,11 +847,12 @@ end
 local function displayScreenElements()
 	--BG
 	bg = display.newImageRect("images/firstgame/board.png", 550, 320)
-	bg.x = display.contentWidth/2;
-	bg.y = display.contentHeight/2;
+	bg.x = display.contentCenterX;
+	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 	--SCORE
-	scoreToDisplay = display.newText("Score: "..currScore, 0, 25, font, 25 )	
+	scoreToDisplay = display.newText("Score: "..currScore, 37, 37, font, 25 )
+	timerText = display.newText("", 458, 37, font, 25)
 
 	------ BUTTONS -------
 	--SUBMIT
