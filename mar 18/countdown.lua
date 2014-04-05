@@ -150,16 +150,16 @@ function scene:createScene(event)
 		bg = display.newImageRect("images/firstgame/board.png", 550, 320)
 	elseif(game == "two") then
 		bg = display.newImageRect("images/secondgame/game2bg.png", 550, 320)
-		one:setTextColor(0,0,0)
-		two:setTextColor(0,0,0)
-		three:setTextColor(0,0,0)
-		go:setTextColor(0,0,0)
+		one:setFillColor(0,0,0)
+		two:setFillColor(0,0,0)
+		three:setFillColor(0,0,0)
+		go:setFillColor(0,0,0)
 	else
 		bg = display.newImageRect("images/thirdgame/game3bg.png", 550, 320)
-		one:setTextColor(0,0,0)
-		two:setTextColor(0,0,0)
-		three:setTextColor(0,0,0)
-		go:setTextColor(0,0,0)
+		one:setFillColor(0,0,0)
+		two:setFillColor(0,0,0)
+		three:setFillColor(0,0,0)
+		go:setFillColor(0,0,0)
 	end
 
 

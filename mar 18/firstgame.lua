@@ -473,26 +473,28 @@ function showanalyticsDialog()
 
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentWidth/2;
+ 	rect.y = display.contentHeight/2;
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/saveanalytics.png")
  	dialog.x = display.contentWidth/2;
+ 	dialog.y = display.contentHeight/2;
  	levelgroup:insert(dialog)
 
 	namelabel = display.newText("Kid's name", 190, 100, font, 25)
-	namelabel:setTextColor(0,0,0)
+	namelabel:setFillColor(0,0,0)
 	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
-    name:setTextColor( 0,0,0)
+    name:setFillColor( 0,0,0)
     name.hintText= ""
    	name.text = name.hintText
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
    	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
-   	agelabel:setTextColor(0,0,0)
+   	agelabel:setFillColor(0,0,0)
 	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
-    age:setTextColor( 0,0,0)
+    age:setFillColor( 0,0,0)
    	age.inputType = "number"
    	age.hintText = ""
    	age.text = age.hintText
@@ -679,7 +681,7 @@ function generateLetterbox()
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
 		chalkLetter = display.newText( c:upper(), x, y, font, 45)
-		chalkLetter:setTextColor(240,225,25)
+		chalkLetter:setFillColor(240,225,25)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if(i == 6) then
@@ -802,6 +804,7 @@ function showpauseDialog()
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentWidth/2;
+ 	pausedialog.y = display.contentHeight/2;
 	pausedialog:addEventListener("tap", function() return true end)
 	pausegroup:insert(pausedialog)
 
@@ -810,7 +813,7 @@ function showpauseDialog()
 		overFile="images/pause/resume_button.png",
 		onEvent = resume_onBtnRelease -- event listener function
 	}
-	resumeBtn:setReferencePoint( display.CenterReferencePoint )
+	-- resumeBtn:setReferencePoint( display.CenterReferencePoint )
 	resumeBtn.x = bg.x - 80
 	resumeBtn.y = 170
 	pausegroup:insert(resumeBtn)
@@ -820,7 +823,7 @@ function showpauseDialog()
 		overFile="images/pause/exit_button.png",
 		onEvent = exit_onBtnRelease -- event listener function
 	}
-	exitBtn:setReferencePoint( display.CenterReferencePoint )
+	-- exitBtn:setReferencePoint( display.CenterReferencePoint )
 	exitBtn.x = bg.x + 100
 	exitBtn.y = 170
 	pausegroup:insert(exitBtn)
@@ -971,7 +974,7 @@ function scene:createScene(event)
 			chalkLetter = display.newImage(filename)
 		else
 			chalkLetter = display.newText( c:upper(), x, y, font, 45)
-			chalkLetter:setTextColor(240,225,25)
+			chalkLetter:setFillColor(240,225,25)
 		end		
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then

@@ -71,7 +71,7 @@ function scene:createScene(event)
 	screenGroup:insert(title)
 
 	helpText = display.newText("Tap the title to start game", (display.contentWidth/3)-15, (display.contentHeight/2) + 55, Arial, 18)
-	helpText:setTextColor(255, 255, 255)
+	helpText:setFillColor(255, 255, 255)
 	screenGroup:insert(helpText)
 	
 end

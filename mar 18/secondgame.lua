@@ -226,27 +226,29 @@ function showanalyticsDialog()
 
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentWidth/2;
+ 	rect.y = display.contentHeight/2;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/saveanalytics.png")
  	dialog.x = display.contentWidth/2;
+ 	dialog.y = display.contentHeight/2;
  	levelgroup:insert(dialog)
 
 	namelabel = display.newText("Kid's name", 190, 100, font, 25)
-	namelabel:setTextColor(0,0,0)
+	namelabel:setFillColor(0,0,0)
 	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
-    name:setTextColor( 0,0,0)
+    name:setFillColor( 0,0,0)
     name.hintText= ""
    	name.text = name.hintText
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
    	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
-   	agelabel:setTextColor(0,0,0)
+   	agelabel:setFillColor(0,0,0)
 	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
-    age:setTextColor( 0,0,0)
+    age:setFillColor( 0,0,0)
    	age.inputType = "number"
    	age.hintText = ""
    	age.text = age.hintText
@@ -275,13 +277,13 @@ local function finalmenu( )
     round= display.newText("ROUND: "..category, 0, 0, font, 15)
 	round.x = 150
 	round.y = display.contentCenterY - 120
-	round:setTextColor(0,0,0)
+	round:setFillColor(0,0,0)
 	gameovergroup:insert(round)
 
 	score= display.newText("SCORE: "..currScore, 0, 0, font, 15)
 	score.x = 300
 	score.y = display.contentCenterY - 120
-	score:setTextColor(0,0,0)
+	score:setFillColor(0,0,0)
 	gameovergroup:insert(score)
 
 	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
@@ -291,7 +293,7 @@ local function finalmenu( )
     gameovergroup:insert(playBtn)
 
     local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 90, font, 25) 
-    playtext:setTextColor(0,0,0)
+    playtext:setFillColor(0,0,0)
     gameovergroup:insert(playtext)
 
     local homeBtn = display.newImage( "images/firstgame/home_button.png")
@@ -301,7 +303,7 @@ local function finalmenu( )
     gameovergroup:insert(homeBtn)
 
     local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 30, font, 25) 
-    hometext:setTextColor(0,0,0)
+    hometext:setFillColor(0,0,0)
     gameovergroup:insert(hometext)
 
     local emailBtn = display.newImage( "images/firstgame/email_button.png")
@@ -311,7 +313,7 @@ local function finalmenu( )
     gameovergroup:insert(emailBtn)
     
     local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
-    emailtext:setTextColor(0,0,0)
+    emailtext:setFillColor(0,0,0)
     gameovergroup:insert(emailtext)
 
     screenGroup:insert(gameovergroup)
@@ -475,6 +477,7 @@ function showpauseDialog()
 	pausegroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentWidth/2;
+ 	pausedialog.y = display.contentHeight/2;
  	pausedialog:addEventListener("touch", function() return true end)
 	pausedialog:addEventListener("tap", function() return true end)
 	pausegroup:insert(pausedialog)
@@ -484,7 +487,7 @@ function showpauseDialog()
 		overFile="images/pause/resume_button.png",
 		onEvent = resume_onBtnRelease -- event listener function
 	}
-	resumeBtn:setReferencePoint( display.CenterReferencePoint )
+	-- resumeBtn:setReferencePoint( display.CenterReferencePoint )
 	resumeBtn.x = bg.x - 80
 	resumeBtn.y = 170
 	pausegroup:insert(resumeBtn)
@@ -494,7 +497,7 @@ function showpauseDialog()
 		overFile="images/pause/exit_button.png",
 		onEvent = exit_onBtnRelease -- event listener function
 	}
-	exitBtn:setReferencePoint( display.CenterReferencePoint )
+	-- exitBtn:setReferencePoint( display.CenterReferencePoint )
 	exitBtn.x = bg.x + 100
 	exitBtn.y = 170
 	pausegroup:insert(exitBtn)
@@ -690,7 +693,7 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 
 		local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2
 		textObject = display.newText( templabel, currentX + textPosX, currentY + photoHeight - 50, native.systemFontBold, fontSize )
-		textObject:setTextColor( 0,0,0 )
+		textObject:setFillColor( 0,0,0 )
 		gameBoard:insert(textObject)
 		screenGroup:insert(gameBoard)
 
@@ -905,7 +908,7 @@ end
 
 -- GAME: TIMER
 timerText = display.newText("", 480, 0, font, 18) 
-timerText:setTextColor(0,0,0)
+timerText:setFillColor(0,0,0)
 local function onFrame(event)
 	if (maintimer ~= nil) then
    		timerText.text = maintimer:toRemainingString()
@@ -939,7 +942,7 @@ function scene:createScene(event)
 
 	-- Screen Elements
 	scoreToDisplay = display.newText("Score: "..currScore, -30, 0, font, 18 )	
-	scoreToDisplay:setTextColor(0,0,0)
+	scoreToDisplay:setFillColor(0,0,0)
 	
     categories = {"living", "nonliving", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "animal", "bodypart"}
 	values = {"1", "0", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "1", "1"}
@@ -986,7 +989,7 @@ function scene:createScene(event)
     screenGroup:insert( muteBtn )
     --outer rectangle
     progressBar = display.newRect(display.viewableContentWidth/6 - 2, 3, 322, 15)
-    progressBar:setReferencePoint(display.BottomLeftReferencePoint)
+    -- progressBar:setReferencePoint(display.BottomLeftReferencePoint)
     progressBar.strokeWidth = 1
     progressBar:setStrokeColor( 0, 0, 0) 
     progressBar:setFillColor( 0, 0, 0 )  
@@ -994,7 +997,7 @@ function scene:createScene(event)
     --inner rectangle which fills up
     progressBarFill = display.newRect(display.viewableContentWidth/6,5,0,10)
     progressBarFill:setFillColor(50,205,30)  
-    progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
+    -- progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
     screenGroup:insert( progressBarFill )
 
     if boolFirst then

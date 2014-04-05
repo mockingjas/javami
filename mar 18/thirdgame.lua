@@ -114,7 +114,7 @@ end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
 timerText = display.newText("", 480, 5, font, 25) 
-timerText:setTextColor(0,0,0)
+timerText:setFillColor(0,0,0)
 local function onFrame(event)
 	if (timerr ~= nil) then
    		timerText.text = timerr:toRemainingString()
@@ -182,27 +182,29 @@ function showUserDialog()
 
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentWidth/2;
+ 	rect.y = display.contentHeight/2;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/saveanalytics.png")
  	dialog.x = display.contentWidth/2;
+ 	dialog.y = display.contentHeight/2;
  	levelgroup:insert(dialog)
 
 	namelabel = display.newText("Kid's name", 190, 100, font, 25)
-	namelabel:setTextColor(0,0,0)
+	namelabel:setFillColor(0,0,0)
 	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
-    name:setTextColor( 0,0,0)
+    name:setFillColor( 0,0,0)
     name.hintText= ""
    	name.text = name.hintText
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
    	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
-   	agelabel:setTextColor(0,0,0)
+   	agelabel:setFillColor(0,0,0)
 	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
-    age:setTextColor( 0,0,0)
+    age:setFillColor( 0,0,0)
    	age.inputType = "number"
    	age.hintText = ""
    	age.text = age.hintText
@@ -264,7 +266,7 @@ local function finalmenu()
     gameovergroup:insert(playBtn)
 
     local playtext = display.newText(" PLAY\nAGAIN", 118, display.contentCenterY + 60, font, 15) 
-    playtext:setTextColor(0,0,0)
+    playtext:setFillColor(0,0,0)
     gameovergroup:insert(playtext)
 
     local homeBtn = display.newImage( "images/firstgame/home_button.png")
@@ -274,7 +276,7 @@ local function finalmenu()
     gameovergroup:insert(homeBtn)
 
     local hometext = display.newText("BACK TO\n  MENU", 205, display.contentCenterY + 60, font, 15) 
-    hometext:setTextColor(0,0,0)
+    hometext:setFillColor(0,0,0)
     gameovergroup:insert(hometext)
 
     local emailBtn = display.newImage( "images/firstgame/email_button.png")
@@ -284,7 +286,7 @@ local function finalmenu()
     gameovergroup:insert(emailBtn)
     
     local emailtext = display.newText(" EMAIL\nRESULTS", 310, display.contentCenterY + 60, font, 15) 
-    emailtext:setTextColor(0,0,0)
+    emailtext:setFillColor(0,0,0)
     gameovergroup:insert(emailtext)
 
     screenGroup:insert(gameovergroup)
@@ -531,12 +533,12 @@ function scene:createScene(event)
 
 	--score
 	scoreToDisplay = display.newText("Score: "..currScore, -30, 5, font, 25 )	
-	scoreToDisplay:setTextColor(0,0,0)
+	scoreToDisplay:setFillColor(0,0,0)
 	screenGroup:insert(scoreToDisplay)
 
 	--round
 	roundToDisplay = display.newText("Round "..roundNumber, (display.contentWidth/2)-35, 5, font, 25 )
-	roundToDisplay:setTextColor(0,0,0)
+	roundToDisplay:setFillColor(0,0,0)
 	screenGroup:insert(roundToDisplay)
 
 	--exit button
@@ -612,7 +614,7 @@ function scene:createScene(event)
 		obj.isVisible = false
 	end
 
-	objectGroup:setReferencePoint(display.CenterReferencePoint)
+	-- objectGroup:setReferencePoint(display.CenterReferencePoint)
 	objectGroup.x = display.viewableContentWidth/2
 	objectGroup.y = display.viewableContentHeight/2 + 10
 

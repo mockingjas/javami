@@ -223,12 +223,14 @@ function showlevelDialog()
 
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentWidth/2;
+ 	rect.y = display.contentHeight/2;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
 	levelgroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/levelselect_wood.png")
  	dialog.x = display.contentWidth/2;
+ 	dialog.y = display.contentHeight/2;
  	levelgroup:insert(dialog)
 
 	local easyBtn = widget.newButton{
@@ -236,7 +238,7 @@ function showlevelDialog()
 		overFile="images/modal/Easy.png",
 		onRelease = easy_onBtnRelease -- event listener function
 	}
-	easyBtn:setReferencePoint( display.CenterReferencePoint )
+	-- easyBtn:setReferencePoint( display.CenterReferencePoint )
 	easyBtn.x = bg.x - 5
 	easyBtn.y = 115
 	levelgroup:insert(easyBtn)
@@ -246,7 +248,7 @@ function showlevelDialog()
 		overFile="images/modal/Medium.png",
 		onRelease = medium_onBtnRelease	-- event listener function
 	}
-	mediumBtn:setReferencePoint( display.CenterReferencePoint )
+	-- mediumBtn:setReferencePoint( display.CenterReferencePoint )
 	mediumBtn.x = bg.x
 	mediumBtn.y = 190
 	levelgroup:insert(mediumBtn)
@@ -256,7 +258,7 @@ function showlevelDialog()
 		overFile="images/modal/Hard.png",
 		onRelease = hard_onBtnRelease	-- event listener function
 	}
-	hardBtn:setReferencePoint( display.CenterReferencePoint )
+	-- hardBtn:setReferencePoint( display.CenterReferencePoint )
 	hardBtn.x = bg.x - 5
 	hardBtn.y = 250
 	levelgroup:insert(hardBtn)
@@ -266,7 +268,7 @@ function showlevelDialog()
 		overFile="images/modal/closebutton.png",
 		onRelease = exit_onBtnRelease	-- event listener function
 	}
-	exitBtn:setReferencePoint( display.CenterReferencePoint )
+	-- exitBtn:setReferencePoint( display.CenterReferencePoint )
 	exitBtn.x = bg.x + 115
 	exitBtn.y = 67
 	levelgroup:insert(exitBtn)
@@ -289,16 +291,18 @@ function showaboutDialog(event)
 
 	local rectx = display.newImage("images/modal/gray.png")
  	rectx.x = display.contentWidth/2;
+ 	rectx.y = display.contentHeight/2;
  	rectx:addEventListener("touch", function() return true end)
 	rectx:addEventListener("tap", function() return true end)
 	aboutgroup:insert(rectx)
 
 	local dialogx = display.newImage("images/modal/about.png")
  	dialogx.x = display.contentWidth/2;
+ 	dialogx.y = display.contentHeight/2;
  	aboutgroup:insert(dialogx)
 
  	local myText1 = display.newText( "Developers", 100, 120, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 16 )
- 	myText1:setTextColor( black )
+ 	myText1:setFillColor( black )
  	local myText = display.newText( "Balayan, Maricia Polene A.\nConoza, Vanessa Viel B.\nTolentino, Jasmine Mae M.", 100, 140, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 14 )
  	aboutgroup:insert(myText)
  	aboutgroup:insert(myText1)
@@ -328,7 +332,7 @@ function showaboutDialog(event)
 		overFile="images/modal/closebutton.png",
 		onEvent = exit_about-- event listener function
 	}
-	exit:setReferencePoint( display.CenterReferencePoint )
+	-- exit:setReferencePoint( display.CenterReferencePoint )
 	exit.x = bg.x + 170
 	exit.y = 85
 	aboutgroup:insert(exit)

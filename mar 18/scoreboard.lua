@@ -135,7 +135,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 
 	-- create embossed text to go on toolbar
 	local titleText = display.newEmbossedText( "Scores", 0, 0, font, 20)
-	titleText:setTextColor( 255 )
+	titleText:setFillColor( 255 )
 	titleText.x = display.contentCenterX
 	titleText.y = titleBar.y
 
@@ -146,7 +146,7 @@ function displayScores(easyScores, mediumScores, hardScores)
 		local rowTitle = display.newText( row, rowTitles[row.index], 0, 0, font, 16 )
 		rowTitle.x = display.contentCenterX + 60
 		rowTitle.y = row.contentHeight * 0.5
-		rowTitle:setTextColor( 0,0,0 )
+		rowTitle:setFillColor( 0,0,0 )
 	end
 
 	-- Create a tableView
