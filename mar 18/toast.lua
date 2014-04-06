@@ -1,3 +1,10 @@
+--------
+-- Corona-Toast-Notifications
+-- by PitchBlackCat
+----
+-- Retrieved from: https://github.com/PitchBlackCat/Corona-Toast-Notifications
+-- Modified by Developers
+--------
 module(..., package.seeall)
 
 local trueDestroy;

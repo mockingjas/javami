@@ -383,7 +383,7 @@ function home(event)
 				music = backgroundMusicChannel
 			}
 		}
-		storyboard.gotoScene("mainmenu", option)
+		storyboard.gotoScene("MainMenu", option)
   		return true
   	end
 end
