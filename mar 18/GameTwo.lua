@@ -1002,8 +1002,8 @@ function scene:createScene(event)
     progressBar:setFillColor( 0, 0, 0 )  
     screenGroup:insert( progressBar )
     --inner rectangle which fills up
-    progressBarFill = display.newRect(display.contentWidth/6 + 2, 10, 0, 10)
-    progressBarFill:setFillColor(50,205,30)
+    progressBarFill = display.newRect(display.contentWidth/6 + 1, 10, 0, 10)
+    progressBarFill:setFillColor(0.2 , 0.8, 0.12)
     progressBarFill.anchorX = 0
 
     -- progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)

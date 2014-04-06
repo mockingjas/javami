@@ -1,13 +1,14 @@
 ------- Requirements ---------
-MultiTouch = require("dmc_multitouch");
-local storyboard = require ("storyboard")
-local widget = require( "widget" )
-local physics = require("physics")
-local lfs = require("lfs")
-local stopwatch =require "stopwatch"
-local scene = storyboard.newScene()
+local MultiTouch 	= require("dmc_multitouch")
+local storyboard 	= require("storyboard")
+local widget 		= require("widget")
+local physics 		= require("physics")
+local lfs 			= require("lfs")
+local stopwatch 	= require("stopwatch")
+local toast 		= require("toast")
+local scene 		= storyboard.newScene()
+
 scene.purgeOnSceneChange = true
-local toast = require("toast");
 
 ------- Global variables ---------
 --for the blackboard
@@ -561,7 +562,7 @@ local function spriteListener( event )
 	    playBtn:addEventListener("tap", restart_onBtnRelease)
 	    gameovergroup:insert(playBtn)
 
-	    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 70, font, 25) 
+	    local playtext = display.newText("PLAY AGAIN", display.contentCenterX-7, display.contentCenterY-60, font, 25) 
 	    gameovergroup:insert(playtext)
 
 	    local homeBtn = display.newImage( "images/buttons/home_button.png")
@@ -570,7 +571,7 @@ local function spriteListener( event )
 	    homeBtn:addEventListener("tap", home)
 	    gameovergroup:insert(homeBtn)
 
-	    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 10, font, 25) 
+	    local hometext = display.newText("BACK TO MENU", display.contentCenterX+10, display.contentCenterY, font, 25) 
 	    gameovergroup:insert(hometext)
 
 	    local emailBtn = display.newImage( "images/buttons/email_button.png")
@@ -578,7 +579,7 @@ local function spriteListener( event )
 	    emailBtn.y = display.contentCenterY + 60
 	   	emailBtn:addEventListener("tap", onSendEmail)
 	    gameovergroup:insert(emailBtn)
-	    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 50, font, 25) 
+	    local emailtext = display.newText("EMAIL RESULTS", display.contentCenterX+10, display.contentCenterY+60, font, 25) 
 	    gameovergroup:insert(emailtext)
 
 	    screenGroup:insert(gameovergroup)
@@ -655,7 +656,7 @@ function generateLetterbox()
 	for i = 1, #letterbox do
 		local c = get_char(i, letterbox)
 		chalkLetter = display.newText( c:upper(), x, y, font, 45)
-		chalkLetter:setFillColor(240,225,25)
+		chalkLetter:setFillColor(0.94,0.88,0.1)
 		letterboxGroup:insert(i, chalkLetter)
 		letterboxGroup[c] = chalkLetter
 		if(i == 6) then
@@ -946,7 +947,7 @@ function scene:createScene(event)
 			chalkLetter = display.newImage(filename)
 		else
 			chalkLetter = display.newText( c:upper(), x, y, font, 45)
-			chalkLetter:setFillColor(240,225,25)
+			chalkLetter:setFillColor(0.94, 0.88, 0.1)
 		end		
 		wordGroup:insert(chalkLetter)
 		if (c == "_") then

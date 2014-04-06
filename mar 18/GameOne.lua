@@ -256,33 +256,27 @@ end
 local function finalmenu()
 	gameovergroup = display.newGroup()
 
-	local playBtn = display.newImage( "images/buttons/playagain_button.png")
-    playBtn.x = 140
-    playBtn.y = display.contentCenterY + 30
+	local playBtn = display.newImage("images/buttons/playagain_button.png", 140, display.contentCenterY+30)
     playBtn:addEventListener("touch", restart_onBtnRelease)
     gameovergroup:insert(playBtn)
 
-    local playtext = display.newText(" PLAY\nAGAIN", 118, display.contentCenterY + 60, font, 15) 
+    local playtext = display.newText(" PLAY\nAGAIN", 140, display.contentCenterY+75, font, 20) 
     playtext:setFillColor(0,0,0)
     gameovergroup:insert(playtext)
 
-    local homeBtn = display.newImage( "images/buttons/home_button.png")
-    homeBtn.x = 240
-    homeBtn.y = display.contentCenterY + 30
+    local homeBtn = display.newImage("images/buttons/home_button.png", 240, display.contentCenterY+30)
    	homeBtn:addEventListener("touch", home)
     gameovergroup:insert(homeBtn)
 
-    local hometext = display.newText("BACK TO\n  MENU", 205, display.contentCenterY + 60, font, 15) 
+    local hometext = display.newText("BACK TO\n  MENU", 240, display.contentCenterY+75, font, 20) 
     hometext:setFillColor(0,0,0)
     gameovergroup:insert(hometext)
 
-    local emailBtn = display.newImage( "images/buttons/email_button.png")
-    emailBtn.x = 340
-    emailBtn.y = display.contentCenterY + 30
+    local emailBtn = display.newImage("images/buttons/email_button.png", 340, display.contentCenterY+30)
     emailBtn:addEventListener("touch", onSendEmail)
     gameovergroup:insert(emailBtn)
     
-    local emailtext = display.newText(" EMAIL\nRESULTS", 310, display.contentCenterY + 60, font, 15) 
+    local emailtext = display.newText(" EMAIL\nRESULTS", 342, display.contentCenterY+75, font, 20) 
     emailtext:setFillColor(0,0,0)
     gameovergroup:insert(emailtext)
 
@@ -343,9 +337,8 @@ function gameoverdialog()
 
 	-------------------
 	objectGroup:removeSelf()
-	gameover= display.newImage( "images/game_one/gameover.png" )
-	gameover.x = 700
-	gameover.y =  display.contentCenterY - 10;
+	exitBtn:removeSelf()
+	gameover = display.newImage( "images/game_one/gameover.png", 700, display.contentCenterY-10 )
 	gameover.speed = 5
 
 	gameover.enterFrame = moveBG

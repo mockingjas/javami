@@ -22,8 +22,8 @@ function new(pText, pTime, xcoord, ycoord, game)
         toast.text.align                = "center"
         toast.background                = display.newRoundedRect( toast, xcoord, -115, toast.text.width + 20, toast.text.height + 20, 16 );
         toast.background.strokeWidth    = 4
-        toast.background:setFillColor(72, 64, 72)
-        toast.background:setStrokeColor(96, 88, 96)
+        toast.background:setFillColor(0.28, 0.25, 0.28)
+        toast.background:setStrokeColor(0.38, 0.35, 0.38)
         toast.text:toFront();
         toast.text:setFillColor(0,0,0)
         toast.x = display.contentWidth * .5

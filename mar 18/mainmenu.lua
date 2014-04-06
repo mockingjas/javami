@@ -168,31 +168,26 @@ function showaboutDialog(event)
  	dialogx.y = display.contentCenterY;
  	aboutgroup:insert(dialogx)
 
- 	local myText1 = display.newText( "Developers", 100, 120, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 16 )
- 	myText1:setFillColor( black )
- 	local myText = display.newText( "Balayan, Maricia Polene A.\nConoza, Vanessa Viel B.\nTolentino, Jasmine Mae M.", display.contentCenterX-60, display.contentCenterY, native.systemFont, 14 )
+ 	local myText1 = display.newText( "Developers", display.contentCenterX-107, display.contentCenterY-35, native.systemFont, 16 )
+ 	myText1:setFillColor(0, 0, 0)
+ 	local myText = display.newText( "Balayan, Maricia Polene A.\nConoza, Vanessa Viel B.\nTolentino, Jasmine Mae M.", display.contentCenterX-60, display.contentCenterY+5, native.systemFont, 14 )
+ 	myText:setFillColor(0, 0, 0)
  	aboutgroup:insert(myText)
  	aboutgroup:insert(myText1)
 
- 	local uplogo = display.newImage("images/uplogo.jpg")
+ 	local uplogo = display.newImageRect("images/uplogo.jpg", 100, 100)
  	uplogo.x = 330
  	uplogo.y = 170
- 	uplogo.width = 100
- 	uplogo.height = 100
  	aboutgroup:insert(uplogo)
 
- 	local upitdc = display.newImage("images/upitdc.png")
+ 	local upitdc = display.newImageRect("images/upitdc.png", 200, 50)
  	upitdc.x = 200
  	upitdc.y = 220
- 	upitdc.width = 200
- 	upitdc.height = 50
  	aboutgroup:insert(upitdc)
 
  	local disclaimer = "Disclaimer: Some of the photos used for two of the games are from the following sites: www.clipartlord.com, www.freedigitalphotos.net, www.pixabay.com, www.vectorstock.com, www.clker.com, www.clipartsfree.net, and www.alloflife.com. Music used is by Kevin McLeod, owner of Incompetech.com"
  	local myText2 = display.newText( disclaimer, display.contentCenterX, display.contentHeight+40, display.contentWidth, display.contentHeight * 0.5, native.systemFont, 8 )
  	aboutgroup:insert(myText2)
-
-
 
 	local exit = widget.newButton{
 		defaultFile="images/modal/closebutton.png",
