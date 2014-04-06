@@ -209,15 +209,15 @@ function closedialog()
 	userAge.isVisible = false
 
 	-- SAVE TO PROFILE
-	 if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
-	else
+	--  if username.text == "" or userAge.text == "" then
+	-- 	toast.new("Please enter your information.", 1000, 80, -105, "toastText")
+	-- else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		saveToFile()
-	end 
+	-- end 
 end
 
 ---- END: PROFILE MODAL
@@ -290,8 +290,8 @@ local function finalmenu( )
     playBtn:addEventListener("touch", restart_onBtnRelease)
     gameovergroup:insert(playBtn)
 
-    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 90, font, 25) 
-    playtext:setFillColor(0,0,0)
+    local playtext = display.newText("PLAY AGAIN", display.contentCenterX-7, display.contentCenterY-80, font, 25) 
+	playtext:setFillColor(0,0,0)
     gameovergroup:insert(playtext)
 
     local homeBtn = display.newImage( "images/buttons/home_button.png")
@@ -300,8 +300,8 @@ local function finalmenu( )
     homeBtn:addEventListener("touch", home)
     gameovergroup:insert(homeBtn)
 
-    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 30, font, 25) 
-    hometext:setFillColor(0,0,0)
+    local hometext = display.newText("BACK TO MENU", display.contentCenterX+10, display.contentCenterY-25, font, 25) 
+	hometext:setFillColor(0,0,0)
     gameovergroup:insert(hometext)
 
     local emailBtn = display.newImage( "images/buttons/email_button.png")
@@ -310,8 +310,8 @@ local function finalmenu( )
     emailBtn:addEventListener("touch", onSendEmail)
     gameovergroup:insert(emailBtn)
     
-    local emailtext = display.newText("EMAIL RESULTS", 165, display.contentCenterY + 25, font, 25) 
-    emailtext:setFillColor(0,0,0)
+    local emailtext = display.newText("EMAIL RESULTS", display.contentCenterX+10, display.contentCenterY+30, font, 25) 
+	emailtext:setFillColor(0,0,0)
     gameovergroup:insert(emailtext)
 
     screenGroup:insert(gameovergroup)
