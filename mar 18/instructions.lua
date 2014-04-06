@@ -5,12 +5,12 @@ local scene = storyboard.newScene()
 local gameScreen, tabGroup
 
 function scene:createScene( event )
-	local slideView = require("slideView")
+	local slideView = require("SlideView")
 	
 	local myImages = {
-		"images/menu/howtoplay3.png",
-		"images/menu/howtoplay2.png",
 		"images/menu/howtoplay1.png",
+		"images/menu/howtoplay2.png",
+		"images/menu/howtoplay3.png",
 	}		
 
 	slideView.new( myImages )	

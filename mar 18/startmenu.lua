@@ -14,7 +14,7 @@ local startGame = function( event )
 			music = backgroundMusicChannel
 		}
 	}
-	storyboard.gotoScene("mainmenu", option)
+	storyboard.gotoScene("MainMenu", option)
 end
 
 function scene:createScene(event)

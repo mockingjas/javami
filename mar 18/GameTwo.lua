@@ -36,7 +36,7 @@ db = sqlite3.open( path )
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
-local secondGameMusic = audio.loadSound("music/SecondGame.mp3")
+local secondGameMusic = audio.loadSound("music/GameTwo.mp3")
 local game2MusicChannel
 ------- Load font ---------
 local font
@@ -62,7 +62,7 @@ end
 
 -- END: SAVE SCORE TO DB
 function insertToDB(category, score, name, age, timestamp, pausectr)
-	local query = [[INSERT INTO SecondGame VALUES (NULL, ']] .. 
+	local query = [[INSERT INTO GameTwo VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
@@ -71,7 +71,7 @@ function insertToDB(category, score, name, age, timestamp, pausectr)
 	age.. [[');]]
 	db:exec(query)
 
-	for row in db:nrows("SELECT id FROM SecondGame") do
+	for row in db:nrows("SELECT id FROM GameTwo") do
 		id = row.id
 	end
 	return id
@@ -79,7 +79,7 @@ end
 
 -- END: SAVE ANALYTICS TO DB
 function insertAnalyticsToDB(gameid, roundid, word, category, isCorrect, speed)
-	local query = [[INSERT INTO SecondGameAnalytics VALUES (NULL, ']] .. 
+	local query = [[INSERT INTO GameTwoAnalytics VALUES (NULL, ']] .. 
 	gameid .. [[',']] ..
 	roundid .. [[',']] ..
 	word .. [[',']] ..
@@ -97,31 +97,31 @@ function saveToFile()
 	report = report .. "------------------------------------------------------------\n"
 	report = report .. "The following information contains the analytics for the most recently played game for Game 2: Searching and Sorting (ORANGE HOUSE). Note: For Game 2, the image of the word is the basis for its category, not the meaning of the word. To complete one round, user must be able to categorize 10, 15 and 20 items respectively for each level.\n\n"
 
-	for row in db:nrows("SELECT COUNT(*) as count FROM SecondGameAnalytics where gamenumber = '"..latestId.."'") do
+	for row in db:nrows("SELECT COUNT(*) as count FROM GameTwoAnalytics where gamenumber = '"..latestId.."'") do
 		dbcount = row.count
 	end
 
 	if dbcount == 0 then
 		report = report .. "GAME # " .. latestId .. "\n"
-		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. latestId .. "'") do
+		for row in db:nrows("SELECT * FROM GameTwo where id = '" .. latestId .. "'") do
 			report = report .. "\nPlayer:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
 	else
 		gamenumber = {}
 
-		for row in db:nrows("SELECT * FROM SecondGameAnalytics") do
+		for row in db:nrows("SELECT * FROM GameTwoAnalytics") do
 			gamenumber[#gamenumber+1] = row.gamenumber
 		end
 
 		report = ""
 		report = report .. "GAME # " .. gamenumber[#gamenumber]
-		for row in db:nrows("SELECT * FROM SecondGame where id = '" .. gamenumber[#gamenumber] .. "'") do
+		for row in db:nrows("SELECT * FROM GameTwo where id = '" .. gamenumber[#gamenumber] .. "'") do
 			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
 		--get round #
 		allRoundNumbers = {}
 		rounds = {}
-		for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. gamenumber[#gamenumber] .. "'") do
+		for row in db:nrows("SELECT roundnumber FROM GameTwoAnalytics WHERE gamenumber = '" .. gamenumber[#gamenumber] .. "'") do
 			allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
 		end
 		rounds = cleanArray(allRoundNumbers)
@@ -129,14 +129,14 @@ function saveToFile()
 		for j = 1, #rounds do
 			report = report .. "\n\nROUND "..rounds[j]
 			--round speed
-			for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+			for row in db:nrows("SELECT speed FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
 				report = report .. "\nRound time: "..row.speed.." seconds"
 				break
 			end
 			-- get categories
 			allCategories = {}
 			categories = {}
-			for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+			for row in db:nrows("SELECT category FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
 				allCategories[#allCategories+1] = row.category
 			end
 			categories = {}
@@ -146,7 +146,7 @@ function saveToFile()
 				report = report .. "\n\nCATEGORY: " .. categories[k]
 				-- get correct
 				words = {}
-				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
 					words[#words+1] = row.word
 				end
 				report = report .. "\nCorrect Words: "..#words
@@ -155,7 +155,7 @@ function saveToFile()
 				end
 				--get incorrect
 				words = {}
-				for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
 					words[#words+1] = row.word
 				end
 				report = report .. "\nIncorrect Words: "..#words
@@ -179,8 +179,8 @@ function saveProfile(dbname, dbage)
 	dbage .. [[');]]
 	db:exec(query)
 
-	for row in db:nrows("UPDATE SecondGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
-	for row in db:nrows("UPDATE SecondGame SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE GameTwo SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE GameTwo SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
 
 -- END: GET NAME
@@ -210,7 +210,7 @@ function closedialog()
 
 	-- SAVE TO PROFILE
 	 if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
+		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
 	else
 		levelgroup.isVisible = false
 		name.isVisible = false
@@ -236,19 +236,17 @@ function showanalyticsDialog()
  	dialog.y = display.contentCenterY;
  	levelgroup:insert(dialog)
 
-	namelabel = display.newText("Kid's name", 190, 100, font, 25)
+	namelabel = display.newText("Kid's name", display.contentCenterX, 100, font, 25)
 	namelabel:setFillColor(0,0,0)
-	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
-    name:setFillColor( 0,0,0)
+	name = native.newTextField( display.contentCenterX, 130, 220, 40 )    -- passes the text field object
     name.hintText= ""
    	name.text = name.hintText
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
-   	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
+   	agelabel = display.newText("Kid's Age", display.contentCenterX, 165, font, 25)
    	agelabel:setFillColor(0,0,0)
-	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
-    age:setFillColor( 0,0,0)
+	age = native.newTextField( display.contentCenterX, 200, 100, 40 )    -- passes the text field object
    	age.inputType = "number"
    	age.hintText = ""
    	age.text = age.hintText
@@ -258,7 +256,7 @@ function showanalyticsDialog()
    	--checkbutton
 	okay = widget.newButton{
 		id = "okay",
-		defaultFile = "images/firstgame/submit_button.png",
+		defaultFile = "images/buttons/submit_button.png",
 		fontSize = 15,
 		emboss = true,
 		onEvent = closedialog
@@ -286,7 +284,7 @@ local function finalmenu( )
 	score:setFillColor(0,0,0)
 	gameovergroup:insert(score)
 
-	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
+	local playBtn = display.newImage( "images/buttons/playagain_button.png")
     playBtn.x = 130
     playBtn.y = display.contentCenterY - 80
     playBtn:addEventListener("touch", restart_onBtnRelease)
@@ -296,7 +294,7 @@ local function finalmenu( )
     playtext:setFillColor(0,0,0)
     gameovergroup:insert(playtext)
 
-    local homeBtn = display.newImage( "images/firstgame/home_button.png")
+    local homeBtn = display.newImage( "images/buttons/home_button.png")
     homeBtn.x = 130
     homeBtn.y = display.contentCenterY - 25
     homeBtn:addEventListener("touch", home)
@@ -306,7 +304,7 @@ local function finalmenu( )
     hometext:setFillColor(0,0,0)
     gameovergroup:insert(hometext)
 
-    local emailBtn = display.newImage( "images/firstgame/email_button.png")
+    local emailBtn = display.newImage( "images/buttons/email_button.png")
     emailBtn.x = 130
     emailBtn.y = display.contentCenterY + 30
     emailBtn:addEventListener("touch", onSendEmail)
@@ -322,7 +320,7 @@ end
 -- END: GAME OVER SPRITE
 local fallover = function(event)
 	if (i < 9) then
-		local crate1 = display.newImage( "images/secondgame/" .. game:sub(i,i).. ".png" )
+		local crate1 = display.newImage( "images/game_two/" .. game:sub(i,i).. ".png" )
 		crate1.x = x
 		crate1.y = 270
 		transition.to(crate1, {time=1000, alpha=1})
@@ -372,8 +370,8 @@ function home(event)
 	if(event.phase == "ended") then
 		gameovergroup.isVisible = false
 		gameover.isVisible = false
-  		storyboard.removeScene("secondgame")
-  		storyboard.removeScene("mainmenu")
+  		storyboard.removeScene("GameTwo")
+  		storyboard.removeScene("MainMenu")
   		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
@@ -409,7 +407,7 @@ end
 -- BUTTON: ZOOM IN
 function zoomIn(event)
 	filename = event.target.filename
-	toast.new(filename, 1000, display.contentCenterX, display.contentCenterY, "secondgame")
+	toast.new(filename, 1000, display.contentCenterX, display.contentCenterY, "toastGameTwo")
 end
 
 -- BUTTON: PAUSE
@@ -460,7 +458,7 @@ function restart_onBtnRelease()
 	}
 	audio.stop()
 	Runtime:removeEventListener("enterFrame", onFrame)
-	storyboard.gotoScene("reloadsecond", option)
+	storyboard.gotoScene("ReloadGameTwo", option)
 end
 
 -- BUTTON: EXIT PAUSE MODAL
@@ -469,7 +467,15 @@ function exit_onBtnRelease()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
-	storyboard.gotoScene("mainmenu", "fade", 100, {music = backgroundMusicChannel})	
+	option =	{
+		effect = "fade",
+		time = 100,
+		params = {
+			music = backgroundMusicChannel
+		}
+	}
+	storyboard.removeScene("GameTwo")
+	storyboard.gotoScene("MainMenu", option)
 end
 
 -- PAUSE MODAL
@@ -528,7 +534,7 @@ function generateNew()
 	boxGroup:removeSelf()
 	timerText:removeSelf()
 	maintimer = nil
-	storyboard.gotoScene("reloadsecond", option)
+	storyboard.gotoScene("ReloadGameTwo", option)
 end
 
 -- GAME: CHECK ANSWER
@@ -543,7 +549,7 @@ function checkanswer(target)
 	isCorrect = false
 	for j = 1, maxcount do
 		if answers[boxNumber][j] == target.label then
-			toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
+			toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "correct")
 			currScore = currScore + 1
 			scoreToDisplay.text = "Score: "..currScore
 			isCorrect = true
@@ -563,7 +569,7 @@ function checkanswer(target)
 
 	if isCorrect == false then
 		audio.play(incorrectSound)
-		toast.new("images/wrong.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
+		toast.new("images/wrong.png", 300, display.contentCenterX, display.contentCenterY, "incorrect")
 		if count == 0 then
 			boxes[boxNumber].wrongCtr = boxes[boxNumber].wrongCtr + 1
 			count = boxes[boxNumber].wrongCtr
@@ -589,7 +595,7 @@ function checkanswer(target)
 
 	if correctCtr == 0 then
 		local gamenumber = 0
-		for row in db:nrows("SELECT id FROM SecondGame ORDER BY id DESC") do
+		for row in db:nrows("SELECT id FROM GameTwo ORDER BY id DESC") do
 			if row.id ~= nil then
 				gamenumber = row.id				
 				break
@@ -676,8 +682,8 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 	for i = 1, #photoArray do
 		images[i] = display.newImageRect(photoArray[i], photoWidth, photoHeight)
 		if images[i] == nil then
-			images[i] = display.newImageRect("images/secondgame/image.png", photoWidth, photoHeight)
-			images[i].filename = "images/secondgame/image.png"
+			images[i] = display.newImageRect("images/game_two/image.png", photoWidth, photoHeight)
+			images[i].filename = "images/game_two/image.png"
 			templabel = photoTextArray[i]
 		else
 			images[i].filename = photoArray[i]
@@ -962,19 +968,19 @@ function scene:createScene(event)
 	corrects = correctCtr
 	--bg
 	width = 550; height = 320;
-	bg = display.newImageRect("images/secondgame/game2bg.png", width, height)
+	bg = display.newImageRect("images/game_two/game2bg.png", width, height)
 	bg.x = display.contentCenterX;
 	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 	--pause button
-	pauseBtn = display.newImageRect( "images/secondgame/pause.png", 20, 20)
+	pauseBtn = display.newImageRect( "images/game_two/pause.png", 20, 20)
     pauseBtn.x = 438
     pauseBtn.y = 12
     pauseBtn:addEventListener("touch", pauseGame)
     pauseBtn:addEventListener("tap", pauseGame)
     screenGroup:insert( pauseBtn )
     --unmute button
-    unmuteBtn = display.newImageRect( "images/secondgame/mute_button.png", 20, 20)
+    unmuteBtn = display.newImageRect( "images/game_two/mute_button.png", 20, 20)
     unmuteBtn.x = 415
     unmuteBtn.y = 12
 	unmuteBtn:addEventListener("touch", unmuteGame)
@@ -982,7 +988,7 @@ function scene:createScene(event)
     screenGroup:insert( unmuteBtn )
     unmuteBtn.isVisible = false
     --mute button
-	muteBtn = display.newImageRect( "images/secondgame/unmute_button.png", 20, 20)
+	muteBtn = display.newImageRect( "images/game_two/unmute_button.png", 20, 20)
     muteBtn.x = 415
     muteBtn.y = 12
     muteBtn:addEventListener("touch", muteGame)
@@ -1035,7 +1041,7 @@ function scene:createScene(event)
 	end
 
 	for i = 1, numberOfCategories do
-		boxes[i] = display.newImageRect("images/secondgame/"..categories[selectedCategories[i]].. ".png", 150, 100)
+		boxes[i] = display.newImageRect("images/game_two/"..categories[selectedCategories[i]].. ".png", 150, 100)
 		boxes[i].label = categories[selectedCategories[i]]
 		boxes[i].correctCtr = 0
 		boxes[i].wrongCtr = 0
@@ -1082,7 +1088,7 @@ function scene:createScene(event)
 	-- photos
 	photos = {}
 	for i = 1, length do
-		photos[i] = "images/firstgame/pictures/"..labels[i]..".png"
+		photos[i] = "images/pictures/"..labels[i]..".png"
 	end
 	screenGroup:insert(scoreToDisplay)
 	screenGroup:insert(boxGroup)

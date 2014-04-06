@@ -1,11 +1,10 @@
-
+-- REQUIREMENTS --
 local widget = require( "widget" )
 local storyboard = require ("storyboard")
 local scene = storyboard.newScene()
 
-
-local easy, one, two, three, i, go
-local easy, medium, hard, house, categ, game
+local one, two, three, i, go
+local house, category, game
 
 local font
 if "Win" == system.getInfo( "platformName" ) then
@@ -18,9 +17,8 @@ end
 local countsound = audio.loadSound("music/countdown.mp3")
 local gosound = audio.loadSound("music/go.mp3")
 
-
 function loadgame()
-	easy =	{
+	local easy =	{
 		effect = "fade",
 		time = 400,
 		params = {
@@ -31,7 +29,7 @@ function loadgame()
 		}
 	}
 
-	medium =	{
+	local medium =	{
 		effect = "fade",
 		time = 400,
 		params = {
@@ -42,7 +40,7 @@ function loadgame()
 		}
 	}
 
-	hard =	{
+	local hard =	{
 		effect = "fade",
 		time = 400,
 		params = {
@@ -54,53 +52,50 @@ function loadgame()
 	}
 
 	if(game == "one")  then
-		if(categ == "easy") then
-			storyboard.removeScene("firstgame")
-			storyboard.gotoScene("firstgame", easy)
-			storyboard.removeScene("countdown")
-		elseif(categ == "medium") then
-			storyboard.removeScene("firstgame")
-			storyboard.gotoScene("firstgame", medium)
-			storyboard.removeScene("countdown")
+		if(category == "easy") then
+--			storyboard.removeScene("gameOne")
+			storyboard.gotoScene("GameOne", easy)
+			storyboard.removeScene("Countdown")
+		elseif(category == "medium") then
+--			storyboard.removeScene("GameOne")
+			storyboard.gotoScene("GameOne", medium)
+			storyboard.removeScene("Countdown")
 		else
-			storyboard.removeScene("firstgame")
-			storyboard.gotoScene("firstgame", hard)	
-			storyboard.removeScene("countdown")
+--			storyboard.removeScene("GameOne")
+			storyboard.gotoScene("GameOne", hard)	
+			storyboard.removeScene("Countdown")
 		end
 	elseif(game == "two")  then
-		if(categ == "easy") then
-			storyboard.removeScene("secondgame")
-			storyboard.gotoScene("secondgame", easy)
-			storyboard.removeScene("countdown")
-		elseif(categ == "medium") then
-			storyboard.removeScene("secondgame")
-			storyboard.gotoScene("secondgame", medium)
-			storyboard.removeScene("countdown")
+		if(category == "easy") then
+--			storyboard.removeScene("GameTwo")
+			storyboard.gotoScene("GameTwo", easy)
+			storyboard.removeScene("Countdown")
+		elseif(category == "medium") then
+--			storyboard.removeScene("GameTwo")
+			storyboard.gotoScene("GameTwo", medium)
+			storyboard.removeScene("Countdown")
 		else
-			storyboard.removeScene("secondgame")
-			storyboard.gotoScene("secondgame", hard)	
-			storyboard.removeScene("countdown")
+	--		storyboard.removeScene("GameTwo")
+			storyboard.gotoScene("GameTwo", hard)	
+			storyboard.removeScene("Countdown")
 		end	
 	else
-		if(categ == "easy") then
-			storyboard.removeScene("thirdgame")
-			storyboard.gotoScene("thirdgame", easy)
-			storyboard.removeScene("countdown")
-		elseif(categ == "medium") then
-			storyboard.removeScene("thirdgame")
-			storyboard.gotoScene("thirdgame", medium)
-			storyboard.removeScene("countdown")
+		if(category == "easy") then
+--			storyboard.removeScene("GameThree")
+			storyboard.gotoScene("GameThree", easy)
+			storyboard.removeScene("Countdown")
+		elseif(category == "medium") then
+--			storyboard.removeScene("GameThree")
+			storyboard.gotoScene("GameThree", medium)
+			storyboard.removeScene("Countdown")
 		else
-			storyboard.removeScene("thirdgame")
-			storyboard.gotoScene("thirdgame", hard)	
-			storyboard.removeScene("countdown")
+--			storyboard.removeScene("GameThree")
+			storyboard.gotoScene("GameThree", hard)	
+			storyboard.removeScene("Countdown")
 		end
 	end
 
-
 end
-
-
 
 function show(event)
 	if(i == 1) then
@@ -139,7 +134,7 @@ end
 function scene:createScene(event)
 	
 	--Params
-	categ = event.params.categ
+	category = event.params.categ
 	game = event.params.game
 	i = 3
 
@@ -150,21 +145,20 @@ function scene:createScene(event)
 	go = display.newText("GO!", display.contentCenterX, display.contentCenterY, font, 200)
 
 	if(game == "one") then
-		bg = display.newImageRect("images/firstgame/board.png", 550, 320)
+		bg = display.newImageRect("images/game_one/game3bg.png", 550, 320)
+		one:setFillColor(0,0,0)
+		two:setFillColor(0,0,0)
+		three:setFillColor(0,0,0)
+		go:setFillColor(0,0,0)
 	elseif(game == "two") then
-		bg = display.newImageRect("images/secondgame/game2bg.png", 550, 320)
+		bg = display.newImageRect("images/game_two/game2bg.png", 550, 320)
 		one:setFillColor(0,0,0)
 		two:setFillColor(0,0,0)
 		three:setFillColor(0,0,0)
 		go:setFillColor(0,0,0)
 	else
-		bg = display.newImageRect("images/thirdgame/game3bg.png", 550, 320)
-		one:setFillColor(0,0,0)
-		two:setFillColor(0,0,0)
-		three:setFillColor(0,0,0)
-		go:setFillColor(0,0,0)
+		bg = display.newImageRect("images/game_three/board.png", 550, 320)
 	end
-
 
 	bg.x = display.contentCenterX;
 	bg.y = display.contentCenterY;

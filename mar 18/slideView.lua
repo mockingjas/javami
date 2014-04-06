@@ -38,9 +38,9 @@ local imageNumberText, imageNumberTextShadow, g
 function home(event)
 	audio.stop()
 	g.isVisible = false
-	storyboard.removeScene("mainmenu")
-	storyboard.removeScene("slideView")
-	storyboard.gotoScene("reload_mainmenu")
+	storyboard.removeScene("MainMenu")
+	storyboard.removeScene("SlideView")
+	storyboard.gotoScene("ReloadMainMenu")
 end
 
 function new( imageSet, slideBackground, top, bottom )	
@@ -92,7 +92,7 @@ function new( imageSet, slideBackground, top, bottom )
 	local defaultString = "1 of " .. #images
 
 	-- home button
-	homeBtn = display.newImage( "images/firstgame/home_button.png")
+	homeBtn = display.newImage( "images/buttons/home_button.png")
 	homeBtn.x = 20
 	homeBtn.y = 40
 	homeBtn:addEventListener("touch", home)

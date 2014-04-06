@@ -46,7 +46,7 @@ db = sqlite3.open( path )
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
-local firstGameMusic = audio.loadSound("music/FirstGame.mp3")
+local firstGameMusic = audio.loadSound("music/GameThree.mp3")
 local game1MusicChannel
 
 ------- Load font ---------
@@ -74,7 +74,7 @@ end
 
 --DB: insert to first game
 local function insertToDB(category, score, name, age, timestamp, pausectr)
-	local insertQuery = [[INSERT INTO FirstGame VALUES (NULL, ']] .. 
+	local insertQuery = [[INSERT INTO GameThree VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
@@ -83,14 +83,14 @@ local function insertToDB(category, score, name, age, timestamp, pausectr)
 	age .. [[');]]
 	db:exec(insertQuery)
 
-	for row in db:nrows("SELECT id FROM FirstGame") do
+	for row in db:nrows("SELECT id FROM GameThree") do
 		id = row.id
 	end
 	return id
 end
 
 local function insertAnalyticsToDB(gameid, roundid, speed, hintctr, triesctr, word)
-	local query = [[INSERT INTO FirstGameAnalytics VALUES (NULL, ']] .. 
+	local query = [[INSERT INTO GameThreeAnalytics VALUES (NULL, ']] .. 
 	gameid .. [[',']] ..
 	roundid .. [[',']] ..
 	speed .. [[',']] ..
@@ -106,8 +106,8 @@ function saveProfile(dbname, dbage)
 	dbage .. [[');]]
 	db:exec(query)
 
-	for row in db:nrows("UPDATE FirstGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
-	for row in db:nrows("UPDATE FirstGame SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE GameThree SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE GameThree SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
 
 --DB: reset all words to un-guessed
@@ -162,7 +162,7 @@ end
 local function queryAnalytics(gamectr, column, value)
 	result = ""
 	ctr = 0
-	for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '" ..gamectr.. "' and " .. column .. "= '" .. value .. "'") do
+	for row in db:nrows("SELECT * FROM GameThreeAnalytics WHERE gamenumber = '" ..gamectr.. "' and " .. column .. "= '" .. value .. "'") do
 		if ctr == 0 then
 			result = row.word
 		else
@@ -312,9 +312,9 @@ local function checkanswer(event)
 			}
 			timerText:removeSelf()
 			timer = nil
-			storyboard.gotoScene("reload", option)
+			storyboard.gotoScene("ReloadGameThree", option)
 		else
-			toast.new("images/wrong.png", 500, display.contentCenterX, display.contentCenterY, "firstgame_image")
+			toast.new("images/wrong.png", 500, display.contentCenterX, display.contentCenterY, "incorrect")
 			audio.play(incorrectSound)
 		end
 	end
@@ -342,7 +342,7 @@ function generateReport()
 	tries = {}
 	words = {}
 	
-	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
+	for row in db:nrows("SELECT * FROM GameThreeAnalytics") do
 		gamenumber[#gamenumber+1] = row.gamenumber
 		roundnumber[#roundnumber+1] = row.roundnumber
 		speed[#speed+1] = row.speed
@@ -360,18 +360,18 @@ function generateReport()
 	report = report .. "\n------------------------------------------------------------\n"
 	report = report .. "The following information contains the analytics for the most recently played game for Game 3: Language and Spelling (PURPLE HOUSE). The speed for each correctly answered word, the number of times user asked for a hint and the number of tries before being corrected are recorded for every word that appears.\n\n" 
 	report = report .. "GAME# " .. last .. "\n\n"
-	for row in db:nrows("SELECT * FROM FirstGame where id = '" .. last .. "'") do
+	for row in db:nrows("SELECT * FROM GameThree where id = '" .. last .. "'") do
 		finalscore = row.score
 		report = report .. "Player:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
 		break
 	end
 
 	--By Speed
-	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY cast(speed as integer) desc") do
+	for row in db:nrows("SELECT speed FROM GameThreeAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY cast(speed as integer) desc") do
 		maxVal = row.speed
 		break
 	end
-	for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY cast(speed as integer)") do
+	for row in db:nrows("SELECT speed FROM GameThreeAnalytics WHERE gamenumber = '"..last.."' and speed != '0' ORDER BY cast(speed as integer)") do
 		if tonumber(row.speed) > 0 then
 			minVal = row.speed
 			break
@@ -386,11 +386,11 @@ function generateReport()
 	end
 
 	--By Hints
-	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY cast(hintcount as integer) DESC") do
+	for row in db:nrows("SELECT hintcount FROM GameThreeAnalytics WHERE gamenumber = '"..last.."' ORDER BY cast(hintcount as integer) DESC") do
 		maxVal = row.hintcount
 		break
 	end
-	for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' ORDER BY cast(hintcount as integer)") do
+	for row in db:nrows("SELECT hintcount FROM GameThreeAnalytics WHERE gamenumber = '"..last.."' ORDER BY cast(hintcount as integer)") do
 		minVal = row.hintcount
 		break
 	end
@@ -402,11 +402,11 @@ function generateReport()
 	end
 
 	--By Tries
-	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY cast(triescount as integer) DESC") do
+	for row in db:nrows("SELECT triescount FROM GameThreeAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY cast(triescount as integer) DESC") do
 		maxVal = row.triescount
 		break
 	end
-	for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY cast(triescount as integer)") do
+	for row in db:nrows("SELECT triescount FROM GameThreeAnalytics WHERE gamenumber = '"..last.."' and triescount != '0' ORDER BY cast(triescount as integer)") do
 		if tonumber(row.triescount) > 0 then			
 			minVal = row.triescount
 			break
@@ -441,15 +441,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
-	if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
-	else
+--	if username.text == "" or userAge.text == "" then
+--		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
+--	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		generateReport()
-	end
+--	end
 end
 
 local function nameListener( event )
@@ -502,7 +502,7 @@ function showanalyticsDialog()
    	--checkbutton
 	okay = widget.newButton{
 		id = "okay",
-		defaultFile = "images/firstgame/submit_button.png",
+		defaultFile = "images/buttons/submit_button.png",
 		fontSize = 15,
 		emboss = true,
 		onEvent = closedialog
@@ -520,8 +520,8 @@ end
 local function home(event)
 --	if(event.phase == "ended") then
 		gameovergroup.isVisible = false
-  		storyboard.removeScene("firstgame")
-  		storyboard.removeScene("mainmenu")
+  		storyboard.removeScene("GameThree")
+  		storyboard.removeScene("MainMenu")
   		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
@@ -533,30 +533,9 @@ local function home(event)
 				music = backgroundMusicChannel
 			}
 		}
-		storyboard.gotoScene("mainmenu", option)
+		storyboard.gotoScene("MainMenu", option)
   		return true
 --  	end
-end
-
---------------  FUNCTION FOR GO BACK TO MENU --------------------
-local function emaildialogue(event)
-	if(event.phase == "ended") then
-		gameovergroup.isVisible = false
-  		storyboard.removeScene("firstgame")
-  		storyboard.removeScene("emaildialogue")
-  		audio.stop()
-  		mainMusic = audio.loadSound("music/MainSong.mp3")
-		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
-		option =	{
-			effect = "fade",
-			time = 100,
-			params = {
-				music = backgroundMusicChannel
-			}
-		}
-		storyboard.gotoScene("emaildialogue", option)
-  		return true
-  	end
 end
 
 --------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
@@ -576,7 +555,7 @@ local function spriteListener( event )
 		score.y = display.contentCenterY - 100
 		gameovergroup:insert(score)
 
-    	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
+    	local playBtn = display.newImage( "images/buttons/playagain_button.png")
 	    playBtn.x = 130
 	    playBtn.y = display.contentCenterY - 60
 	    playBtn:addEventListener("tap", restart_onBtnRelease)
@@ -585,7 +564,7 @@ local function spriteListener( event )
 	    local playtext = display.newText("PLAY AGAIN", 165, display.contentCenterY - 70, font, 25) 
 	    gameovergroup:insert(playtext)
 
-	    local homeBtn = display.newImage( "images/firstgame/home_button.png")
+	    local homeBtn = display.newImage( "images/buttons/home_button.png")
 	    homeBtn.x = 130
 	    homeBtn.y = display.contentCenterY
 	    homeBtn:addEventListener("tap", home)
@@ -594,7 +573,7 @@ local function spriteListener( event )
 	    local hometext = display.newText("BACK TO MENU", 165, display.contentCenterY - 10, font, 25) 
 	    gameovergroup:insert(hometext)
 
-	    local emailBtn = display.newImage( "images/firstgame/email_button.png")
+	    local emailBtn = display.newImage( "images/buttons/email_button.png")
 	    emailBtn.x = 130
 	    emailBtn.y = display.contentCenterY + 60
 	   	emailBtn:addEventListener("tap", onSendEmail)
@@ -637,7 +616,7 @@ function gameoverdialog()
 	muteBtn.isVisible = false
 	clearBtn.isVisible = false
 
-	local sheet1 = graphics.newImageSheet( "images/trygameover.png", { width=414, height=74, numFrames=24 } )
+	local sheet1 = graphics.newImageSheet( "images/game_three/trygameover.png", { width=414, height=74, numFrames=24 } )
 	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
 	instance1.x = display.contentCenterX
 	instance1.y = display.contentCenterY - 20
@@ -770,7 +749,7 @@ function restart_onBtnRelease()
 	}
 	audio.stop()
 	Runtime:removeEventListener("enterFrame", onFrame)
-	storyboard.gotoScene("reload", option)
+	storyboard.gotoScene("ReloadGameThree", option)
 end
 
 --------------- RESUME FROM PAUSE -----------------
@@ -791,7 +770,7 @@ function exit_onBtnRelease()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
-	storyboard.gotoScene("mainmenu", "fade", 100, {music = backgroundMusicChannel})
+	storyboard.gotoScene("MainMenu", "fade", 100, {music = backgroundMusicChannel})
 end
 
 ----------------- PAUSE DIALOG ------------------
@@ -830,7 +809,7 @@ local function networkListener( event )
 	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
 
 	if speech == nil then
-		toast.new("Device must be connected\nto the internet!", 1000, 15, -105, "firstgame_text")
+		toast.new("Device must be connected\nto the internet!", 1000, 15, -105, "toastText")
 	else
 	   	audio.play( speech )
 	end
@@ -844,7 +823,7 @@ end
 
 local function displayScreenElements()
 	--BG
-	bg = display.newImageRect("images/firstgame/board.png", 550, 320)
+	bg = display.newImageRect("images/game_three/board.png", 550, 320)
 	bg.x = display.contentCenterX;
 	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
@@ -856,7 +835,7 @@ local function displayScreenElements()
 	--SUBMIT
 	submit = widget.newButton{
 		id = "submit",
-		defaultFile = "images/firstgame/submit_button.png",
+		defaultFile = "images/buttons/submit_button.png",
 		fontSize = 15,
 		emboss = true,
 		onEvent = checkanswer,
@@ -867,7 +846,7 @@ local function displayScreenElements()
 	-- HINT
 	hintBtn = widget.newButton{
 		id = "hint",
-		defaultFile = "images/firstgame/hint_button.png",
+		defaultFile = "images/game_three/hint_button.png",
 		fontSize = 15,
 		emboss = true,
 	}
@@ -876,14 +855,14 @@ local function displayScreenElements()
 	hintBtn:addEventListener("tap", play)
 	
 	-- PAUSE
-	pauseBtn = display.newImageRect( "images/firstgame/pause.png", 20, 20)
+	pauseBtn = display.newImageRect( "images/game_three/pause.png", 20, 20)
     pauseBtn.x = 410
     pauseBtn.y = 37
     pauseBtn:addEventListener("touch", pauseGame)
     screenGroup:insert( pauseBtn )
 
     -- UN/MUTE
-    unmuteBtn = display.newImageRect( "images/firstgame/mute_button.png", 20, 20)
+    unmuteBtn = display.newImageRect( "images/game_three/mute_button.png", 20, 20)
     unmuteBtn.x = 380
     unmuteBtn.y = 37
     unmuteBtn.isVisible = false
@@ -891,7 +870,7 @@ local function displayScreenElements()
     unmuteBtn:addEventListener("tap", unmuteGame)
     screenGroup:insert( unmuteBtn )
 
-	muteBtn = display.newImageRect( "images/firstgame/unmute_button.png", 20, 20)
+	muteBtn = display.newImageRect( "images/game_three/unmute_button.png", 20, 20)
     muteBtn.x = 380
     muteBtn.y = 37
 --    muteBtn:addEventListener("touch", muteGame)
@@ -951,10 +930,7 @@ function scene:createScene(event)
 	setword()
 
 	--IMAGE
-	image = display.newImage( "images/firstgame/pictures/"..word..".png" )
-	if image == nil then
-		image = display.newImage( "images/firstgame/pictures/blank.png" )
-	end
+	image = display.newImage( "images/pictures/"..word..".png" )
 	image.x = 310/2; image.y = 260/2;
 
 	-- LETTERS
@@ -964,7 +940,7 @@ function scene:createScene(event)
 	local a = 1
 	for i = 1, #wordToGuess do
 		local c = get_char(i, wordToGuess)
-		local filename = "images/firstgame/"
+		local filename = "images/game_three/"
 		if (c == "_") then
 			filename = filename .. "newblank.png"
 			chalkLetter = display.newImage(filename)
@@ -983,7 +959,7 @@ function scene:createScene(event)
 	end
 
 	-- CLEAR
-	clearBtn = display.newImageRect( "images/firstgame/clear.png", 50, 50)
+	clearBtn = display.newImageRect( "images/game_three/clear.png", 50, 50)
     clearBtn.x = x + 55
     clearBtn.y = y
    -- clearBtn:addEventListener("touch", clear)

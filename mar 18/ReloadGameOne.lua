@@ -3,22 +3,23 @@ local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
 scene.purgeOnSceneChange = true
-local category, boolFirst, gameTimer, currScore, boolNew, pauseCtr, roundNumber, muted, gameMusic
+local text, category, boolFirst, gameTimer, currScore, roundNumber, correctCtr, roundSpeed, pauseCtr
+
 
 function scene:createScene(event)
 	local screenGroup = self.view
-	category = event.params.categ
 	boolFirst = event.params.first
 	gameTimer = event.params.time
+	category = event.params.categ
 	currScore = event.params.score
-	boolNew = event.params.new
-	gameMusic = event.params.music
-	pauseCtr = event.params.pause
-	roundNumber = event.params.round
-	muted = event.params.mute
+	roundNumber = event.params.roundctr
+	correctCtr = event.params.correctcount
+	roundSpeed = event.params.roundspeed
+	pauseCtr = event.params.pausecount
 end
+
 function scene:enterScene(event)
-	local screenGroup = self.view	
+	local screenGroup = self.view
 	option = {
 		effect = "fade",
 		time = 400,
@@ -27,20 +28,24 @@ function scene:enterScene(event)
 			first = boolFirst,
 			time = gameTimer,
 			score = currScore,
-			ctr = itemCtr,
-			check = itemCheck,
-			speed = itemSpeed,
-			new = boolNew,
-			music = gameMusic,
-			pause = pauseCtr,
-			round = roundNumber,
-			mute = muted
+			roundctr = roundNumber,
+			first = boolFirst,
+			correctcount = correctCtr,
+			roundspeed = roundSpeed,
+			pausecount = pauseCtr
 		}
 	}
 
-	storyboard.removeScene("secondgame")
-	storyboard.gotoScene("secondgame", option)
-	storyboard.removeScene("reloadsecond")
+	storyboard.removeScene("GameOne")
+	storyboard.gotoScene("GameOne", option)
+	storyboard.removeScene("ReloadGameOne")
+end
+
+function scene:exitScene(event)
+	
+end
+
+function scene:destroyScene(event)
 
 end
 

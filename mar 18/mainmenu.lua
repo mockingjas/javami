@@ -18,21 +18,21 @@ end
 function easy_onBtnRelease()
 	levelgroup:removeSelf()
 	audio.stop( bgMusic )
-	storyboard.gotoScene("countdown", easy)
+	storyboard.gotoScene("Countdown", easy)
 	return true
 end
 
 function medium_onBtnRelease()
 	levelgroup:removeSelf()
 	audio.stop( bgMusic )
-	storyboard.gotoScene("countdown", medium)
+	storyboard.gotoScene("Countdown", medium)
 	return true
 end
 
 function hard_onBtnRelease()
 	levelgroup:removeSelf()
 	audio.stop( bgMusic )
-	storyboard.gotoScene("countdown", hard)
+	storyboard.gotoScene("Countdown", hard)
 	return true
 end
 
@@ -74,35 +74,27 @@ end
 
 ------ GAME 1 Level Select Modal -------
 local function button1 ( event )
-	
 	setparams("one")
 	showlevelDialog()
-	
 end
 
 ------ GAME 2 Level Select Modal -------
 local function button2 ( event )
-
 	setparams("two")
 	showlevelDialog()
-
 end
 
 ------ GAME 3 Level Select Modal -------
 local function button3 ( event )
-
 	setparams("three")
 	showlevelDialog()
-
 end
 
 -- Function for  Level Dialog Rendering -- 
 function showlevelDialog()
 	physics.pause()
 	isPause = true
- 	
  	levelgroup = display.newGroup()
-
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentCenterX;
  	rect.y = display.contentCenterY;
@@ -226,15 +218,13 @@ function scene:createScene(event)
 	screenGroup:insert(bg)
 	
 	-- an image sheet with purple house
-	local sheet1 = graphics.newImageSheet( "images/menu/purple.png", { width=158, height=212, numFrames=2 } )
-	instance1 = display.newSprite( sheet1, { name="purple", start=1, count=2, time=1000 } )
-	instance1.x = 420
-	instance1.y = 205
+	local sheet1 = graphics.newImageSheet( "images/menu/blue.png", { width=220, height=160, numFrames=2 } )
+	instance1 = display.newSprite( sheet1, { name="blue", start=1, count=2, time=1000 } )
+	instance1.x = 60
+	instance1.y = 210
 	instance1:play()
 	screenGroup:insert(instance1)
-	
 	instance1:addEventListener("tap", button1)
-	screenGroup: insert(instance1)
 	
 	-- an image sheet with orange house
 	local sheet2 = graphics.newImageSheet( "images/menu/orange.png", { width=188, height=212, numFrames=2 } )
@@ -246,20 +236,21 @@ function scene:createScene(event)
 	instance2:addEventListener("tap", button2)
 	
 	-- an image sheet with blue house
-	local sheet3 = graphics.newImageSheet( "images/menu/blue.png", { width=220, height=160, numFrames=2 } )
-	instance3 = display.newSprite( sheet3, { name="blue", start=1, count=2, time=1000 } )
-	instance3.x = 60
-	instance3.y = 210
+	local sheet3 = graphics.newImageSheet( "images/menu/purple.png", { width=158, height=212, numFrames=2 } )
+	instance3 = display.newSprite( sheet3, { name="purple", start=1, count=2, time=1000 } )
+	instance3.x = 420
+	instance3.y = 205
 	instance3:play()
-	screenGroup:insert(instance3)
+	screenGroup:insert(instance3)	
 	instance3:addEventListener("tap", button3)
+	screenGroup: insert(instance3)
 	
 	howtoplay = widget.newButton{
 		id = "howtoplay",
 		defaultFile = "images/menu/howtoplay.png",
 		overFile = "images/menu/howtoplay.png",
 		emboss = true,
-		onEvent = function() storyboard.gotoScene( "instructions", "fade", 400 ); end,
+		onEvent = function() storyboard.gotoScene( "Instructions", "fade", 400 ); end,
 	}
 	howtoplay.x = (display.contentCenterX);
 	howtoplay.y = (display.contentCenterY) - 100;
@@ -278,7 +269,7 @@ function scene:createScene(event)
 		defaultFile = "images/menu/scores.png",
 		overFile = "images/menu/scores.png",
 		emboss = true,
-		onEvent = function() storyboard.gotoScene( "scoreboard", option); end,
+		onEvent = function() storyboard.gotoScene( "Scoreboard", option); end,
 	}
 	scores.x = (display.contentCenterX) + 130;
 	scores.y = (display.contentCenterY) - 75;

@@ -12,7 +12,7 @@ function scene:enterScene(event)
 			music = backgroundMusicChannel
 		}
 	}
-	storyboard.gotoScene("mainmenu", option)
+	storyboard.gotoScene("MainMenu", option)
 end
 scene:addEventListener("enterScene", scene)
 return scene

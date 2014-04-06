@@ -57,7 +57,7 @@ local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
 db = sqlite3.open( path )
 --save score
 function insertToDB(category, score, name, age, timestamp, pausectr)
-	local query = [[INSERT INTO ThirdGame VALUES (NULL, ']] .. 
+	local query = [[INSERT INTO GameOne VALUES (NULL, ']] .. 
 	category .. [[',']] ..
 	score .. [[',']] ..
 	name .. [[',']] ..
@@ -65,14 +65,14 @@ function insertToDB(category, score, name, age, timestamp, pausectr)
 	pausectr.. [[',']] ..
 	age.. [[');]]
 	db:exec(query)
-	for row in db:nrows("SELECT id FROM ThirdGame order by id desc") do
+	for row in db:nrows("SELECT id FROM GameOne order by id desc") do
 		return row.id
 	end
 end
 
 --save analytics
 function insertAnalyticsToDB(gameid, roundid, roundscore, roundspeed)
-	local query = [[INSERT INTO ThirdGameAnalytics VALUES (NULL, ']] .. 
+	local query = [[INSERT INTO GameOneAnalytics VALUES (NULL, ']] .. 
 	gameid .. [[',']] ..
 	roundid .. [[',']] ..
 	roundscore .. [[',']] ..
@@ -85,8 +85,8 @@ function saveProfile(dbname, dbage)
 	dbname .. [[',']] ..
 	dbage .. [[');]]
 	db:exec(query)
-	for row in db:nrows("UPDATE ThirdGame SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
-	for row in db:nrows("UPDATE ThirdGame SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE GameOne SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
+	for row in db:nrows("UPDATE GameOne SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
 
 ---------------------------------------------------------
@@ -149,15 +149,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
-	if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "firstgame_text")
-	else
+--	if username.text == "" or userAge.text == "" then
+--		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
+--	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		queryAndSaveToFile(latestId)
-	end
+--	end
 end
 
 local function nameListener( event )
@@ -191,19 +191,17 @@ function showUserDialog()
  	dialog.y = display.contentCenterY;
  	levelgroup:insert(dialog)
 
-	namelabel = display.newText("Kid's name", 190, 100, font, 25)
+   	namelabel = display.newText("Kid's name", display.contentCenterX, 100, font, 25)
 	namelabel:setFillColor(0,0,0)
-	name = native.newTextField( 135, 125, 220, 40 )    -- passes the text field object
-    name:setFillColor( 0,0,0)
+	name = native.newTextField( display.contentCenterX, 130, 220, 40 )    -- passes the text field object
     name.hintText= ""
    	name.text = name.hintText
    	levelgroup:insert(namelabel)
    	levelgroup:insert(name)
 
-   	agelabel = display.newText("Kid's Age", 200, 165, font, 25)
+   	agelabel = display.newText("Kid's Age", display.contentCenterX, 165, font, 25)
    	agelabel:setFillColor(0,0,0)
-	age = native.newTextField( 200, 190, 100, 40 )    -- passes the text field object
-    age:setFillColor( 0,0,0)
+	age = native.newTextField( display.contentCenterX, 200, 100, 40 )    -- passes the text field object
    	age.inputType = "number"
    	age.hintText = ""
    	age.text = age.hintText
@@ -213,7 +211,7 @@ function showUserDialog()
    	--checkbutton
 	okay = widget.newButton{
 		id = "okay",
-		defaultFile = "images/firstgame/submit_button.png",
+		defaultFile = "images/buttons/submit_button.png",
 		fontSize = 15,
 		emboss = true,
 		onEvent = closedialog
@@ -234,8 +232,8 @@ function home(event)
 		scoreToDisplay.isVisible = false
 		roundToDisplay.isVisible = false
 		timerText.isVisible =false
-  		storyboard.removeScene("thirdgame")
-  		storyboard.removeScene("mainmenu")
+  		storyboard.removeScene("GameOne")
+  		storyboard.removeScene("MainMenu")
 
   		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
@@ -248,7 +246,7 @@ function home(event)
 				music = backgroundMusicChannel
 			}
 		}
-		storyboard.gotoScene("mainmenu", option)
+		storyboard.gotoScene("MainMenu", option)
   		return true
   	end
 end
@@ -258,7 +256,7 @@ end
 local function finalmenu()
 	gameovergroup = display.newGroup()
 
-	local playBtn = display.newImage( "images/firstgame/playagain_button.png")
+	local playBtn = display.newImage( "images/buttons/playagain_button.png")
     playBtn.x = 140
     playBtn.y = display.contentCenterY + 30
     playBtn:addEventListener("touch", restart_onBtnRelease)
@@ -268,7 +266,7 @@ local function finalmenu()
     playtext:setFillColor(0,0,0)
     gameovergroup:insert(playtext)
 
-    local homeBtn = display.newImage( "images/firstgame/home_button.png")
+    local homeBtn = display.newImage( "images/buttons/home_button.png")
     homeBtn.x = 240
     homeBtn.y = display.contentCenterY + 30
    	homeBtn:addEventListener("touch", home)
@@ -278,7 +276,7 @@ local function finalmenu()
     hometext:setFillColor(0,0,0)
     gameovergroup:insert(hometext)
 
-    local emailBtn = display.newImage( "images/firstgame/email_button.png")
+    local emailBtn = display.newImage( "images/buttons/email_button.png")
     emailBtn.x = 340
     emailBtn.y = display.contentCenterY + 30
     emailBtn:addEventListener("touch", onSendEmail)
@@ -310,9 +308,9 @@ function queryAndSaveToFile(id)
 	report = report .. "------------------------------------------------------------\n"
 	report = report .. "The following information contains the analytics for the most recently played game Game 1: Memory (BLUE HOUSE).\n\n"
 
-	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
+	for row in db:nrows("SELECT * FROM GameOne ORDER BY id DESC") do
 		report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nAge: "..row.age.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.. "\nPause count: " .. row.pausecount.."\nFinal Score: "..row.score.."\nNumber of rounds: "..roundNumber
-		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
+		for row in db:nrows("SELECT * FROM GameOneAnalytics where gamenumber = '"..row.id.."'") do
 			report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
 		end
 		break
@@ -345,7 +343,7 @@ function gameoverdialog()
 
 	-------------------
 	objectGroup:removeSelf()
-	gameover= display.newImage( "images/thirdgame/gameover.png" )
+	gameover= display.newImage( "images/game_one/gameover.png" )
 	gameover.x = 700
 	gameover.y =  display.contentCenterY - 10;
 	gameover.speed = 5
@@ -378,15 +376,13 @@ function restart_onBtnRelease()
 	audio.stop()
 	Runtime:removeEventListener("touch", gestures)
 	Runtime:removeEventListener("accelerometer", gestures)
-	storyboard.gotoScene("reloadthird", option)
+	storyboard.gotoScene("ReloadGameOne", option)
 end
 
 ---------------- EXIT FROM PAUSE ----------------
 function exitGame(event)
 	timerr = nil
 	timerText.isVisible =false
---	Runtime:removeEventListener("touch", gestures)
---	Runtime:removeEventListener("accelerometer", gestures)
 
 	audio.stop()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
@@ -399,9 +395,8 @@ function exitGame(event)
 			music = backgroundMusicChannel
 		}
 	}
-	storyboard.removeScene("thirdgame")
---	storyboard.removeScene("mainmenu")
-	storyboard.gotoScene("mainmenu", option)
+	storyboard.removeScene("GameOne")
+	storyboard.gotoScene("MainMenu", option)
 end
 
 function shuffle(array)
@@ -417,7 +412,7 @@ function canClick()
 	if timerr ~= nil then
 		local done = timerr:isElapsed()
 		if(not done) then
-			toast.new("images/go.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
+			toast.new("images/go.png", 300, display.contentCenterX, display.contentCenterY, "go")
 		end
 		isClick = true
 	end
@@ -463,6 +458,7 @@ end
 
 ------------------CREATE SCENE: MAIN -----------------------------
 function scene:createScene(event)
+	print("SFLSKFLSDK")
 	muted = 0
 	profileName = "test" --temp
 	profileAge = 4 --temp
@@ -506,17 +502,17 @@ function scene:createScene(event)
 	--bg
 	width = 550; height = 320;
 	imageCategory = math.random(5)
-	local filename = "images/thirdgame/game3bg.png"
+	local filename = "images/game_one/game3bg.png"
 	if (imageCategory == 1) then
-		filename = "images/thirdgame/bg/bg_garden.png"
+		filename = "images/game_one/bg/bg_garden.png"
 	elseif (imageCategory == 2) then
-		filename = "images/thirdgame/bg/bg_kitchen.png"
+		filename = "images/game_one/bg/bg_kitchen.png"
 	elseif (imageCategory == 3) then
-		filename = "images/thirdgame/bg/bg_clouds.png"
+		filename = "images/game_one/bg/bg_clouds.png"
 	elseif (imageCategory == 4) then
-		filename = "images/thirdgame/bg/bg_teaparty.png"
+		filename = "images/game_one/bg/bg_teaparty.png"
 	elseif (imageCategory == 5) then
-		filename = "images/thirdgame/bg/bg_night.png"
+		filename = "images/game_one/bg/bg_night.png"
 	end
 
 	bg = display.newImageRect(filename, width, height)
@@ -585,22 +581,22 @@ function scene:createScene(event)
 		local pixelHeight = 50
 		if (imageCategory == 1) then
 			flowerNumber = math.random(8)
-			filename = "images/thirdgame/flowers" .. flowerNumber .. ".png"
+			filename = "images/game_one/flowers" .. flowerNumber .. ".png"
 		elseif (imageCategory == 2) then
 			fruitNumber = math.random(6)
-			filename = "images/thirdgame/fruits" .. fruitNumber .. ".png"
+			filename = "images/game_one/fruits" .. fruitNumber .. ".png"
 		elseif (imageCategory == 3) then
 			cloudNumber = math.random(5)
-			filename = "images/thirdgame/clouds" .. cloudNumber .. ".png"
+			filename = "images/game_one/clouds" .. cloudNumber .. ".png"
 			pixelWidth = 75
 		elseif (imageCategory == 4) then
 			teaNumber = math.random(5)
 			teaTypeNumber = math.random(4)
 			teaType = {"smallpot", "bigpot", "cup", "pitcher"}
-			filename = "images/thirdgame/" .. teaType[teaTypeNumber] .. teaNumber .. ".png"
+			filename = "images/game_one/" .. teaType[teaTypeNumber] .. teaNumber .. ".png"
 		elseif(imageCategory == 5) then
 			nightNumber = math.random(10)
-			filename = "images/thirdgame/night" .. nightNumber .. ".png"
+			filename = "images/game_one/night" .. nightNumber .. ".png"
 			if(nightNumber >= 7) then
 				pixelWidth = 75
 			end
@@ -673,7 +669,7 @@ function checkanswer(event)
 				currScore = currScore + 1
 				correctCtr[roundNumber] = correctCtr[roundNumber] + 1
 				scoreToDisplay.text = "Score: "..currScore
-				toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "thirdgame")
+				toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "correct")
 				roundToDisplay.text = "Round "..roundNumber
 				--next!
 				answer = ""
@@ -691,7 +687,7 @@ function checkanswer(event)
 			---------- HERE: HINDI NAGPPLAY BEFORE MAG RELOAD.
 			---------- ALSO, PAAYOS NG TOAST BEFORE MAG RELOAD.
 			audio.play(incorrectSound)
-			toast.new("images/wrong.png", 80, display.contentCenterX, display.contentCenterY, "thirdgame")
+			toast.new("images/wrong.png", 80, display.contentCenterX, display.contentCenterY, "incorrect")
 			reload()
 		end
 	end
@@ -721,7 +717,7 @@ function reload()
 	}
 	timerr = nil
 	audio.stop()
-	storyboard.gotoScene("reloadthird", option)
+	storyboard.gotoScene("ReloadGameOne", option)
 end
 
 

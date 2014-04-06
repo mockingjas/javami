@@ -10,8 +10,6 @@ local tabGroup, scores, emailBtn1, emailBtn2, emailBtn3
 --local homeBtn
 local boolFirst = false
 local widgetGroup, demoTabs, bg
---local screenGroup
---local avgRounds, avgSpeed, avgScore, IDs, getOneCount, getTwoCount, getThreeCount, report, roundNumber
 
 -- Font
 local font
@@ -66,9 +64,9 @@ function home(event)
 	homeBtn.isVisible = false
 	tabGroup.isVisible = false
 	widgetGroup.isVisible = false
-	storyboard.removeScene("mainmenu")
-	storyboard.removeScene("scoreboard")
-	storyboard.gotoScene("reload_mainmenu")
+	storyboard.removeScene("MainMenu")
+	storyboard.removeScene("Scoreboard")
+	storyboard.gotoScene("ReloadMainMenu")
 	return true
 end
 
@@ -239,9 +237,9 @@ function getGameThreeAverages(table, category)
 	report = report .. "\n**PER ROUND AVERAGES**\n"
 	-- avg time per word
 	avgSpeed = 0	
-	ctr = countRounds("FirstGameAnalytics", table, category)
+	ctr = countRounds("GameThreeAnalytics", table, category)
 	for i = 1, gameThreeCount do
-		for row in db:nrows("SELECT speed FROM FirstGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT speed FROM GameThreeAnalytics where gamenumber = '"..IDs[i].."'") do
 			avgSpeed = avgSpeed + row.speed
 		end
 	end
@@ -250,7 +248,7 @@ function getGameThreeAverages(table, category)
 	--avg number of hints
 	local avgHints = 0	
 	for i = 1, gameThreeCount do
-		for row in db:nrows("SELECT MAX(CAST(roundnumber as integer)) as max, hintcount FROM FirstGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT MAX(CAST(roundnumber as integer)) as max, hintcount FROM GameThreeAnalytics where gamenumber = '"..IDs[i].."'") do
 			if row.max ~= nil then
 				avgHints = avgHints + row.hintcount
 			end
@@ -261,7 +259,7 @@ function getGameThreeAverages(table, category)
 	--avg number of tries
 	local avgTries = 0	
 	for i = 1, gameThreeCount do
-		for row in db:nrows("SELECT MAX(CAST(roundnumber as integer)) as max, triescount FROM FirstGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT MAX(CAST(roundnumber as integer)) as max, triescount FROM GameThreeAnalytics where gamenumber = '"..IDs[i].."'") do
 			if row.max ~= nil then
 				avgTries = avgTries + row.triescount
 			end
@@ -274,7 +272,7 @@ end
 function queryAnalytics(gamectr, column, value)
 	result = ""
 	ctr = 0
-	for row in db:nrows("SELECT * FROM FirstGameAnalytics WHERE gamenumber = '" ..gamectr.. "' and " .. column .. "= '" .. value .. "'") do
+	for row in db:nrows("SELECT * FROM GameThreeAnalytics WHERE gamenumber = '" ..gamectr.. "' and " .. column .. "= '" .. value .. "'") do
 		if ctr == 0 then
 			result = row.word
 		else
@@ -292,27 +290,27 @@ function generateReport3()
 	report = report .. "\n------------------------------------------------------------\n"
 	report = report .. "The following information contains the analytics for all the game plays for Game 3: Language and Spelling (PURPLE HOUSE).\n\n"
 	report = report .. "*****EASY*****\n"
-	gameThreeCount = getCount("FirstGame", "easy")
+	gameThreeCount = getCount("GameThree", "easy")
 	report = report .. "NO. OF ENTRIES:\t"..gameThreeCount.."\n"
 	if gameThreeCount > 0 then
-		getAverageScore("FirstGame", "easy")
-		getGameThreeAverages("FirstGame", "easy")
+		getAverageScore("GameThree", "easy")
+		getGameThreeAverages("GameThree", "easy")
 	end
 
 	report = report .. "\n*****MEDIUM*****\n"
-	gameThreeCount = getCount("FirstGame", "medium")
+	gameThreeCount = getCount("GameThree", "medium")
 	report = report .. "NO. OF ENTRIES:\t"..gameThreeCount.."\n"
 	if gameThreeCount > 0 then
-		getAverageScore("FirstGame", "medium")
-		getGameThreeAverages("FirstGame", "medium")
+		getAverageScore("GameThree", "medium")
+		getGameThreeAverages("GameThree", "medium")
 	end
 
 	report = report .. "\n*****HARD*****\n"
-	gameThreeCount = getCount("FirstGame", "hard")
+	gameThreeCount = getCount("GameThree", "hard")
 	report = report .. "NO. OF ENTRIES:\t"..gameThreeCount.."\n"
 	if gameThreeCount > 0 then
-		getAverageScore("FirstGame", "hard")
-		getGameThreeAverages("FirstGame", "hard")
+		getAverageScore("GameThree", "hard")
+		getGameThreeAverages("GameThree", "hard")
 	end
 
 	-- ALL
@@ -323,7 +321,7 @@ function generateReport3()
 	tries = {}
 	words = {}
 	
-	for row in db:nrows("SELECT * FROM FirstGameAnalytics") do
+	for row in db:nrows("SELECT * FROM GameThreeAnalytics") do
 		gamenumber[#gamenumber+1] = row.gamenumber
 		roundnumber[#roundnumber+1] = row.roundnumber
 		speed[#speed+1] = row.speed
@@ -344,16 +342,16 @@ function generateReport3()
 		for i = last, first, -1 do
 			report = report .. "\n------------------------------------------------------------\n"
 			report = report .. "GAME# " .. i .. "\n\n"
-			for row in db:nrows("SELECT * FROM FirstGame where id = '" .. i .. "'") do
+			for row in db:nrows("SELECT * FROM GameThree where id = '" .. i .. "'") do
 				finalscore = row.score
 				report = report .. "Player:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score .. "\n"
 			end
 			--By Speed
-			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY cast(speed as integer) desc") do
+			for row in db:nrows("SELECT speed FROM GameThreeAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY cast(speed as integer) desc") do
 				maxVal = row.speed
 				break
 			end
-			for row in db:nrows("SELECT speed FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY cast(speed as integer)") do
+			for row in db:nrows("SELECT speed FROM GameThreeAnalytics WHERE gamenumber = '"..i.."' and speed != '0' ORDER BY cast(speed as integer)") do
 				if tonumber(row.speed) > 0 then
 					minVal = row.speed
 					break
@@ -366,11 +364,11 @@ function generateReport3()
 				report = report .. "Shortest Time:\t"..min.." ("..minVal.. " seconds)\n"
 			end
 			--By Hints
-			for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY cast(hintcount as integer) DESC") do
+			for row in db:nrows("SELECT hintcount FROM GameThreeAnalytics WHERE gamenumber = '"..i.."' ORDER BY cast(hintcount as integer) DESC") do
 				maxVal = row.hintcount
 				break
 			end
-			for row in db:nrows("SELECT hintcount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' ORDER BY cast(hintcount as integer)") do
+			for row in db:nrows("SELECT hintcount FROM GameThreeAnalytics WHERE gamenumber = '"..i.."' ORDER BY cast(hintcount as integer)") do
 				minVal = row.hintcount
 				break
 			end
@@ -381,11 +379,11 @@ function generateReport3()
 				report = report .. "Least hints:\t"..min.." ("..minVal.." time/s)\n"
 			end
 			--By Tries
-			for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY cast(triescount as integer) DESC") do
+			for row in db:nrows("SELECT triescount FROM GameThreeAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY cast(triescount as integer) DESC") do
 				maxVal = row.triescount
 				break
 			end
-			for row in db:nrows("SELECT triescount FROM FirstGameAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY cast(triescount as integer)") do
+			for row in db:nrows("SELECT triescount FROM GameThreeAnalytics WHERE gamenumber = '"..i.."' and triescount != '0' ORDER BY cast(triescount as integer)") do
 				if tonumber(row.triescount) > 0 then			
 					minVal = row.triescount
 					break
@@ -429,7 +427,7 @@ function getGameTwoAverages(table, category)
 	--AVG # OF ROUNDS
 	avgRounds = 0	
 	for i = 1, gameTwoCount do
-		for row in db:nrows("SELECT MAX(CAST(roundnumber as integer)) as max FROM SecondGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT MAX(CAST(roundnumber as integer)) as max FROM GameTwoAnalytics where gamenumber = '"..IDs[i].."'") do
 			if row.max ~= nil then
 				avgRounds = avgRounds + row.max
 			end
@@ -440,9 +438,9 @@ function getGameTwoAverages(table, category)
 	report = report .. "\n**PER COMPLETED ROUND AVERAGES**\n"
 	--AVG ROUND SPEED
 	avgSpeed = 0
-	ctr = countRounds("SecondGameAnalytics", table, category)
+	ctr = countRounds("GameTwoAnalytics", table, category)
 	for i = 1, gameTwoCount do
-		for row in db:nrows("SELECT speed FROM SecondGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT speed FROM GameTwoAnalytics where gamenumber = '"..IDs[i].."'") do
 			avgSpeed = avgSpeed + row.speed
 		end
 	end
@@ -455,7 +453,7 @@ function getGameTwoAverages(table, category)
 	local avgCorrect = 0
 	local avgIncorrect = 0
 	for i = 1, gameTwoCount do
-		for row in db:nrows("SELECT * FROM SecondGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT * FROM GameTwoAnalytics where gamenumber = '"..IDs[i].."'") do
 			if row.isCorrect == "1" then
 				avgCorrect = avgCorrect + 1
 			else
@@ -502,38 +500,38 @@ function generateReport2()
 	report = report .. "The following information contains the analytics for all the game plays for Game 2: Searching and Sorting (ORANGE HOUSE).\n"
 
 	report = report .. "\n*****EASY*****\n"
-	gameTwoCount = getCount("SecondGame", "easy")
+	gameTwoCount = getCount("GameTwo", "easy")
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
 	if gameTwoCount > 0 then
-		getAverageScore("SecondGame", "easy")
-		getGameTwoAverages("SecondGame", "easy")
+		getAverageScore("GameTwo", "easy")
+		getGameTwoAverages("GameTwo", "easy")
 	end
 
 	report = report .. "\n*****MEDIUM*****\n"
-	gameTwoCount = getCount("SecondGame", "medium")
+	gameTwoCount = getCount("GameTwo", "medium")
 	print("NO. OF ENTRIES:\t"..gameTwoCount)
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
 	if gameTwoCount > 0 then
-		getAverageScore("SecondGame", "medium")
-		getGameTwoAverages("SecondGame", "medium")
+		getAverageScore("GameTwo", "medium")
+		getGameTwoAverages("GameTwo", "medium")
 	end
 
 	report = report .. "\n*****HARD*****\n"
-	gameTwoCount = getCount("SecondGame", "hard")
+	gameTwoCount = getCount("GameTwo", "hard")
 	print("NO. OF ENTRIES:\t"..gameTwoCount)
 	report = report .. "NO. OF ENTRIES:\t"..gameTwoCount.."\n"
 	if gameTwoCount > 0 then
-		getAverageScore("SecondGame", "hard")
-		getGameTwoAverages("SecondGame", "hard")
+		getAverageScore("GameTwo", "hard")
+		getGameTwoAverages("GameTwo", "hard")
 	end
 	-- ALL
 	secondGameAnalyticsIDs = {}
-	for row in db:nrows("SELECT DISTINCT(gamenumber) FROM SecondGameAnalytics") do
+	for row in db:nrows("SELECT DISTINCT(gamenumber) FROM GameTwoAnalytics") do
 		secondGameAnalyticsIDs[#secondGameAnalyticsIDs+1] = row.gamenumber
 	end
 
 	secondGameIDs = {}
-	for row in db:nrows("SELECT * FROM SecondGame") do
+	for row in db:nrows("SELECT * FROM GameTwo") do
 		secondGameIDs[#secondGameIDs+1] = row.id
 	end
 
@@ -550,13 +548,13 @@ function generateReport2()
 			if tonumber(secondGameAnalyticsIDs[j]) == tonumber(secondGameIDs[i]) then
 				report = report .. "\n-----------------------------------------------------\n"
 				report = report .. "\nGAME # " .. i
-				for row in db:nrows("SELECT * FROM SecondGame where id = '" .. secondGameIDs[i] .. "'") do
+				for row in db:nrows("SELECT * FROM GameTwo where id = '" .. secondGameIDs[i] .. "'") do
 					report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 				end
 				--get round #
 				allRoundNumbers = {}
 				rounds = {}
-				for row in db:nrows("SELECT roundnumber FROM SecondGameAnalytics WHERE gamenumber = '" .. secondGameIDs[i] .. "'") do
+				for row in db:nrows("SELECT roundnumber FROM GameTwoAnalytics WHERE gamenumber = '" .. secondGameIDs[i] .. "'") do
 					allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
 				end
 				rounds = cleanArray(allRoundNumbers)
@@ -564,14 +562,14 @@ function generateReport2()
 				for j = 1, #rounds do
 					report = report .. "\n\nROUND "..rounds[j]
 					--round speed
-					for row in db:nrows("SELECT speed FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+					for row in db:nrows("SELECT speed FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
 						report = report .. "\nRound time: "..row.speed.." seconds"
 						break
 					end
 					-- get categories
 					allCategories = {}
 					categories = {}
-					for row in db:nrows("SELECT category FROM SecondGameAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+					for row in db:nrows("SELECT category FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
 						allCategories[#allCategories+1] = row.category
 					end
 					categories = cleanArray(allCategories)
@@ -580,7 +578,7 @@ function generateReport2()
 						report = report .. "\n\nCATEGORY: " .. categories[k]
 						-- get correct
 						words = {}
-						for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+						for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
 							words[#words+1] = row.word
 						end
 						report = report .. "\nCorrect Words: "..#words
@@ -589,7 +587,7 @@ function generateReport2()
 						end
 						--get incorrect
 						words = {}
-						for row in db:nrows("SELECT word FROM SecondGameAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
+						for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..secondGameIDs[i].."'") do
 							words[#words+1] = row.word
 						end
 						report = report .. "\nIncorrect Words: "..#words
@@ -603,7 +601,7 @@ function generateReport2()
 				if i == #secondGameIDs then
 					report = report .. "\n-----------------------------------------------------\n"
 					report = report .. "\nGAME # " .. secondGameAnalyticsIDs[j] .. "\n"
-					for row in db:nrows("SELECT * FROM SecondGame where id = '" .. secondGameIDs[i] .. "'") do
+					for row in db:nrows("SELECT * FROM GameTwo where id = '" .. secondGameIDs[i] .. "'") do
 						report = report .. "\nPlayer:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 					end
 					break
@@ -634,7 +632,7 @@ function getGameOneAverages(table, category, score)
 	for i = 1, gameOneCount do
 		completedRounds[i] = 0
 		-- completed rounds
-		for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..IDs[i].."' AND score = '"..score.."'") do
+		for row in db:nrows("SELECT * FROM GameOneAnalytics where gamenumber = '"..IDs[i].."' AND score = '"..score.."'") do
 			completedRounds[i] = completedRounds[i] + 1
 		end
 	end
@@ -648,9 +646,9 @@ function getGameOneAverages(table, category, score)
 	report = report .. "\n**PER ROUND AVERAGES**\n"
 	--AVG ROUND SPEED
 	avgSpeed = 0
-	ctr = countRounds("ThirdGameAnalytics", table, category)
+	ctr = countRounds("GameOneAnalytics", table, category)
 	for i = 1, gameOneCount do
-		for row in db:nrows("SELECT speed FROM ThirdGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT speed FROM GameOneAnalytics where gamenumber = '"..IDs[i].."'") do
 			avgSpeed = avgSpeed + row.speed
 		end
 	end
@@ -660,7 +658,7 @@ function getGameOneAverages(table, category, score)
 	--AVG ROUND SCORE
 	avgScore = 0
 	for i = 1, gameOneCount do
-		for row in db:nrows("SELECT score FROM ThirdGameAnalytics where gamenumber = '"..IDs[i].."'") do
+		for row in db:nrows("SELECT score FROM GameOneAnalytics where gamenumber = '"..IDs[i].."'") do
 			avgScore = avgScore + row.score
 		end
 	end
@@ -676,31 +674,31 @@ function generateReport1()
 	report = report .. "The following information contains the analytics for all the game plays for Game 1: Memory (BLUE HOUSE). Note: Completed rounds are the ones correctly answered up until the last sequence. For easy, there are 4 sequences, for medium, 9 sequences and for hard, 16 sequences.\n\n"
 
 	report = report .. "*****EASY*****\n"
-	gameOneCount = getCount("ThirdGame", "easy")
+	gameOneCount = getCount("GameOne", "easy")
 	report = report .. "NO. OF ENTRIES:\t"..gameOneCount.."\n"
 	if gameOneCount > 0 then
-		getAverageScore("ThirdGame", "easy")
-		getGameOneAverages("ThirdGame", "easy", 10)
+		getAverageScore("GameOne", "easy")
+		getGameOneAverages("GameOne", "easy", 10)
 	end
 
 	report = report .. "\n*****MEDIUM*****\n"
-	gameOneCount = getCount("ThirdGame", "medium")
+	gameOneCount = getCount("GameOne", "medium")
 	report = report .. "NO. OF ENTRIES:\t"..gameOneCount.."\n"
 	if gameOneCount > 0 then
-		getAverageScore("ThirdGame", "medium")
-		getGameOneAverages("ThirdGame", "medium", 45)
+		getAverageScore("GameOne", "medium")
+		getGameOneAverages("GameOne", "medium", 45)
 	end
 
 	report = report .. "\n*****HARD*****\n"
-	gameOneCount = getCount("ThirdGame", "hard")
+	gameOneCount = getCount("GameOne", "hard")
 	report = report .. "NO. OF ENTRIES:\t"..gameOneCount.."\n"
 	if gameOneCount > 0 then
-		getAverageScore("ThirdGame", "hard")
-		getGameOneAverages("ThirdGame", "hard", 136)
+		getAverageScore("GameOne", "hard")
+		getGameOneAverages("GameOne", "hard", 136)
 	end
 
 	-- ALL ANALYTICS
-	for row in db:nrows("SELECT COUNT(*) as count, * FROM ThirdGame ORDER BY id DESC") do
+	for row in db:nrows("SELECT COUNT(*) as count, * FROM GameThree ORDER BY id DESC") do
 		count = row.count
 		if count > 0 then
 			report = report .. "\n------------------------------------------------------------"
@@ -710,12 +708,12 @@ function generateReport1()
 		end
 	end
 
-	for row in db:nrows("SELECT * FROM ThirdGame ORDER BY id DESC") do
+	for row in db:nrows("SELECT * FROM GameOne ORDER BY id DESC") do
 		if count > 0 then
 			roundNumber = 0
 			report = report .. "\n------------------------------------------------------------\n"
 			report = report .. "GAME # " .. row.id .."\n\nPlayer: ".. row.name.."\nAge: "..row.age.."\nCategory : "..row.category.."\nTimestamp: "..row.timestamp.. "\nPause count: " .. row.pausecount.."\nFinal Score: "..row.score
-			for row in db:nrows("SELECT * FROM ThirdGameAnalytics where gamenumber = '"..row.id.."'") do
+			for row in db:nrows("SELECT * FROM GameOneAnalytics where gamenumber = '"..row.id.."'") do
 				report = report .. "\n\nROUND "..row.roundnumber .. "\nRound time: "..row.speed.." second/s" .. "\nRound score: "..row.score
 				roundNumber = roundNumber + 1
 			end
@@ -738,24 +736,24 @@ function displayGame1()
 		widgetGroup:removeSelf()
 		bg:removeSelf()
 	end
-	bg = display.newImageRect("images/menu/scoresgame3.png", 600, 320)
+	bg = display.newImageRect("images/menu/scoresgame1.png", 600, 320)
 	bg.x = display.contentCenterX;
 	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()
-	getScoresFromDB("ThirdGame")
+	getScoresFromDB("GameOne")
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
 	-- send email
-	emailBtn1 = display.newImage( "images/firstgame/email_button.png", 5, 5)
+	emailBtn1 = display.newImage( "images/buttons/email_button.png", 5, 5)
 	emailBtn1.x = display.contentWidth
 	emailBtn1.y = 90
 	widgetGroup:insert(emailBtn1)
 
 	generateReport1()
-	emailBtn1:addEventListener("touch", onSendEmail3)
+	emailBtn1:addEventListener("touch", onSendEmail1)
 end
 
 function displayGame2()
@@ -769,12 +767,12 @@ function displayGame2()
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()
-	getScoresFromDB("SecondGame")
+	getScoresFromDB("GameTwo")
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
 	-- send email
-	emailBtn2 = display.newImage( "images/firstgame/email_button.png", 5, 5)
+	emailBtn2 = display.newImage( "images/buttons/email_button.png", 5, 5)
 	emailBtn2.x = display.contentWidth
 	emailBtn2.y = 90
 	widgetGroup:insert(emailBtn2)
@@ -787,23 +785,23 @@ function displayGame3()
 		widgetGroup:removeSelf()
 		bg:removeSelf()
 	end
-	bg = display.newImageRect("images/menu/scoresgame1.png", 600, 320)
+	bg = display.newImageRect("images/menu/scoresgame3.png", 600, 320)
 	bg.x = display.contentCenterX;
 	bg.y = display.contentCenterY;
 	screenGroup:insert(bg)
 
 	widgetGroup = display.newGroup()
-	getScoresFromDB("FirstGame")
+	getScoresFromDB("GameThree")
 	screenGroup:insert(widgetGroup)
 	screenGroup:insert(tabGroup)
 
 	-- send email
-	emailBtn3 = display.newImage( "images/firstgame/email_button.png", 5, 5)
+	emailBtn3 = display.newImage( "images/buttons/email_button.png", 5, 5)
 	emailBtn3.x = display.contentWidth
 	emailBtn3.y = 90
 	widgetGroup:insert(emailBtn3)
 	generateReport3()
-	emailBtn3:addEventListener("touch", onSendEmail1)
+	emailBtn3:addEventListener("touch", onSendEmail3)
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -813,7 +811,7 @@ function scene:createScene( event )
 	bgMusic = event.params.music
 
 	-- back to home
-	homeBtn = display.newImage( "images/firstgame/home_button.png", 5, 5)
+	homeBtn = display.newImage( "images/buttons/home_button.png", 5, 5)
 	homeBtn.x = display.contentWidth
 	homeBtn.y = 30
 	homeBtn:addEventListener("touch", home)

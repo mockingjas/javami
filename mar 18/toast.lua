@@ -17,7 +17,7 @@ function new(pText, pTime, xcoord, ycoord, game)
     local pTime = pTime;
     local toast = display.newGroup();
 
-    if game == "firstgame_text" then 
+    if game == "toastText" then 
         toast.text                      = display.newText(toast, pText, xcoord + 10, ycoord, native.systemFont, 12);
         toast.text.align                = "center"
         toast.background                = display.newRoundedRect( toast, xcoord, -115, toast.text.width + 20, toast.text.height + 20, 16 );
@@ -28,7 +28,7 @@ function new(pText, pTime, xcoord, ycoord, game)
         toast.text:setFillColor(0,0,0)
         toast.x = display.contentWidth * .5
         toast.y = display.contentHeight * .9
-    elseif game == "secondgame" then
+    elseif game == "toastGameTwo" then
         bg = display.newImage( text )
         bg.xScale = bg.xScale * 1.5
         bg.yScale = bg.yScale * 1.5
