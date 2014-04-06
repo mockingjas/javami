@@ -8,7 +8,7 @@ local scene = storyboard.newScene()
 local gameScreen, tabGroup
 
 function scene:createScene( event )
-	local slideView = require("SlideView")
+	local slideView = require("slideView")
 	
 	local myImages = {
 		"images/menu/howtoplay1.png",

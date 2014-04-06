@@ -5,7 +5,7 @@ local widget = require("widget")
 
 -- Global Variables --
 local scene = storyboard.newScene()
-local levelgroup, easy, medium, hard, gamenum, font
+local levelgroup, easy, medium, hard, gamenum, font, bg
 local instance1, instance2, instance3, scores, howtoplay, bgMusic, about, aboutgroup
 
 --  Load font --

@@ -3,7 +3,7 @@ local storyboard = require ("storyboard")
 local widget = require( "widget" )
 local scene = storyboard.newScene()
 scene.purgeOnSceneChange = true
-local category, boolFirst, gameTimer, currScore, boolNew, pauseCtr, roundNumber, muted, gameMusic
+local category, boolFirst, gameTimer, currScore, pauseCtr, roundNumber, muted, gameMusic
 
 function scene:createScene(event)
 	local screenGroup = self.view
@@ -11,7 +11,6 @@ function scene:createScene(event)
 	boolFirst = event.params.first
 	gameTimer = event.params.time
 	currScore = event.params.score
-	boolNew = event.params.new
 	gameMusic = event.params.music
 	pauseCtr = event.params.pause
 	roundNumber = event.params.round
@@ -30,7 +29,6 @@ function scene:enterScene(event)
 			ctr = itemCtr,
 			check = itemCheck,
 			speed = itemSpeed,
-			new = boolNew,
 			music = gameMusic,
 			pause = pauseCtr,
 			round = roundNumber,

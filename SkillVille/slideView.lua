@@ -39,7 +39,7 @@ function home(event)
 	audio.stop()
 	g.isVisible = false
 	storyboard.removeScene("MainMenu")
-	storyboard.removeScene("SlideView")
+	storyboard.removeScene("slideView")
 	storyboard.gotoScene("ReloadMainMenu")
 end
 

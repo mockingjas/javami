@@ -1,53 +1,48 @@
-------- Requirements ---------
+---------- REQUIREMENTS -------------------
 MultiTouch = require("dmc_multitouch");
 local storyboard = require ("storyboard")
 local widget = require( "widget" )
-local physics = require("physics")
 local lfs = require("lfs")
-local stopwatch =require "stopwatch"
+local stopwatch =require("stopwatch")
 local toast = require("toast");
 local scene = storyboard.newScene()
+-------------------------------------------
 
+--------GLOBAL VARIABLES--------------------
 --for the game
 local numberOfCategories, selectedCategories
-local images, labels, answers, maxcount
-local gameBoard, boxGroup, boxes, selected
+local answers, maxCount, baskets, selectedImage
 --for the timer and reloading
-local maintimer, timerText
+local mainTimer, displayTimerText
+--for the DB
+local userAge, username, latestId
 --for reloading params
-local currTime, boolFirst, currScore, category, option, correctCtr, corrects
---for the pause screen
-local pausegroup
---for the gameover screen, 
-local gameovergroup, round, score, x, y, i
+local currentTime, isFirstEntry, currentScore, level, targetScore
 --for sounds
-local muted, muteBtn, unmuteBtn
+local muted, muteButton, unmuteButton
 --for analytics
-local profileName, pauseCtr, count, roundNumber, profileAge
-local boolNew = false
+local profileName, profileAge, pauseCount, count, roundCount
 --for after modal
-local levelgroup
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
-local userAge, username, emailaddress, latestId
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
-db = sqlite3.open( path )
+db = sqlite3.open(path)
 ------- Load sounds ---------
 local incorrectSound = audio.loadSound("music/incorrect.mp3")
 local correctSound = audio.loadSound("music/correct.mp3")
 local secondGameMusic = audio.loadSound("music/GameTwo.mp3")
-local game2MusicChannel
+local gameTwoMusicChannel
 ------- Load font ---------
 local font
-if "Win" == system.getInfo( "platformName" ) then
+if "Win" == system.getInfo("platformName") then
     font = "Cartwheel"
-elseif "Android" == system.getInfo( "platformName" ) then
+elseif "Android" == system.getInfo("platformName") then
     font = "Cartwheel"
 end
 --------------------------------------------------- FUNCTIONS ------------------------------------------------------------------------
 
--- END: EMAIL
+-- Function for the email pop-up, cannot be tested on simulator
 local function onSendEmail( event )
 	local options =
 	{
@@ -60,7 +55,7 @@ local function onSendEmail( event )
 	native.showPopup("mail", options)
 end
 
--- END: SAVE SCORE TO DB
+-- Save game play details to DB
 function insertToDB(category, score, name, age, timestamp, pausectr)
 	local query = [[INSERT INTO GameTwo VALUES (NULL, ']] .. 
 	category .. [[',']] ..
@@ -77,7 +72,7 @@ function insertToDB(category, score, name, age, timestamp, pausectr)
 	return id
 end
 
--- END: SAVE ANALYTICS TO DB
+-- Save analytics to DB
 function insertAnalyticsToDB(gameid, roundid, word, category, isCorrect, speed)
 	local query = [[INSERT INTO GameTwoAnalytics VALUES (NULL, ']] .. 
 	gameid .. [[',']] ..
@@ -89,7 +84,7 @@ function insertAnalyticsToDB(gameid, roundid, word, category, isCorrect, speed)
 	db:exec(query)
 end
 
--- END: GENERATE REPORT & SAVE TO FILE
+-- Generate analytics and save to text file
 function saveToFile()
 	report = ""
 	report = report .. "------------------------------------------------------------"
@@ -98,64 +93,56 @@ function saveToFile()
 	report = report .. "The following information contains the analytics for the most recently played game for Game 2: Searching and Sorting (ORANGE HOUSE). Note: For Game 2, the image of the word is the basis for its category, not the meaning of the word. To complete one round, user must be able to categorize 10, 15 and 20 items respectively for each level.\n\n"
 
 	for row in db:nrows("SELECT COUNT(*) as count FROM GameTwoAnalytics where gamenumber = '"..latestId.."'") do
-		dbcount = row.count
+		dbCount = row.count
 	end
 
-	if dbcount == 0 then
+	-- If DB is empty, do not generate per round analytics
+	if dbCount == 0 then
 		report = report .. "GAME # " .. latestId .. "\n"
 		for row in db:nrows("SELECT * FROM GameTwo where id = '" .. latestId .. "'") do
 			report = report .. "\nPlayer:\t\t" .. row.name .. "\nAge:\t"..row.age.."\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
+	--If DB is not empty, generate per round analytics
 	else
-		gamenumber = {}
-
+		gameNumber = {}
 		for row in db:nrows("SELECT * FROM GameTwoAnalytics") do
-			gamenumber[#gamenumber+1] = row.gamenumber
+			gameNumber[#gameNumber+1] = row.gamenumber
 		end
-
 		report = ""
-		report = report .. "GAME # " .. gamenumber[#gamenumber]
-		for row in db:nrows("SELECT * FROM GameTwo where id = '" .. gamenumber[#gamenumber] .. "'") do
+		report = report .. "GAME # " .. gameNumber[#gameNumber]
+		for row in db:nrows("SELECT * FROM GameTwo where id = '" .. gameNumber[#gameNumber] .. "'") do
 			report = report .. "\nPlayer:\t\t" .. row.name .. "\nCategory:\t" .. row.category .. "\nTimestamp:\t" ..row.timestamp .. "\nPause count:\t" .. row.pausecount .. "\nFinal score:\t" .. row.score
 		end
-		--get round #
 		allRoundNumbers = {}
-		rounds = {}
-		for row in db:nrows("SELECT roundnumber FROM GameTwoAnalytics WHERE gamenumber = '" .. gamenumber[#gamenumber] .. "'") do
+		for row in db:nrows("SELECT roundnumber FROM GameTwoAnalytics WHERE gamenumber = '" .. gameNumber[#gameNumber] .. "'") do
 			allRoundNumbers[#allRoundNumbers+1] = row.roundnumber
 		end
 		rounds = cleanArray(allRoundNumbers)
 
 		for j = 1, #rounds do
 			report = report .. "\n\nROUND "..rounds[j]
-			--round speed
-			for row in db:nrows("SELECT speed FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+			for row in db:nrows("SELECT speed FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gameNumber[#gameNumber].."'") do
 				report = report .. "\nRound time: "..row.speed.." seconds"
 				break
 			end
-			-- get categories
 			allCategories = {}
-			categories = {}
-			for row in db:nrows("SELECT category FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+			for row in db:nrows("SELECT category FROM GameTwoAnalytics WHERE roundnumber = '"..rounds[j].."' AND gamenumber = '"..gameNumber[#gameNumber].."'") do
 				allCategories[#allCategories+1] = row.category
 			end
-			categories = {}
 			categories = cleanArray(allCategories)
 
 			for k = 1, #categories do
 				report = report .. "\n\nCATEGORY: " .. categories[k]
-				-- get correct
 				words = {}
-				for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '1' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gameNumber[#gameNumber].."'") do
 					words[#words+1] = row.word
 				end
 				report = report .. "\nCorrect Words: "..#words
 				for w = 1, #words do
 					report = report .. "\n\t"..words[w]
 				end
-				--get incorrect
 				words = {}
-				for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gamenumber[#gamenumber].."'") do
+				for row in db:nrows("SELECT word FROM GameTwoAnalytics WHERE isCorrect = '0' AND category = '"..categories[k].."' AND roundnumber = '"..rounds[j].."' AND gamenumber = '"..gameNumber[#gameNumber].."'") do
 					words[#words+1] = row.word
 				end
 				report = report .. "\nIncorrect Words: "..#words
@@ -165,6 +152,7 @@ function saveToFile()
 			end
 		end
 	end	
+	-- Save to text file
 	local path = system.pathForFile( "SkillVille - Game 2 Searching and Sorting Single Assessment.txt", system.DocumentsDirectory )
 	local file = io.open( path, "w" )
 	file:write(report)
@@ -172,18 +160,17 @@ function saveToFile()
 	file = nil
 end
 
--- END: SAVE PROFILE
+-- Save Profile to DB
 function saveProfile(dbname, dbage)
 	local query = [[INSERT INTO Profile VALUES (NULL, ']] .. 
 	dbname .. [[',']] ..
 	dbage .. [[');]]
 	db:exec(query)
-
 	for row in db:nrows("UPDATE GameTwo SET name ='" .. dbname .. "' where id = '" .. latestId .. "'") do end
 	for row in db:nrows("UPDATE GameTwo SET age ='" .. dbage .. "' where id = '" .. latestId .. "'") do end
 end
 
--- END: GET NAME
+-- Get name from textfield, cannot be tested on simulator
 local function nameListener( event )
 	if(event.phase == "began") then
 	elseif(event.phase == "editing") then
@@ -192,7 +179,7 @@ local function nameListener( event )
 	end
 end
 
--- END: GET AGE
+-- Get age from textfield, cannot be tested on simulator
 local function ageListener( event )
 	if(event.phase == "began") then
 	elseif(event.phase == "editing") then
@@ -201,8 +188,8 @@ local function ageListener( event )
 	end
 end
 
--- END: CLOSE MODAL
-function closedialog()
+-- Close profile modal
+function closeDialog()
 	username = display.newText(name.text, 190, 100, font, 20)
 	username.isVisible = false
 	userAge = display.newText(age.text, 190, 100, font, 20)
@@ -212,7 +199,7 @@ function closedialog()
 	--  if username.text == "" or userAge.text == "" then
 	-- 	toast.new("Please enter your information.", 1000, 80, -105, "toastText")
 	-- else
-		levelgroup.isVisible = false
+		levelGroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
@@ -220,162 +207,159 @@ function closedialog()
 	-- end 
 end
 
----- END: PROFILE MODAL
-function showanalyticsDialog()
- 	levelgroup = display.newGroup()
+-- Show profile modal
+function showAnalyticsDialog()
+ 	levelGroup = display.newGroup()
 
 	local rect = display.newImage("images/modal/gray.png")
  	rect.x = display.contentCenterX;
  	rect.y = display.contentCenterY;
  	rect:addEventListener("touch", function() return true end)
 	rect:addEventListener("tap", function() return true end)
-	levelgroup:insert(rect)
+	levelGroup:insert(rect)
 
 	local dialog = display.newImage("images/modal/saveanalytics.png")
  	dialog.x = display.contentCenterX;
  	dialog.y = display.contentCenterY;
- 	levelgroup:insert(dialog)
+ 	levelGroup:insert(dialog)
 
-	namelabel = display.newText("Kid's name", display.contentCenterX, 100, font, 25)
-	namelabel:setFillColor(0,0,0)
+	displayName = display.newText("Kid's name", display.contentCenterX, 100, font, 25)
+	displayName:setFillColor(0,0,0)
 	name = native.newTextField( display.contentCenterX, 130, 220, 40 )    -- passes the text field object
     name.hintText= ""
    	name.text = name.hintText
-   	levelgroup:insert(namelabel)
-   	levelgroup:insert(name)
+   	levelGroup:insert(displayName)
+   	levelGroup:insert(name)
 
-   	agelabel = display.newText("Kid's Age", display.contentCenterX, 165, font, 25)
-   	agelabel:setFillColor(0,0,0)
+   	displayAge = display.newText("Kid's Age", display.contentCenterX, 165, font, 25)
+   	displayAge:setFillColor(0,0,0)
 	age = native.newTextField( display.contentCenterX, 200, 100, 40 )    -- passes the text field object
    	age.inputType = "number"
    	age.hintText = ""
    	age.text = age.hintText
-   	levelgroup:insert(agelabel)
-   	levelgroup:insert(age)
+   	levelGroup:insert(displayAge)
+   	levelGroup:insert(age)
 
-   	--checkbutton
-	okay = widget.newButton{
+	submitButton = widget.newButton{
 		id = "okay",
 		defaultFile = "images/buttons/submit_button.png",
 		fontSize = 15,
 		emboss = true,
-		onEvent = closedialog
+		onEvent = closeDialog
 	}
-	okay.x = 350; okay.y = 235
-	levelgroup:insert(okay)
+	submitButton.x = 350; submitButton.y = 235
+	levelGroup:insert(submitButton)
 
    	name:addEventListener( "userInput", nameListener)
 	age:addEventListener( "userInput", ageListener)
 end
 
--- END: GAME OVER SPRITE
-local function finalmenu( )
-	gameovergroup = display.newGroup()
+-- Show post-game over screen
+local function finalMenu( )
+	gameOverGroup = display.newGroup()
 
-    round = display.newText("ROUND: "..category, 0, 0, font, 15)
-	round.x = 150
-	round.y = display.contentCenterY - 120
-	round:setFillColor(0,0,0)
-	gameovergroup:insert(round)
+    displayRound = display.newText("ROUND: "..level, 0, 0, font, 15)
+	displayRound.x = 150
+	displayRound.y = display.contentCenterY - 120
+	displayRound:setFillColor(0,0,0)
+	gameOverGroup:insert(displayRound)
 
-	score = display.newText("SCORE: "..currScore, 0, 0, font, 15)
-	score.x = 300
-	score.y = display.contentCenterY - 120
-	score:setFillColor(0,0,0)
-	gameovergroup:insert(score)
+	displayScore = display.newText("SCORE: "..currentScore, 0, 0, font, 15)
+	displayScore.x = 300
+	displayScore.y = display.contentCenterY - 120
+	displayScore:setFillColor(0,0,0)
+	gameOverGroup:insert(displayScore)
 
-	local playBtn = display.newImage( "images/buttons/playagain_button.png")
-    playBtn.x = 130
-    playBtn.y = display.contentCenterY - 80
-    playBtn:addEventListener("touch", restart_onBtnRelease)
-    gameovergroup:insert(playBtn)
+	local playButton = display.newImage( "images/buttons/playagain_button.png")
+    playButton.x = 130
+    playButton.y = display.contentCenterY - 80
+    playButton:addEventListener("touch", restart_onBtnRelease)
+    gameOverGroup:insert(playButton)
 
-    local playtext = display.newText("PLAY AGAIN", display.contentCenterX-7, display.contentCenterY-80, font, 25) 
-	playtext:setFillColor(0,0,0)
-    gameovergroup:insert(playtext)
+    local displayPlayAgain = display.newText("PLAY AGAIN", display.contentCenterX-7, display.contentCenterY-80, font, 25) 
+	displayPlayAgain:setFillColor(0,0,0)
+    gameOverGroup:insert(displayPlayAgain)
 
-    local homeBtn = display.newImage( "images/buttons/home_button.png")
-    homeBtn.x = 130
-    homeBtn.y = display.contentCenterY - 25
-    homeBtn:addEventListener("touch", home)
-    gameovergroup:insert(homeBtn)
+    local homeButton = display.newImage( "images/buttons/home_button.png")
+    homeButton.x = 130
+    homeButton.y = display.contentCenterY - 25
+    homeButton:addEventListener("touch", home)
+    gameOverGroup:insert(homeButton)
 
-    local hometext = display.newText("BACK TO MENU", display.contentCenterX+10, display.contentCenterY-25, font, 25) 
-	hometext:setFillColor(0,0,0)
-    gameovergroup:insert(hometext)
+    local displayHome = display.newText("BACK TO MENU", display.contentCenterX+10, display.contentCenterY-25, font, 25) 
+	displayHome:setFillColor(0,0,0)
+    gameOverGroup:insert(displayHome)
 
-    local emailBtn = display.newImage( "images/buttons/email_button.png")
-    emailBtn.x = 130
-    emailBtn.y = display.contentCenterY + 30
-    emailBtn:addEventListener("touch", onSendEmail)
-    gameovergroup:insert(emailBtn)
+    local emailButton = display.newImage( "images/buttons/email_button.png")
+    emailButton.x = 130
+    emailButton.y = display.contentCenterY + 30
+    emailButton:addEventListener("touch", onSendEmail)
+    gameOverGroup:insert(emailButton)
     
-    local emailtext = display.newText("EMAIL RESULTS", display.contentCenterX+10, display.contentCenterY+30, font, 25) 
-	emailtext:setFillColor(0,0,0)
-    gameovergroup:insert(emailtext)
+    local displayEmail = display.newText("EMAIL RESULTS", display.contentCenterX+10, display.contentCenterY+30, font, 25) 
+	displayEmail:setFillColor(0,0,0)
+    gameOverGroup:insert(displayEmail)
 
-    screenGroup:insert(gameovergroup)
+    screenGroup:insert(gameOverGroup)
 end
 
--- END: GAME OVER SPRITE
-local fallover = function(event)
+-- Game over sprite
+function fallOver(event)
 	if (i < 9) then
-		local crate1 = display.newImage( "images/game_two/" .. game:sub(i,i).. ".png" )
-		crate1.x = x
-		crate1.y = 270
-		transition.to(crate1, {time=1000, alpha=1})
+		crate = display.newImage( "images/game_two/" .. gameOverSprite:sub(i,i).. ".png" )
+		crate.x = x
+		crate.y = 270
+		transition.to(crate, {time=1000, alpha=1})
 		i = i + 1
 		x = x + 60
-		gameover:insert(crate1)
 	else
-		maintimer = nil
-		finalmenu()
-		showanalyticsDialog()
+		mainTimer = nil
+		finalMenu()
+		showAnalyticsDialog()
 	end
-	screenGroup:insert(gameover)
+	screenGroup:insert(crate)
 end
 
--- END: GAME OVER MODAL
-function gameoverdialog()
+-- Game over: remove screen elements, and save data to DB
+function gameOverDialog()
 	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
 	local time = os.date( "%I" ) .. ":" .. os.date( "%M" ) .. os.date( "%p" )
 	local timeStamp = date .. ", " .. time
-
-	latestId = insertToDB(category, currScore, profileName, profileAge, timeStamp, pauseCtr)
+	latestId = insertToDB(level, currentScore, profileName, profileAge, timeStamp, pauseCount)
 	
-	timerText:removeSelf()
-	scoreToDisplay.isVisible = false
-	pauseBtn.isVisible = false
-	boxGroup.isVisible = false
-	gameBoard.isVisible = false
-	unmuteBtn.isVisible = false
-	muteBtn.isVisible = false
+	-- Remove screen elements
+	displayTimerText:removeSelf()
+	displayScore.isVisible = false
+	pauseButton.isVisible = false
+	basketGroup.isVisible = false
+	gameBoardGroup.isVisible = false
+	unmuteButton.isVisible = false
+	muteButton.isVisible = false
 	progressBar.isVisible = false
 	progressBarFill.isVisible = false
 	for i = 1, #images do
 		images[i].isVisible = false
 	end
-
-	gameover = display.newGroup()
 	
+	-- Launch gameover sprite	
 	i = 1
 	x = 20
-	game = "GAMEOVER"
-	timer.performWithDelay( 500, fallover, 9)
-
+	gameOverSprite = "GAMEOVER"
+	timer.performWithDelay( 500, fallOver, 9)
 end
 
--- BUTTON: HOME
+-- Go back to main menu
 function home(event)
 	if(event.phase == "ended") then
-		gameovergroup.isVisible = false
-		gameover.isVisible = false
+		gameOverGroup.isVisible = false
+		crate.isVisible = false
   		storyboard.removeScene("GameTwo")
   		storyboard.removeScene("MainMenu")
+
+  		-- To be able to play music in main menu
   		audio.stop()
   		mainMusic = audio.loadSound("music/MainSong.mp3")
 		backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
-
 		option = {
 			effect = "fade",
 			time = 100,
@@ -388,71 +372,65 @@ function home(event)
   	end
 end
 
--- BUTTON: UNMUTE
 function unmuteGame(event)
-	audio.resume(game2MusicChannel)
-	unmuteBtn.isVisible = false
-	muteBtn.isVisible = true
+	audio.resume(gameTwoMusicChannel)
+	unmuteButton.isVisible = false
+	muteButton.isVisible = true
 	muted = 0
 end
 
--- BUTTON: MUTE
 function muteGame(event)
-	audio.pause(game2MusicChannel)
-	muteBtn.isVisible = false
-	unmuteBtn.isVisible = true
+	audio.pause(gameTwoMusicChannel)
+	muteButton.isVisible = false
+	unmuteButton.isVisible = true
 	muted = 1
 end
 
--- BUTTON: ZOOM IN
+-- Zoom in tapped image
 function zoomIn(event)
 	filename = event.target.filename
 	toast.new(filename, 1000, display.contentCenterX, display.contentCenterY, "toastGameTwo")
 end
 
--- BUTTON: PAUSE
 function pauseGame(event)
-    if(event.phase == "ended") then
-      	pauseCtr = pauseCtr + 1
-    	maintimer:pause()
-    	audio.pause(game2MusicChannel)
-        pauseBtn.isVisible = false
+--    if(event.phase == "ended") then
+      	pauseCount = pauseCount + 1
+    	mainTimer:pause()
+    	audio.pause(gameTwoMusicChannel)
+        pauseButton.isVisible = false
         showpauseDialog()
         return true
-    end
+--    end
 end
 
--- BUTTON: RESUME
 function resume_onBtnRelease()
 	if (muted == 0) then 
-		audio.resume(game2MusicChannel)
+		audio.resume(gameTwoMusicChannel)
 	end
-	pausegroup.isVisible = false
-	maintimer:resume()
-    pauseBtn.isVisible = true
+	pauseGroup.isVisible = false
+	mainTimer:resume()
+    pauseButton.isVisible = true
 	return true
 end
  
--- BUTTON: RESTART
 function restart_onBtnRelease()
-	if category == "easy" then
-		currTime = 62
-	elseif category == "medium" then
-		currTime = 122
-	elseif category == "hard" then
-		currTime = 182
+	if level == "easy" then
+		currentTime = 62
+	elseif level == "medium" then
+		currentTime = 122
+	elseif level == "hard" then
+		currentTime = 182
 	end
 	option =	{
 		effect = "fade",
 		time = 1000,
 		params = {
-			categ = category,
+			categ = level,
 			first = true,
-			time = currTime,
+			time = currentTime,
 			score = 0,
-			new = boolNew,
-			pause = pauseCtr,
-			round = roundNumber,
+			pause = pauseCount,
+			round = roundCount,
 			mute = muted,
 		}
 	}
@@ -461,222 +439,213 @@ function restart_onBtnRelease()
 	storyboard.gotoScene("ReloadGameTwo", option)
 end
 
--- BUTTON: EXIT PAUSE MODAL
 function exit_onBtnRelease()
 	audio.stop()
 	mainMusic = audio.loadSound("music/MainSong.mp3")
 	backgroundMusicChannel = audio.play( mainMusic, { loops=-1}  )
 
-	option =	{
-		effect = "fade",
-		time = 100,
-		params = {
-			music = backgroundMusicChannel
-		}
-	}
-	storyboard.removeScene("GameTwo")
-	storyboard.gotoScene("MainMenu", option)
+	storyboard.gotoScene("MainMenu", "fade", 100, {music = backgroundMusicChannel})
 end
 
--- PAUSE MODAL
+-- Show pause modal
 function showpauseDialog()
-	pausegroup = display.newGroup()
+	pauseGroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentCenterX;
  	pausedialog.y = display.contentCenterY;
  	pausedialog:addEventListener("touch", function() return true end)
 	pausedialog:addEventListener("tap", function() return true end)
-	pausegroup:insert(pausedialog)
+	pauseGroup:insert(pausedialog)
 
-	local resumeBtn = widget.newButton{
+	local resumeButton = widget.newButton{
 		defaultFile="images/pause/resume_button.png",
 		overFile="images/pause/resume_button.png",
 		onEvent = resume_onBtnRelease -- event listener function
 	}
-	-- resumeBtn:setReferencePoint( display.CenterReferencePoint )
-	resumeBtn.x = bg.x - 80
-	resumeBtn.y = 170
-	pausegroup:insert(resumeBtn)
+	resumeButton.x = displayBg.x - 80
+	resumeButton.y = 170
+	pauseGroup:insert(resumeButton)
 
-	local exitBtn = widget.newButton{
+	local exitButton = widget.newButton{
 		defaultFile="images/pause/exit_button.png",
 		overFile="images/pause/exit_button.png",
 		onEvent = exit_onBtnRelease -- event listener function
 	}
-	-- exitBtn:setReferencePoint( display.CenterReferencePoint )
-	exitBtn.x = bg.x + 100
-	exitBtn.y = 170
-	pausegroup:insert(exitBtn)
+	exitButton.x = displayBg.x + 100
+	exitButton.y = 170
+	pauseGroup:insert(exitButton)
 
-	screenGroup:insert(pausegroup)
+	screenGroup:insert(pauseGroup)
 end
 
--- GAME: RELOAD
+-- Generate next round
 function generateNew()
-	roundNumber = roundNumber + 1
-	boolNew = true
-	boolFirst = false
+	roundCount = roundCount + 1
+	isFirstEntry = false
 	option = {
 		time = 400,
 		params = {
-			categ = category,
-			first = boolFirst,
-			time = currTime - maintimer:getElapsedSeconds(),
-			score = currScore,
-			new = boolNew,
-			pause = pauseCtr,
-			music = game2MusicChannel,
-			round = roundNumber,
+			categ = level,
+			first = isFirstEntry,
+			time = currentTime - mainTimer:getElapsedSeconds(),
+			score = currentScore,
+			pause = pauseCount,
+			music = gameTwoMusicChannel,
+			round = roundCount,
 			mute = muted
 		}
 	}
-	gameBoard:removeSelf()
-	boxGroup:removeSelf()
-	timerText:removeSelf()
-	maintimer = nil
+	gameBoardGroup:removeSelf()
+	basketGroup:removeSelf()
+	displayTimerText:removeSelf()
+	mainTimer = nil
 	storyboard.gotoScene("ReloadGameTwo", option)
 end
 
--- GAME: CHECK ANSWER
-function checkanswer(target)
+-- Check answer
+function checkAnswer(target)
 	for i = 1, numberOfCategories do
-		if target.x == boxes[i].x then
+		if target.x == baskets[i].x then
 			boxNumber = i
 			break
 		end
 	end
 
 	isCorrect = false
-	for j = 1, maxcount do
+	for j = 1, maxCount do
+		-- Answer is correct, adjust score and progress bar
 		if answers[boxNumber][j] == target.label then
 			toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "correct")
-			currScore = currScore + 1
-			scoreToDisplay.text = "Score: "..currScore
+			currentScore = currentScore + 1
+			displayScore.text = "Score: "..currentScore
 			isCorrect = true
-			boxes[boxNumber].correctCtr = boxes[boxNumber].correctCtr + 1
-			count = boxes[boxNumber].correctCtr
-			boxes[boxNumber].correctWords[count] = target.label
+			baskets[boxNumber].correctCount = baskets[boxNumber].correctCount + 1
+			count = baskets[boxNumber].correctCount
+			baskets[boxNumber].correctWords[count] = target.label
 
 			audio.play(correctSound)
-			correctCtr = correctCtr - 1
+			targetScore = targetScore - 1
 			target:removeSelf()
 
-			progressBarFill.width = progressBarFill.width + (320/corrects)
-			-- progressBarFill.x = progressBarFill.x + (320/corrects) / 2
+			progressValue = 10
+			if level == 'medium' then
+				progressValue = progressValue + 5
+			else
+				progressValue = progressValue + 10
+			end
+			progressBarFill.width = progressBarFill.width + (320/progressValue)
 			break
 		end
 	end
 
+	-- Answer is incorrect
 	if isCorrect == false then
 		audio.play(incorrectSound)
 		toast.new("images/wrong.png", 300, display.contentCenterX, display.contentCenterY, "incorrect")
 		if count == 0 then
-			boxes[boxNumber].wrongCtr = boxes[boxNumber].wrongCtr + 1
-			count = boxes[boxNumber].wrongCtr
-			boxes[boxNumber].wrongWords[count] = target.label					
+			baskets[boxNumber].wrongCount = baskets[boxNumber].wrongCount + 1
+			count = baskets[boxNumber].wrongCount
+			baskets[boxNumber].wrongWords[count] = target.label					
 		else
-			first = true
-			for i = 1, #boxes[boxNumber].wrongWords do
-				if boxes[boxNumber].wrongWords[i] == target.label then
-					first = false
+			isFirst = true
+			for i = 1, #baskets[boxNumber].wrongWords do
+				if baskets[boxNumber].wrongWords[i] == target.label then
+					isFirst = false
 					break
 				end
 			end
-			if first then
-				boxes[boxNumber].wrongCtr = boxes[boxNumber].wrongCtr + 1
-				count = boxes[boxNumber].wrongCtr
-				boxes[boxNumber].wrongWords[count] = target.label					
+			if isFirst then
+				baskets[boxNumber].wrongCount = baskets[boxNumber].wrongCount + 1
+				count = baskets[boxNumber].wrongCount
+				baskets[boxNumber].wrongWords[count] = target.label					
 			end
 		end
-		-- snap to original position
+		-- Snap to original position
 		target.x = target.initialX
 		target.y = target.initialY
 	end	
 
-	if correctCtr == 0 then
-		local gamenumber = 0
+	-- If target round score has been achieved, generate next round
+	if targetScore == 0 then
+		local gameNumber = 0
 		for row in db:nrows("SELECT id FROM GameTwo ORDER BY id DESC") do
 			if row.id ~= nil then
-				gamenumber = row.id				
+				gameNumber = row.id				
 				break
 			end
 		end
-		gamenumber = gamenumber + 1
+		gameNumber = gameNumber + 1
 
+		-- Save analytics to DB
 		for i = 1, numberOfCategories do
-			for j = 1, #boxes[i].correctWords do
-				insertAnalyticsToDB(gamenumber, roundNumber, boxes[i].correctWords[j], boxes[i].label, 1, maintimer:getElapsedSeconds())
+			for j = 1, #baskets[i].correctWords do
+				insertAnalyticsToDB(gameNumber, roundCount, baskets[i].correctWords[j], baskets[i].label, 1, mainTimer:getElapsedSeconds())
 			end
-			for j = 1, #boxes[i].wrongWords do
-				insertAnalyticsToDB(gamenumber, roundNumber, boxes[i].wrongWords[j], boxes[i].label, 0, maintimer:getElapsedSeconds())
+			for j = 1, #baskets[i].wrongWords do
+				insertAnalyticsToDB(gameNumber, roundCount, baskets[i].wrongWords[j], baskets[i].label, 0, mainTimer:getElapsedSeconds())
 			end
 		end
 		generateNew()
 	end
-	boolNew = false
 end
 
--- GAME: DRAG IMAGE
-function imageDrag (event)
+-- If image is being dragged from original position
+function dragImage (event)
 	local imagePosX = {}
 	local imagePosY = {}
 	isMoved = false
-	selected = event.target
-	screenGroup:insert(selected)
+	selectedImage = event.target
+	screenGroup:insert(selectedImage)
 
 	if event.phase == "moved" or event.phase == "ended" then
-		---------- BOUNDARIES ----------
-		if selected.x > display.viewableContentWidth then
-			selected.x = display.viewableContentWidth
-		elseif selected.x < 0 then
-			selected.x = 0
+		-- Set screen boundaries
+		if selectedImage.x > display.viewableContentWidth then
+			selectedImage.x = display.viewableContentWidth
+		elseif selectedImage.x < 0 then
+			selectedImage.x = 0
+		end
+		if selectedImage.y > display.viewableContentHeight - 30 then
+			selectedImage.y = display.viewableContentHeight - 30
+		elseif selectedImage.y < 30 then
+			selectedImage.y = 30
 		end
 
-		if selected.y > display.viewableContentHeight - 30 then
-			selected.y = display.viewableContentHeight - 30
-		elseif selected.y < 30 then
-			selected.y = 30
-		end	
-		---------- BOUNDARIES ----------
-
 		for i = 1, numberOfCategories do
-			imagePosX[i] = math.abs(selected.x - boxes[i].x)
-			imagePosY[i] = math.abs(selected.y - boxes[i].y)
+			imagePosX[i] = math.abs(selectedImage.x - baskets[i].x)
+			imagePosY[i] = math.abs(selectedImage.y - baskets[i].y)
 		end
-		-- Snap to middle
+
+		-- Snap image to basket
 		for i = 1, numberOfCategories do
-
-			--dist from original
-			local initX = math.abs(selected.initialX - selected.x)
-			local initY = math.abs(selected.initialY - selected.y)
-
+			local initX = math.abs(selectedImage.initialX - selectedImage.x)
+			local initY = math.abs(selectedImage.initialY - selectedImage.y)
 			if (imagePosX[i] <= 50) and (imagePosY[i] <= 50) then
-				selected.x = boxes[i].x;
-				selected.y = boxes[i].y;
+				selectedImage.x = baskets[i].x;
+				selectedImage.y = baskets[i].y;
 				isMoved = true
 			elseif (initX <= 5) and (initY <= 5) then
-				-- snap back to original position
-				selected.x = selected.initialX
-				selected.y = selected.initialY
+				-- Snap image back to original position
+				selectedImage.x = selectedImage.initialX
+				selectedImage.y = selectedImage.initialY
 			end
 		end
 	end
 
+	-- If dragged to the basket, check the answer
 	if event.phase == "ended" then
 		if isMoved == true then
-			checkanswer(selected)
+			checkAnswer(selectedImage)
 		end
 	end
-
 	return true
 end 
 
--- GAME: GRID LAYOUT
+-- Function for setting the grid layout of the images
 function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddingX, paddingY, photoWidth, photoHeight)
 	local currentX = gridX
 	local currentY = gridY
 	images = {}
-	gameBoard = display.newGroup()
+	gameBoardGroup = display.newGroup()
 	fontSize = 12
 
 	for i = 1, #photoArray do
@@ -684,10 +653,10 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		if images[i] == nil then
 			images[i] = display.newImageRect("images/game_two/image.png", photoWidth, photoHeight)
 			images[i].filename = "images/game_two/image.png"
-			templabel = photoTextArray[i]
+			tempLabel = photoTextArray[i]
 		else
 			images[i].filename = photoArray[i]
-			templabel = ""
+			tempLabel = ""
 		end
 		images[i].x = currentX + 23
 		images[i].y = currentY + 20
@@ -695,13 +664,13 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		images[i].initialY = images[i].y
 		images[i].label = photoTextArray[i]
 		images[i]:addEventListener("tap", zoomIn)
-		gameBoard:insert(images[i])
+		gameBoardGroup:insert(images[i])
 
 		local textPosX = photoWidth/2 - (fontSize/2)*string.len(photoTextArray[i])/2
-		textObject = display.newText( templabel, currentX + textPosX, currentY + photoHeight - 50, native.systemFontBold, fontSize )
+		textObject = display.newText( tempLabel, currentX + textPosX, currentY + photoHeight - 50, native.systemFontBold, fontSize )
 		textObject:setFillColor( 0,0,0 )
-		gameBoard:insert(textObject)
-		screenGroup:insert(gameBoard)
+		gameBoardGroup:insert(textObject)
+		screenGroup:insert(gameBoardGroup)
 
 		--Update the position of the next item
 		currentX = currentX + photoWidth + paddingX
@@ -712,70 +681,67 @@ function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddin
 		end
 
 		MultiTouch.activate(images[i], "move", "single");
-		images[i]:addEventListener(MultiTouch.MULTITOUCH_EVENT, imageDrag);
+		images[i]:addEventListener(MultiTouch.MULTITOUCH_EVENT, dragImage);
 	end
-
-	screenGroup:insert(gameBoard)
+	screenGroup:insert(gameBoardGroup)
 end
 
--- WORD: EASY RAND
+-- Generate categories for easy level: only shapes or colors
 function randomizeEasy(categories)
-	rand = math.random(2)
-	rand2 = {}
+	randomNumber = math.random(2)
+	randomNumbers = {}
 
 	colors = {3,4,5,6}
 	shapes = {7,8,9}
 
-	if rand == 1 then
+	if randomNumber == 1 then
 		-- colors
-		rand2[1] = math.random(#colors)
-		rand2[2] = math.random(#colors)
-		while(rand2[1] == rand2[2]) do
-			rand2[2] = math.random(#colors)
+		randomNumbers[1] = math.random(#colors)
+		randomNumbers[2] = math.random(#colors)
+		while(randomNumbers[1] == randomNumbers[2]) do
+			randomNumbers[2] = math.random(#colors)
 		end
-		rand2[1] = colors[rand2[1]]
-		rand2[2] = colors[rand2[2]]
+		randomNumbers[1] = colors[randomNumbers[1]]
+		randomNumbers[2] = colors[randomNumbers[2]]
 	else
 		-- shapes
-		rand2[1] = math.random(#shapes)
-		rand2[2] = math.random(#shapes)
-		while(rand2[1] == rand2[2]) do
-			rand2[2] = math.random(#shapes)
+		randomNumbers[1] = math.random(#shapes)
+		randomNumbers[2] = math.random(#shapes)
+		while(randomNumbers[1] == randomNumbers[2]) do
+			randomNumbers[2] = math.random(#shapes)
 		end
-		rand2[1] = shapes[rand2[1]]
-		rand2[2] = shapes[rand2[2]]
+		randomNumbers[1] = shapes[randomNumbers[1]]
+		randomNumbers[2] = shapes[randomNumbers[2]]
 	end
-	return rand2
+	return randomNumbers
 end
 
--- WORD: RANDOMIZE CATEGORY
+-- Randomize categories for medium and hard
 function randomizeCategory(categories)
-
 	local numbers = {}
 	for i = 1, numberOfCategories do
-		local uniq, num
-		while not uniq do
-			num = math.random(#categories)
-	    	uniq = true -- assume number is unique
-		  	if category == 'medium' then
-			--wag 1 or 2
-				while (num == 1 or num == 2) do
-				    num = math.random(#categories)
+		-- Categories must be unique
+		local unique, randomNumber
+		while not unique do
+			randomNumber = math.random(#categories)
+	    	unique = true
+		  	if level == 'medium' then
+				while (randomNumber == 1 or randomNumber == 2) do
+				    randomNumber = math.random(#categories)
 				end
 			end
-	    
-	    -- check if it really is
-	   		for k = 1,i-1 do
-	      		if numbers[k] == num then uniq = false end
+	   		for k = 1, i-1 do
+	      		if numbers[k] == randomNumber then
+	      			unique = false
+	      		end
 	    	end
 	  	end
-	  	numbers[i] = num
+	  	numbers[i] = randomNumber
 	end
-
 	return numbers
 end
 
--- WORD: RE-RANDOMIZE
+-- Shuffle array contents (Because built-in random function is not very random)
 function shuffle(array)
 	for i = 1, #array*2 do
 		a = math.random(#array)
@@ -785,33 +751,31 @@ function shuffle(array)
 	return array
 end
 
--- WORD: REMOVE DUPLICATES
+-- Remove array duplicates
 function cleanArray(array)
-	result = {}
+	results = {}
 	ctr = 1
-
 	for i = 1, #array do
 		if ctr > 1 then
 			isUnique = true
-			for j = 1, #result do
-				if array[i] == result[j] then
+			for j = 1, #results do
+				if array[i] == results[j] then
 					isUnique = false
 				end
 			end
 			if isUnique then
-				result[ctr] = array[i]
+				results[ctr] = array[i]
 				ctr = ctr + 1
 			end
 		else
-			result[ctr] = array[i]
+			results[ctr] = array[i]
 			ctr = ctr + 1
 		end
 	end
-
-	return result
+	return results
 end
 
--- WORD: GET FROM DB
+-- Fetch words from the DB
 local function getWords(type, limit)
 	dbFields = {}
 	dbValues = {}
@@ -834,7 +798,7 @@ local function getWords(type, limit)
 		end
 	end
 
-	--query database:correct words
+	--Query database: get correct words
 	answers = {}
 	correctWords = {}
 	for i = 1, #dbFields do
@@ -846,15 +810,14 @@ local function getWords(type, limit)
 		end
 	end
 
-	-- max count
 	for row in db:nrows("SELECT COUNT(*) as count FROM Words where livingThingCategory = '0'") do
-		maxcount = row.count
+		maxCount = row.count
 	end
 
-	-- remove duplicates
+	-- Remove duplicates
 	correctWords[1] = answers[1][1]
 	for i = 1, #dbFields do
-		for j = 1, maxcount do
+		for j = 1, maxCount do
 			isUnique = true
 			for k = 1, #correctWords do
 				if answers[i][j] == correctWords[k] then
@@ -869,7 +832,7 @@ local function getWords(type, limit)
 
 	if type == "correct" then
 		words = correctWords
-	--query database:extra words
+	--Query database: get extra words
 	elseif type == "incorrect" then
 		words = {}
 		for i = 1, #dbFields do
@@ -881,13 +844,13 @@ local function getWords(type, limit)
 						words[1] = row.name
 					end
 				else
-					-- remove duplicates
+					-- Remove duplicates
 					for j = 1, #words-1 do
 						if row.name == words[j] then
 							isUnique = false
 						end
 					end
-					-- remove correct words
+					-- Remove correct words
 					for j = 1, #correctWords do
 						if row.name == correctWords[j] then
 							isUnique = false
@@ -912,88 +875,57 @@ local function getWords(type, limit)
 	return words
 end
 
--- GAME: TIMER
+-- Timer function
 local function onFrame(event)
-	if (maintimer ~= nil) then
-   		timerText.text = maintimer:toRemainingString()
-   		local done = maintimer:isElapsed()
- 		local secs = maintimer:getElapsedSeconds()
+	if (mainTimer ~= nil) then
+   		displayTimerText.text = mainTimer:toRemainingString()
+   		local done = mainTimer:isElapsed()
+ 		local secs = mainTimer:getElapsedSeconds()
 
    		if(done) then
 	   		Runtime:removeEventListener("enterFrame", onFrame)
-	    	gameoverdialog()
+	    	gameOverDialog()
 		end
 	end  
 end
 
-------------------CREATE SCENE: MAIN -----------------------------
-function scene:createScene(event)
-	boolFirst = event.params.first
-	category = event.params.categ
-	currScore = event.params.score
-	currTime = event.params.time
-	boolNew = event.params.new
-	pauseCtr = event.params.pause
-	roundNumber = event.params.round
-
-	profileName = "Cha" --temp
-	profileAge = 4
-	count = 0
-
-	-- Start timer
-	maintimer = stopwatch.new(currTime)
-	screenGroup = self.view
-
-	-- Screen Elements
-	scoreToDisplay = display.newText("Score: "..currScore, 15, 12, font, 25 )	
-	scoreToDisplay:setFillColor(0,0,0)
-
-	timerText = display.newText("", 482, 12, font, 25) 
-	timerText:setFillColor(0,0,0)
-	
-    categories = {"living", "nonliving", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "animal", "bodypart"}
-	values = {"1", "0", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "1", "1"}
-
-	if category == 'easy' then
-		correctCtr = 10
-		numberOfCategories = 2
-	elseif category == 'medium' then
-		correctCtr = 15
-		numberOfCategories = 3
-	else
-		correctCtr = 20
-		numberOfCategories = 4
-	end
-
-	corrects = correctCtr
+function displayScreenElements()
 	--bg
 	width = 550; height = 320;
-	bg = display.newImageRect("images/game_two/game2bg.png", width, height)
-	bg.x = display.contentCenterX;
-	bg.y = display.contentCenterY;
-	screenGroup:insert(bg)
+	displayBg = display.newImageRect("images/game_two/game2bg.png", width, height)
+	displayBg.x = display.contentCenterX;
+	displayBg.y = display.contentCenterY;
+	screenGroup:insert(displayBg)
+	--score
+	displayScore = display.newText("Score: "..currentScore, 15, 12, font, 25 )	
+	displayScore:setFillColor(0,0,0)
+	screenGroup:insert(displayScore)
+	--time
+	displayTimerText = display.newText("", 482, 12, font, 25) 
+	displayTimerText:setFillColor(0,0,0)
+	screenGroup:insert(displayTimerText)
 	--pause button
-	pauseBtn = display.newImageRect( "images/game_two/pause.png", 20, 20)
-    pauseBtn.x = 438
-    pauseBtn.y = 12
-    pauseBtn:addEventListener("touch", pauseGame)
-    pauseBtn:addEventListener("tap", pauseGame)
-    screenGroup:insert( pauseBtn )
+	pauseButton = display.newImageRect( "images/game_two/pause.png", 20, 20)
+    pauseButton.x = 438
+    pauseButton.y = 12
+    pauseButton:addEventListener("touch", pauseGame)
+    pauseButton:addEventListener("tap", pauseGame)
+    screenGroup:insert( pauseButton )
     --unmute button
-    unmuteBtn = display.newImageRect( "images/game_two/mute_button.png", 20, 20)
-    unmuteBtn.x = 415
-    unmuteBtn.y = 12
-	unmuteBtn:addEventListener("touch", unmuteGame)
-    unmuteBtn:addEventListener("tap", unmuteGame)
-    screenGroup:insert( unmuteBtn )
-    unmuteBtn.isVisible = false
+    unmuteButton = display.newImageRect( "images/game_two/mute_button.png", 20, 20)
+    unmuteButton.x = 415
+    unmuteButton.y = 12
+	unmuteButton:addEventListener("touch", unmuteGame)
+    unmuteButton:addEventListener("tap", unmuteGame)
+    screenGroup:insert( unmuteButton )
+    unmuteButton.isVisible = false
     --mute button
-	muteBtn = display.newImageRect( "images/game_two/unmute_button.png", 20, 20)
-    muteBtn.x = 415
-    muteBtn.y = 12
-    muteBtn:addEventListener("touch", muteGame)
-    muteBtn:addEventListener("tap", muteGame)
-    screenGroup:insert( muteBtn )
+	muteButton = display.newImageRect( "images/game_two/unmute_button.png", 20, 20)
+    muteButton.x = 415
+    muteButton.y = 12
+    muteButton:addEventListener("touch", muteGame)
+    muteButton:addEventListener("tap", muteGame)
+    screenGroup:insert( muteButton )
     --outer rectangle
     progressBar = display.newRect(display.contentCenterX, 10, 322, 15)
     -- progressBar:setReferencePoint(display.BottomLeftReferencePoint)
@@ -1005,97 +937,133 @@ function scene:createScene(event)
     progressBarFill = display.newRect(display.contentWidth/6 + 1, 10, 0, 10)
     progressBarFill:setFillColor(0.2 , 0.8, 0.12)
     progressBarFill.anchorX = 0
-
-    -- progressBarFill:setReferencePoint(display.BottomLeftReferencePoint)
     screenGroup:insert( progressBarFill )
+end
 
-    if boolFirst then
+function generateBaskets()
+	basketGroup = display.newGroup()
+	baskets = {}
+	basketSize = 50
+
+	if level == 'easy' then
+		selectedCategories = randomizeEasy(allCategories)
+	else
+		selectedCategories = randomizeCategory(allCategories)
+	end
+
+	for i = 1, numberOfCategories do
+		baskets[i] = display.newImageRect("images/game_two/"..allCategories[selectedCategories[i]].. ".png", 150, 100)
+		baskets[i].label = allCategories[selectedCategories[i]]
+		baskets[i].correctCount = 0
+		baskets[i].wrongCount = 0
+		baskets[i].correctWords = {}
+		baskets[i].wrongWords = {}
+		basketGroup:insert(baskets[i])
+	end
+
+	if level == 'easy' then
+		baskets[1].x = width/4; baskets[1].y = 290
+		baskets[2].x = width/4 + (4*basketSize); baskets[2].y = 290	
+		numberOfCorrectAnswers = 14
+		numberOfIncorrectAnswers = 10
+		gridX = width/7
+	elseif level == 'medium' then
+		baskets[1].x = width/3 - (2*basketSize) + 20; baskets[1].y = 290
+		baskets[2].x = width/3 + basketSize + 10; baskets[2].y = 290
+		baskets[3].x = width/3 + (3*basketSize) + 40; baskets[3].y = 290
+		numberOfCorrectAnswers = 17
+		numberOfIncorrectAnswers = 15
+		gridX = width/22
+	else
+		baskets[1].x = width/4 - (2*basketSize) + 10; baskets[1].y = 290
+		baskets[2].x = width/4 + basketSize - 15; baskets[2].y = 290
+		baskets[3].x = width/4 + (3*basketSize) + 10; baskets[3].y = 290
+		baskets[4].x = width/4 + (5*basketSize) + 30; baskets[4].y = 290
+		numberOfCorrectAnswers = 24
+		numberOfIncorrectAnswers = 16
+		gridX = -30
+	end
+	screenGroup:insert(basketGroup)
+end
+
+function generateImages()
+	allWords = getWords("correct", numberOfCorrectAnswers)
+	allExtras = getWords("incorrect", numberOfIncorrectAnswers)
+
+	labels = {}
+	length = numberOfCorrectAnswers + numberOfIncorrectAnswers	
+	for i = 1, numberOfCorrectAnswers do
+		labels[i] = allWords[i]
+	end
+	for i = numberOfCorrectAnswers+1, length do
+		labels[i] = allExtras[i - numberOfCorrectAnswers]
+	end
+	labels = shuffle(labels)
+
+	photos = {}
+	for i = 1, length do
+		photos[i] = "images/pictures/"..labels[i]..".png"
+	end
+
+	--gridX, gridY, photoArray, photoTextArray, columnNumber, paddingX, paddingY, photoWidth, photoHeight
+	drawGrid(gridX, 30, photos, labels, length/4, 5, 5, 50, 50)
+end
+
+------------------CREATE SCENE: MAIN -----------------------------
+function scene:createScene(event)
+
+	-- Parameters from previous scene
+	isFirstEntry = event.params.first
+	level = event.params.categ
+	currentScore = event.params.score
+	currentTime = event.params.time
+	pauseCount = event.params.pause
+	roundCount = event.params.round
+
+	-- Temporary Profile
+	profileName = "Default"
+	profileAge = 4
+	count = 0
+
+	-- Start timer
+	mainTimer = stopwatch.new(currentTime)
+	screenGroup = self.view
+	displayScreenElements()
+	
+	-- Set game parameters
+	allCategories = {"living", "nonliving", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "animal", "bodypart"}
+	values = {"1", "0", "red", "green", "blue", "yellow", "triangle", "rectangle", "circle", "1", "1"}
+
+	if level == 'easy' then
+		targetScore = 10
+		numberOfCategories = 2
+	elseif level == 'medium' then
+		targetScore = 15
+		numberOfCategories = 3
+	else
+		targetScore = 20
+		numberOfCategories = 4
+	end
+
+    if isFirstEntry then
 		muted = 0
-		game2MusicChannel = audio.play( secondGameMusic, { loops=-1}  )
-		boolNew = false
-		pauseCtr = 0
-		roundNumber = 1
+		gameTwoMusicChannel = audio.play( secondGameMusic, { loops=-1}  )
+		pauseCount = 0
+		roundCount = 1
 	else
 		muted = event.params.mute
 		if muted == 1 then
 			muteGame()
 		else
-			game2MusicChannel = event.params.music
-			audio.resume(game2MusicChannel)
+			gameTwoMusicChannel = event.params.music
+			audio.resume(gameTwoMusicChannel)
 		end
-		pauseCtr = event.params.pause
-		roundNumber = event.params.round
+		pauseCount = event.params.pause
+		roundCount = event.params.round
 	end
     
-    -------------------------------------------- GAME --------------------
-    --boxes
-	boxGroup = display.newGroup()
-	boxSize = 50
-	boxes = {}
-	boxLabels = {}
-
-	if category == 'easy' then
-		selectedCategories = randomizeEasy(categories)
-	else
-		selectedCategories = randomizeCategory(categories)
-	end
-
-	for i = 1, numberOfCategories do
-		boxes[i] = display.newImageRect("images/game_two/"..categories[selectedCategories[i]].. ".png", 150, 100)
-		boxes[i].label = categories[selectedCategories[i]]
-		boxes[i].correctCtr = 0
-		boxes[i].wrongCtr = 0
-		boxes[i].correctWords = {}
-		boxes[i].wrongWords = {}
-		boxGroup:insert(boxes[i])
-	end
-
-	if category == 'easy' then
-		boxes[1].x = width/4; boxes[1].y = 290
-		boxes[2].x = width/4 + (4*boxSize); boxes[2].y = 290	
-		numberOfCorrectAnswers = 14
-		numberOfIncorrectAnswers = 10
-		gridX = width/7
-	elseif category == 'medium' then
-		boxes[1].x = width/3 - (2*boxSize) + 20; boxes[1].y = 290
-		boxes[2].x = width/3 + boxSize + 10; boxes[2].y = 290
-		boxes[3].x = width/3 + (3*boxSize) + 40; boxes[3].y = 290
-		numberOfCorrectAnswers = 17
-		numberOfIncorrectAnswers = 15
-		gridX = width/22
-	else
-		boxes[1].x = width/4 - (2*boxSize) + 10; boxes[1].y = 290
-		boxes[2].x = width/4 + boxSize - 15; boxes[2].y = 290
-		boxes[3].x = width/4 + (3*boxSize) + 10; boxes[3].y = 290
-		boxes[4].x = width/4 + (5*boxSize) + 30; boxes[4].y = 290
-		numberOfCorrectAnswers = 24
-		numberOfIncorrectAnswers = 16
-		gridX = -30
-	end
-
-	allWords = {}
-	allExtras = {}
-	allWords = getWords("correct", numberOfCorrectAnswers)
-	allExtras = getWords("incorrect", numberOfIncorrectAnswers)
-
-	-- temporary labels
-	labels = {}
-	length = numberOfCorrectAnswers + numberOfIncorrectAnswers	
-	for i = 1, numberOfCorrectAnswers do labels[i] = allWords[i] end
-	for i = numberOfCorrectAnswers+1, length do labels[i] = allExtras[i - numberOfCorrectAnswers] end
-	labels = shuffle(labels)
-
-	-- photos
-	photos = {}
-	for i = 1, length do
-		photos[i] = "images/pictures/"..labels[i]..".png"
-	end
-	screenGroup:insert(scoreToDisplay)
-	screenGroup:insert(boxGroup)
-	screenGroup:insert(timerText)
-
-	--gridX, gridY, photoArray, photoTextArray, columnNumber, paddingX, paddingY, photoWidth, photoHeight
-	drawGrid(gridX, 30, photos, labels, length/4, 5, 5, 50, 50)
+    generateBaskets()
+    generateImages()
 end
 
 scene:addEventListener("createScene", scene)
