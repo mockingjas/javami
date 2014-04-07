@@ -6,33 +6,37 @@ local physics 		= require("physics")
 local lfs 			= require("lfs")
 local stopwatch 	= require("stopwatch")
 local toast 		= require("toast")
-local scene 		= storyboard.newScene()
-
-scene.purgeOnSceneChange = true
 
 ------- Global variables ---------
---for the blackboard
-local word, wordGroup, wordToGuess, letterbox, letterboxGroup, chalkLetter, letterbox, image
-local wordFromDB, submit
---local screenGroup
---for the timer and reloading
-local timer, timerText
---for reloading params
+-- Scene
+local scene = storyboard.newScene()
+-- scene.purgeOnSceneChange = true
+-- Word to guess
+local givenWord, givenBlankedGroup, givenBlanked
+-- Letters to choose from
+local givenLetters, givenLettersGroup
+-- Image of the word
+local displayLetters, displayImage
+local wordFromDB, submitButton, hintButton, clearButton
+-- Timer
+local timer, displayTime
+-- Reload params
 local currTime, boolFirst, currScore, category, option
---for the pause screen
-local pausegroup
---for the gameover screen, 
-local gameovergroup, round, score
-local dialog, msgText, startTime
---for sounds
-local muted, muteBtn, unmuteBtn, clearBtn
---for after modal
-local levelgroup
+-- Pause screen
+local pausegroup, pauseButton, pauseDialog
+-- Gameover screen
+local gameovergroup, displayFinalRound, displayFinalScore
+local analyticsDialog, msgText, startTime
+local playButton, homeButton, emailButton
+-- Audio
+local muted, muteButton, unmuteButton
+-- Post-gameover modal
+local levelgroup, BGgray
 local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
 local userAge, username, emailaddress
 
 --Listeners
-local rect, name, age, playBtn, homeBtn, emailBtn, instance1, pausedialog, hintBtn, pauseBtn, unmuteBtn, muteBtn, clearBtn
+local gameOverSprite
 
 -------- Analytics------------
 -- *per item
@@ -68,7 +72,7 @@ local function fetchByCategory(categ)
 	return words
 end
 
---DB: update if word was guessed
+--DB: update if givenWord was guessed
 local function updateDB(word)
 	for row in db:nrows("UPDATE Words SET isCorrect ='true' where name ='"..word.."'") do end
 end
@@ -127,16 +131,16 @@ end
 Runtime:addEventListener( "system", onSystemEvent )
 
 --DB: check if a word has been answered correctly
-local function hasBeenAnswered(wordToGuess)
+local function hasBeenAnswered(word)
 	local rowData
-	for row in db:nrows("SELECT * FROM Words WHERE name = '"..wordToGuess.."'") do
+	for row in db:nrows("SELECT * FROM Words WHERE name = '"..word.."'") do
 		rowData = row.isCorrect
 	end
 	return rowData
 end
 
---DB: get word
-local function getwordfromDB()
+--DB: get givenWord
+local function getWordFromDB()
 	local words = fetchByCategory(category)
 	--randomize a word from DB that hasn't been correctly answered yet
 	local i = 1 
@@ -146,9 +150,9 @@ local function getwordfromDB()
 		for token in string.gmatch(words[rand], "[^%s]+") do
 			wordFromDB[#wordFromDB+1] = token
 		end
-		word = wordFromDB[2]
-		wordToGuess = word
-		if hasBeenAnswered(wordToGuess) == 'false' then
+		givenWord = wordFromDB[2]
+		givenBlanked = givenWord
+		if hasBeenAnswered(givenBlanked) == 'false' then
 			break
 		end
 		-- if all words have already been correctly answered, reset
@@ -157,7 +161,7 @@ local function getwordfromDB()
 		end
 		i = i + 1
 	end
-	item[currScore+1] = word
+	item[currScore+1] = givenWord
 end
 
 local function queryAnalytics(gamectr, column, value)
@@ -178,55 +182,55 @@ end
 
 --------- FUNCTIONS FOR STRING MANIPULATIONS ------------
 -- position in str to be replaced with ch
-local function replace_char (pos, str, ch)
+local function replaceChar(pos, str, ch)
 	if (pos == 1) then return ch .. str:sub(pos+1)
 	elseif (pos == str:len()) then return str:sub(1, str:len()-1) .. ch
 	else return str:sub(1, pos-1) .. ch .. str:sub(pos+1)
 	end
 end
 
-local function get_char (pos, str)
+local function getChar(pos, str)
 	return str:sub(pos, pos)
 end
 
-local function swap_char (pos1, pos2, str)
-	local temp1 = get_char(pos1, str)
-	local temp2 = get_char(pos2, str)
-	str = replace_char(pos1, str, temp2)
-	str = replace_char(pos2, str, temp1)
+local function swapChar(pos1, pos2, str)
+	local temp1 = getChar(pos1, str)
+	local temp2 = getChar(pos2, str)
+	str = replaceChar(pos1, str, temp2)
+	str = replaceChar(pos2, str, temp1)
 	return str
 end
 
 ------- FUNCTION FOR SETTING THE WORD --------------
-local function setword()
-	getwordfromDB()
-	local blanks = math.floor(word:len()/2)
-	letterbox = ""
+local function setWord()
+	getWordFromDB()
+	local blanks = math.floor(givenWord:len()/2)
+	givenLetters = ""
 	-- GET RANDOM BLANKS ---
 	for i = 1,blanks do
-		local rand = math.random(word:len())
-		while (get_char(rand, wordToGuess) == "_") or (letterbox:find(get_char(rand, wordToGuess)) ~= nil) do
-			rand = math.random(word:len())
+		local rand = math.random(givenWord:len())
+		while (getChar(rand, givenBlanked) == "_") or (givenLetters:find(getChar(rand, givenBlanked)) ~= nil) do
+			rand = math.random(givenWord:len())
 		end
-		letterbox = letterbox .. get_char(rand, wordToGuess)
-		wordToGuess = replace_char(rand, wordToGuess, "_")
+		givenLetters = givenLetters .. getChar(rand, givenBlanked)
+		givenBlanked = replaceChar(rand, givenBlanked, "_")
 	end
 
-	-- GET LETTERBOX -------
+	-- GET givenLetters -------
 	for i = 1,10 - blanks do
 		local rand = math.random(26)
 		local letter = string.char(96+rand)
-		while (string.find(letterbox, letter) ~= nil) do
+		while (string.find(givenLetters, letter) ~= nil) do
 			rand = math.random(26)
 			letter = string.char(96+rand)
 		end
-		letterbox = letterbox .. letter
+		givenLetters = givenLetters .. letter
 	end
 
 	-- SHUFFLE 
-	for i = #letterbox, 2, -1 do -- backwards
+	for i = #givenLetters, 2, -1 do -- backwards
 		local r = math.random(i) -- select a random number between 1 and i
-		letterbox = swap_char(i, r, letterbox) -- swap the randomly selected item to position i
+		givenLetters = swapChar(i, r, givenLetters) -- swap the randomly selected item to position i
 	end
 end
 
@@ -250,14 +254,14 @@ local function objectDrag (event)
 		end	
 		---------- BLANK BOUNDARIES ----------
 			
-		for i = 1, wordToGuess:len() do
-			if ( get_char(i, wordToGuess) == "_" ) then
-				local s = "_" .. get_char(i, word)
-				distX = math.abs(t.x - wordGroup[s].x);
-				distY = math.abs(t.y - wordGroup[s].y);
+		for i = 1, givenBlanked:len() do
+			if ( getChar(i, givenBlanked) == "_" ) then
+				local s = "_" .. getChar(i, givenWord)
+				distX = math.abs(t.x - givenBlankedGroup[s].x);
+				distY = math.abs(t.y - givenBlankedGroup[s].y);
 				if (distX <= 40) and (distY <= 40) then
-					t.x = wordGroup[s].x;
-					t.y = wordGroup[s].y;
+					t.x = givenBlankedGroup[s].x;
+					t.y = givenBlankedGroup[s].y;
 				end
 			end
 		end
@@ -265,21 +269,21 @@ local function objectDrag (event)
 end
 
 ------- FUNCTION FOR CHECKING ANSWER --------------
-local function checkanswer(event)
+local function checkAnswer(event)
 	answer = ""
-	blanks = math.floor(word:len()/2)
+	blanks = math.floor(givenWord:len()/2)
 	count = 0
-	for i = 1, wordToGuess:len() do
-		if ( get_char(i, wordToGuess) ~= "_" ) then -- not blank, SKIP
-			answer = answer .. get_char(i, wordToGuess)
+	for i = 1, givenBlanked:len() do
+		if ( getChar(i, givenBlanked) ~= "_" ) then -- not blank, SKIP
+			answer = answer .. getChar(i, givenBlanked)
 		else -- if BLANK
-			for j = 1, letterbox:len() do
-				distX = math.abs(letterboxGroup[j].x - wordGroup[i].x)
-				distY = math.abs(letterboxGroup[j].y - wordGroup[i].y)
+			for j = 1, givenLetters:len() do
+				distX = math.abs(givenLettersGroup[j].x - givenBlankedGroup[i].x)
+				distY = math.abs(givenLettersGroup[j].y - givenBlankedGroup[i].y)
 				if (distX <= 10) and (distY <= 10) then
 					-- if nasa blank
 					count = count + 1
-					answer = answer .. get_char(j, letterbox)
+					answer = answer .. getChar(j, givenLetters)
 				end
 			end
 		end
@@ -287,11 +291,12 @@ local function checkanswer(event)
 
   	if event.phase == "ended" then
 	  	itemTries[currScore+1] = itemTries[currScore+1] + 1
-		if answer == word and count == blanks then
+		if answer == givenWord and count == blanks then
 			audio.pause(game1MusicChannel)
 			audio.play(correctSound)
+			toast.new("images/correct.png", 300, display.contentCenterX, display.contentCenterY, "correct")
 			boolFirst = false
-			updateDB(word) --set isCorrect to true
+			updateDB(givenWord) --set isCorrect to true
 			currScore = currScore + 1
 			-- ANALYTICS PER ITEM
 			itemSpeed[currScore] = timer:getElapsedSeconds()
@@ -311,7 +316,7 @@ local function checkanswer(event)
 					mute = muted,
 				}
 			}
-			timerText:removeSelf()
+			displayTime:removeSelf()
 			timer = nil
 			storyboard.gotoScene("ReloadGameThree", option)
 		else
@@ -436,21 +441,21 @@ function generateReport()
 	file = nil
 end
 
-function closedialog()
+function closeDialog()
 	username = display.newText(name.text, 190, 100, font, 20)
 	username.isVisible = false
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
-	if username.text == "" or userAge.text == "" then
-		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
-	else
+--	if username.text == "" or userAge.text == "" then
+--		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
+--	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		generateReport()
-	end
+--	end
 end
 
 local function nameListener( event )
@@ -469,19 +474,19 @@ local function ageListener( event )
 	end
 end
 
-function showanalyticsDialog()
+function showAnalyticsDialog()
  	levelgroup = display.newGroup()
 
-	local rect = display.newImage("images/modal/gray.png")
- 	rect.x = display.contentCenterX;
- 	rect.y = display.contentCenterY;
-	rect:addEventListener("tap", function() return true end)
-	levelgroup:insert(rect)
+	local BGgray = display.newImage("images/modal/gray.png")
+ 	BGgray.x = display.contentCenterX;
+ 	BGgray.y = display.contentCenterY;
+	BGgray:addEventListener("tap", function() return true end)
+	levelgroup:insert(BGgray)
 
-	local dialog = display.newImage("images/modal/saveanalytics.png")
- 	dialog.x = display.contentCenterX;
- 	dialog.y = display.contentCenterY;
- 	levelgroup:insert(dialog)
+	local analyticsDialog = display.newImage("images/modal/saveanalytics.png")
+ 	analyticsDialog.x = display.contentCenterX;
+ 	analyticsDialog.y = display.contentCenterY;
+ 	levelgroup:insert(analyticsDialog)
 
 	namelabel = display.newText("Kid's name", display.contentCenterX, 100, font, 25)
 	namelabel:setFillColor(0,0,0)
@@ -506,7 +511,7 @@ function showanalyticsDialog()
 		defaultFile = "images/buttons/submit_button.png",
 		fontSize = 15,
 		emboss = true,
-		onEvent = closedialog
+		onEvent = closeDialog
 	}
 	okay.x = 350; okay.y = 235
 	levelgroup:insert(okay)
@@ -518,7 +523,7 @@ function showanalyticsDialog()
 end
 
 --------------  FUNCTION FOR GO BACK TO MENU --------------------
-local function home(event)
+local function goBackToHome(event)
 --	if(event.phase == "ended") then
 		gameovergroup.isVisible = false
   		storyboard.removeScene("GameThree")
@@ -542,55 +547,55 @@ end
 --------- FUNCTION FOR GAME OVER SPRITE LISTENER ---------
 local function spriteListener( event )
     if (event.phase == "ended") then
-    	score.isVisible = false
-		round.isVisible = false
+    	displayFinalScore.isVisible = false
+		displayFinalRound.isVisible = false
 		gameovergroup = display.newGroup()
 
-	    round= display.newText("ROUND: "..category, 0, 0, font, 15)
-		round.x = 150
-		round.y = display.contentCenterY - 100
-		gameovergroup:insert(round)
+	    displayFinalRound = display.newText("ROUND: "..category, 0, 0, font, 15)
+		displayFinalRound.x = 150
+		displayFinalRound.y = display.contentCenterY - 100
+		gameovergroup:insert(displayFinalRound)
 
-		score= display.newText("SCORE: "..currScore, 0, 0, font, 15)
-		score.x = 300
-		score.y = display.contentCenterY - 100
-		gameovergroup:insert(score)
+		displayFinalScore = display.newText("SCORE: "..currScore, 0, 0, font, 15)
+		displayFinalScore.x = 300
+		displayFinalScore.y = display.contentCenterY - 100
+		gameovergroup:insert(displayFinalScore)
 
-    	local playBtn = display.newImage( "images/buttons/playagain_button.png")
-	    playBtn.x = 130
-	    playBtn.y = display.contentCenterY - 60
-	    playBtn:addEventListener("tap", restart_onBtnRelease)
-	    gameovergroup:insert(playBtn)
+    	local playButton = display.newImage( "images/buttons/playagain_button.png")
+	    playButton.x = 130
+	    playButton.y = display.contentCenterY - 60
+	    playButton:addEventListener("tap", restart_onBtnRelease)
+	    gameovergroup:insert(playButton)
 
 	    local playtext = display.newText("PLAY AGAIN", display.contentCenterX-7, display.contentCenterY-60, font, 25) 
 	    gameovergroup:insert(playtext)
 
-	    local homeBtn = display.newImage( "images/buttons/home_button.png")
-	    homeBtn.x = 130
-	    homeBtn.y = display.contentCenterY
-	    homeBtn:addEventListener("tap", home)
-	    gameovergroup:insert(homeBtn)
+	    local homeButton = display.newImage( "images/buttons/home_button.png")
+	    homeButton.x = 130
+	    homeButton.y = display.contentCenterY
+	    homeButton:addEventListener("tap", goBackToHome)
+	    gameovergroup:insert(homeButton)
 
 	    local hometext = display.newText("BACK TO MENU", display.contentCenterX+10, display.contentCenterY, font, 25) 
 	    gameovergroup:insert(hometext)
 
-	    local emailBtn = display.newImage( "images/buttons/email_button.png")
-	    emailBtn.x = 130
-	    emailBtn.y = display.contentCenterY + 60
-	   	emailBtn:addEventListener("tap", onSendEmail)
-	    gameovergroup:insert(emailBtn)
+	    local emailButton = display.newImage( "images/buttons/email_button.png")
+	    emailButton.x = 130
+	    emailButton.y = display.contentCenterY + 60
+	   	emailButton:addEventListener("tap", onSendEmail)
+	    gameovergroup:insert(emailButton)
 	    local emailtext = display.newText("EMAIL RESULTS", display.contentCenterX+10, display.contentCenterY+60, font, 25) 
 	    gameovergroup:insert(emailtext)
 
 	    screenGroup:insert(gameovergroup)
 
-	    showanalyticsDialog()
+	    showAnalyticsDialog()
 	end
 end
 
 
 --------------- FUNCTION FOR END OF GAME ----------------
-function gameoverdialog()
+function gameOverDialog()
 
 	-- SAVE TO DB
 	local date = os.date( "%m" ) .. "-" .. os.date( "%d" ) .. "-" .. os.date( "%y" )
@@ -603,106 +608,106 @@ function gameoverdialog()
 		insertAnalyticsToDB(latestId, i, itemSpeed[i], itemHint[i], itemTries[i], item[i])
 	end
 
-	timerText:removeSelf()
+	displayTime:removeSelf()
 	timer = nil
 
-	scoreToDisplay.isVisible = false
-	image.isVisible = false
-	letterboxGroup.isVisible = false
-	wordGroup.isVisible = false
-	submit.isVisible = false
-	pauseBtn.isVisible = false
-	hintBtn.isVisible = false
-	unmuteBtn.isVisible = false
-	muteBtn.isVisible = false
-	clearBtn.isVisible = false
+	displayScore.isVisible = false
+	displayImage.isVisible = false
+	givenLettersGroup.isVisible = false
+	givenBlankedGroup.isVisible = false
+	submitButton.isVisible = false
+	pauseButton.isVisible = false
+	hintButton.isVisible = false
+	unmuteButton.isVisible = false
+	muteButton.isVisible = false
+	clearButton.isVisible = false
 
-	local sheet1 = graphics.newImageSheet( "images/game_three/trygameover.png", { width=414, height=74, numFrames=24 } )
-	local instance1 = display.newSprite( sheet1, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
-	instance1.x = display.contentCenterX
-	instance1.y = display.contentCenterY - 20
-	instance1:play()
-	instance1:addEventListener( "sprite", spriteListener )
-	screenGroup:insert(instance1)
+	local gameOverSheet = graphics.newImageSheet( "images/game_three/trygameover.png", { width=414, height=74, numFrames=24 } )
+	local gameOverSprite = display.newSprite( gameOverSheet, { name="gameover", start=1, count=24, time=4000, loopCount = 1} )
+	gameOverSprite.x = display.contentCenterX
+	gameOverSprite.y = display.contentCenterY - 20
+	gameOverSprite:play()
+	gameOverSprite:addEventListener( "sprite", spriteListener )
+	screenGroup:insert(gameOverSprite)
 
-	round= display.newText("ROUND: "..category, 0, 0, font, 25)
-	round.x = display.contentCenterX
-	round.y = display.contentCenterY + 30
+	displayFinalRound = display.newText("ROUND: "..category, 0, 0, font, 25)
+	displayFinalRound.x = display.contentCenterX
+	displayFinalRound.y = display.contentCenterY + 30
 
-	score= display.newText("SCORE: "..currScore, 0, 0, font, 25)
-	score.x = display.contentCenterX
-	score.y = display.contentCenterY + 65
+	displayFinalScore= display.newText("SCORE: "..currScore, 0, 0, font, 25)
+	displayFinalScore.x = display.contentCenterX
+	displayFinalScore.y = display.contentCenterY + 65
 
 end
 
 --------------- TIMER: RUNTIME FUNCTION --------------------
 local function onFrame(event)
 	if (timer ~= nil) then
-   		timerText.text = timer:toRemainingString()
+   		displayTime.text = timer:toRemainingString()
    		local done = timer:isElapsed()
  		local secs = timer:getElapsedSeconds()
    		if(done) then
 	   		Runtime:removeEventListener("enterFrame", onFrame)
-	    	gameoverdialog()
+	    	gameOverDialog()
 		end
 	end 
 end
 
-function generateLetterbox()
+function generateLetters()
 	x = (display.viewableContentWidth/2) + 25
 	y = (display.viewableContentHeight/2) - 80
-	letterboxGroup = display.newGroup()
+	givenLettersGroup = display.newGroup()
 
-	for i = 1, #letterbox do
-		local c = get_char(i, letterbox)
-		chalkLetter = display.newText( c:upper(), x, y, font, 45)
-		chalkLetter:setFillColor(0.94,0.88,0.1)
-		letterboxGroup:insert(i, chalkLetter)
-		letterboxGroup[c] = chalkLetter
+	for i = 1, #givenLetters do
+		local c = getChar(i, givenLetters)
+		displayLetters = display.newText( c:upper(), x, y, font, 45)
+		displayLetters:setFillColor(0.94,0.88,0.1)
+		givenLettersGroup:insert(i, displayLetters)
+		givenLettersGroup[c] = displayLetters
 		if(i == 6) then
 			x = (display.viewableContentWidth/2) + 65
 			y = y + 40
 		else
 			x = x + 40
 		end
-		letterboxGroup[i].x = x 
-		letterboxGroup[i].y = y
-		letterboxGroup[i].initX = x
-		letterboxGroup[i].initY = y
-		MultiTouch.activate(chalkLetter, "move", "single")
-		chalkLetter:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
+		givenLettersGroup[i].x = x 
+		givenLettersGroup[i].y = y
+		givenLettersGroup[i].initX = x
+		givenLettersGroup[i].initY = y
+		MultiTouch.activate(displayLetters, "move", "single")
+		displayLetters:addEventListener(MultiTouch.MULTITOUCH_EVENT, objectDrag);
 	end
-	screenGroup:insert(letterboxGroup)
+	screenGroup:insert(givenLettersGroup)
 end
 
 ---------------- new: CLEAR ---------------------------
 local function clear(event)
-	for i = 1, #letterbox do
-		letterboxGroup[i].isVisible = false
-		letterboxGroup[i] = nil
+	for i = 1, #givenLetters do
+		givenLettersGroup[i].isVisible = false
+		givenLettersGroup[i] = nil
 	end
-	letterboxGroup = nil
-	generateLetterbox()
-	-- for i = 1, #letterbox do
-	-- 	letterboxGroup[i].x = letterboxGroup[i].initX
-	-- 	letterboxGroup[i].y = letterboxGroup[i].initY
+	givenLettersGroup = nil
+	generateLetters()
+	-- for i = 1, #givenLetters do
+	-- 	givenLettersGroup[i].x = givenLettersGroup[i].initX
+	-- 	givenLettersGroup[i].y = givenLettersGroup[i].initY
 	-- end
 end
 
 ---------------- UNMUTE GAME ---------------------------
 local function unmuteGame(event)
 	audio.resume(game1MusicChannel)
-	unmuteBtn.isVisible = false
-	muteBtn.isVisible = true
-	muteBtn.isVisible = true
+	unmuteButton.isVisible = false
+	muteButton.isVisible = true
+	muteButton.isVisible = true
 	muted = 0
 end
 
 ---------------- MUTE GAME ---------------------------
 local function muteGame(event)
 	audio.pause(game1MusicChannel)
-	muteBtn.isVisible = false
-	unmuteBtn.isVisible = true
+	muteButton.isVisible = false
+	unmuteButton.isVisible = true
 	muted = 1
 end
 
@@ -712,12 +717,12 @@ local function pauseGame(event)
        	pauseCtr = pauseCtr + 1 --NEW
     	timer:pause()
     	audio.pause(game1MusicChannel)
-    	submit:setEnabled(false)
---[[   		for i = 1, #letterbox do
-			MultiTouch.deactivate(letterboxGroup[i])
+    	submitButton:setEnabled(false)
+--[[   		for i = 1, #givenLetters do
+			MultiTouch.deactivate(givenLettersGroup[i])
 		end]]
-        pauseBtn.isVisible = false
-        showpauseDialog()
+        pauseButton.isVisible = false
+        showPauseDialog()
         return true
     end
 end
@@ -760,8 +765,8 @@ function resume_onBtnRelease()
 		audio.resume(game1MusicChannel)
 	end
 	timer:resume()
-	submit:setEnabled(true)
-    pauseBtn.isVisible = true
+	submitButton:setEnabled(true)
+    pauseButton.isVisible = true
 	return true
 end
 
@@ -775,13 +780,13 @@ function exit_onBtnRelease()
 end
 
 ----------------- PAUSE DIALOG ------------------
-function showpauseDialog()
+function showPauseDialog()
 	pausegroup = display.newGroup()
-	local pausedialog = display.newImage("images/pause/pause_modal.png")
- 	pausedialog.x = display.contentCenterX;
- 	pausedialog.y = display.contentCenterY;
-	pausedialog:addEventListener("tap", function() return true end)
-	pausegroup:insert(pausedialog)
+	local pauseDialog = display.newImage("images/pause/pause_modal.png")
+ 	pauseDialog.x = display.contentCenterX;
+ 	pauseDialog.y = display.contentCenterY;
+	pauseDialog:addEventListener("tap", function() return true end)
+	pausegroup:insert(pauseDialog)
 
 	local resumeBtn = widget.newButton{
 		defaultFile="images/pause/resume_button.png",
@@ -789,7 +794,7 @@ function showpauseDialog()
 		onEvent = resume_onBtnRelease -- event listener function
 	}
 	-- resumeBtn:setReferencePoint( display.CenterReferencePoint )
-	resumeBtn.x = bg.x - 80
+	resumeBtn.x = BGmain.x - 80
 	resumeBtn.y = 170
 	pausegroup:insert(resumeBtn)
 
@@ -799,7 +804,7 @@ function showpauseDialog()
 		onEvent = exit_onBtnRelease -- event listener function
 	}
 	-- exitBtn:setReferencePoint( display.CenterReferencePoint )
-	exitBtn.x = bg.x + 100
+	exitBtn.x = BGmain.x + 100
 	exitBtn.y = 170
 	pausegroup:insert(exitBtn)
 
@@ -807,7 +812,7 @@ function showpauseDialog()
 end
 
 local function networkListener( event )
-	local speech = audio.loadSound( word..".mp3", system.TemporaryDirectory )
+	local speech = audio.loadSound( givenWord..".mp3", system.TemporaryDirectory )
 
 	if speech == nil then
 		toast.new("Device must be connected\nto the internet!", 1000, 15, -105, "toastText")
@@ -817,66 +822,65 @@ local function networkListener( event )
 
 end
 
-local function play()
+local function playHint()
 	itemHint[currScore+1] = itemHint[currScore+1] + 1
-	network.download( "http://www.translate.google.com/translate_tts?tl=en&q='"..word.."'", "GET", networkListener, word..".mp3", system.TemporaryDirectory )	
+	network.download( "http://www.translate.google.com/translate_tts?tl=en&q='"..givenWord.."'", "GET", networkListener, givenWord..".mp3", system.TemporaryDirectory )	
 end
 
 local function displayScreenElements()
-	--BG
-	bg = display.newImageRect("images/game_three/board.png", 550, 320)
-	bg.x = display.contentCenterX;
-	bg.y = display.contentCenterY;
-	screenGroup:insert(bg)
-	--SCORE
-	scoreToDisplay = display.newText("Score: "..currScore, 37, 37, font, 25 )
-	timerText = display.newText("", 458, 37, font, 25)
+	-- BACKGROUND
+	BGmain = display.newImageRect("images/game_three/board.png", 550, 320)
+	BGmain.x = display.contentCenterX;
+	BGmain.y = display.contentCenterY;
+	screenGroup:insert(BGmain)
+
+	--displayFinalScore
+	displayScore = display.newText("score: "..currScore, 37, 37, font, 25 )
+	displayTime = display.newText("", 458, 37, font, 25)
 
 	------ BUTTONS -------
-	--SUBMIT
-	submit = widget.newButton{
-		id = "submit",
+	--submitButton
+	submitButton = widget.newButton{
+		id = "submitButton",
 		defaultFile = "images/buttons/submit_button.png",
 		fontSize = 15,
 		emboss = true,
-		onEvent = checkanswer,
+		onEvent = checkAnswer,
 	}
-	submit.x = 453; submit.y = 180
-	screenGroup:insert(submit)
+	submitButton.x = 453; submitButton.y = 180
+	screenGroup:insert(submitButton)
 
 	-- HINT
-	hintBtn = widget.newButton{
+	hintButton = widget.newButton{
 		id = "hint",
 		defaultFile = "images/game_three/hint_button.png",
 		fontSize = 15,
 		emboss = true,
 	}
-	hintBtn.x = 400; hintBtn.y = 180
-	screenGroup:insert(hintBtn)
-	hintBtn:addEventListener("tap", play)
+	hintButton.x = 400; hintButton.y = 180
+	hintButton:addEventListener("tap", playHint)
+	screenGroup:insert(hintButton)
 	
 	-- PAUSE
-	pauseBtn = display.newImageRect( "images/game_three/pause.png", 20, 20)
-    pauseBtn.x = 410
-    pauseBtn.y = 37
-    pauseBtn:addEventListener("touch", pauseGame)
-    screenGroup:insert( pauseBtn )
+	pauseButton = display.newImageRect( "images/game_three/pause.png", 20, 20)
+    pauseButton.x = 410
+    pauseButton.y = 37
+    pauseButton:addEventListener("touch", pauseGame)
+    screenGroup:insert( pauseButton )
 
     -- UN/MUTE
-    unmuteBtn = display.newImageRect( "images/game_three/mute_button.png", 20, 20)
-    unmuteBtn.x = 380
-    unmuteBtn.y = 37
-    unmuteBtn.isVisible = false
---	unmuteBtn:addEventListener("touch", unmuteGame)
-    unmuteBtn:addEventListener("tap", unmuteGame)
-    screenGroup:insert( unmuteBtn )
+    unmuteButton = display.newImageRect( "images/game_three/mute_button.png", 20, 20)
+    unmuteButton.x = 380
+    unmuteButton.y = 37
+    unmuteButton.isVisible = false
+    unmuteButton:addEventListener("tap", unmuteGame)
+    screenGroup:insert( unmuteButton )
 
-	muteBtn = display.newImageRect( "images/game_three/unmute_button.png", 20, 20)
-    muteBtn.x = 380
-    muteBtn.y = 37
---    muteBtn:addEventListener("touch", muteGame)
-    muteBtn:addEventListener("tap", muteGame)
-    screenGroup:insert( muteBtn )	
+	muteButton = display.newImageRect( "images/game_three/unmute_button.png", 20, 20)
+    muteButton.x = 380
+    muteButton.y = 37
+    muteButton:addEventListener("tap", muteGame)
+    screenGroup:insert( muteButton )	
 end
 
 ------------------CREATE SCENE: MAIN -----------------------------
@@ -928,54 +932,51 @@ function scene:createScene(event)
 		itemSpeed[currScore+1] = 0
 	end
 
-	setword()
+	setWord()
 
-	--IMAGE
-	image = display.newImage( "images/pictures/"..word..".png" )
-	image.x = 310/2; image.y = 260/2;
+	--displayImage
+	displayImage = display.newImage( "images/pictures/"..givenWord..".png" )
+	displayImage.x = 310/2; displayImage.y = 260/2;
+	screenGroup:insert(displayImage)
 
 	-- LETTERS
 	local x = -20
 	local y = 260
-	wordGroup = display.newGroup()
+	givenBlankedGroup = display.newGroup()
 	local a = 1
-	for i = 1, #wordToGuess do
-		local c = get_char(i, wordToGuess)
+	for i = 1, #givenBlanked do
+		local c = getChar(i, givenBlanked)
 		local filename = "images/game_three/"
 		if (c == "_") then
 			filename = filename .. "newblank.png"
-			chalkLetter = display.newImage(filename)
+			displayLetters = display.newImage(filename)
 		else
-			chalkLetter = display.newText( c:upper(), x, y, font, 45)
-			chalkLetter:setFillColor(0.94, 0.88, 0.1)
+			displayLetters = display.newText( c:upper(), x, y, font, 45)
+			displayLetters:setFillColor(0.94, 0.88, 0.1)
 		end		
-		wordGroup:insert(chalkLetter)
+		givenBlankedGroup:insert(displayLetters)
 		if (c == "_") then
-			c = c .. get_char(i, word)
+			c = c .. getChar(i, givenWord)
 		end
-		wordGroup[c] = chalkLetter
+		givenBlankedGroup[c] = displayLetters
 		x = x + 50
-		chalkLetter.x = x 
-		chalkLetter.y = y
+		displayLetters.x = x 
+		displayLetters.y = y
 	end
 
 	-- CLEAR
-	clearBtn = display.newImageRect( "images/game_three/clear.png", 50, 50)
-    clearBtn.x = x + 55
-    clearBtn.y = y
-   -- clearBtn:addEventListener("touch", clear)
-    clearBtn:addEventListener("tap", clear)
-    screenGroup:insert( clearBtn )
-	
-	--- add to screen
-	screenGroup:insert(image)
+	clearButton = display.newImageRect( "images/game_three/clear.png", 50, 50)
+    clearButton.x = x + 55
+    clearButton.y = y
+    clearButton:addEventListener("tap", clear)
+    screenGroup:insert( clearButton )
 
 	--letters to fill up with
-	generateLetterbox()
+	generateLetters()
 
-	screenGroup:insert(wordGroup)
-	screenGroup:insert(scoreToDisplay)
-	screenGroup:insert(timerText)
+	screenGroup:insert(givenBlankedGroup)
+	screenGroup:insert(displayScore)
+	screenGroup:insert(displayTime)
 end
 
 function scene:enterScene(event)

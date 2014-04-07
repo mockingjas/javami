@@ -22,7 +22,7 @@ end
 function scene:enterScene(event)
 	local screenGroup = self.view
 	option = {
-		effect = "fade",
+		-- effect = "fade",
 		time = 400,
 		params = {
 			categ = category,
