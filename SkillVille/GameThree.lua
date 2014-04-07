@@ -442,15 +442,15 @@ function closedialog()
 	userAge = display.newText(age.text, 190, 100, font, 20)
 	userAge.isVisible = false
 
---	if username.text == "" or userAge.text == "" then
---		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
---	else
+	if username.text == "" or userAge.text == "" then
+		toast.new("Please enter your information.", 1000, 80, -105, "toastText")
+	else
 		levelgroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		generateReport()
---	end
+	end
 end
 
 local function nameListener( event )

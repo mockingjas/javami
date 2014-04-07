@@ -1,11 +1,11 @@
 ---------- REQUIREMENTS -------------------
-MultiTouch = require("dmc_multitouch");
-local storyboard = require ("storyboard")
-local widget = require( "widget" )
-local lfs = require("lfs")
-local stopwatch =require("stopwatch")
-local toast = require("toast");
-local scene = storyboard.newScene()
+MultiTouch 			= require("dmc_multitouch");
+local storyboard 	= require ("storyboard")
+local widget 		= require( "widget" )
+local lfs 			= require("lfs")
+local stopwatch 	= require("stopwatch")
+local toast 		= require("toast");
+local scene 		= storyboard.newScene()
 -------------------------------------------
 
 --------GLOBAL VARIABLES--------------------
@@ -23,7 +23,7 @@ local muted, muteButton, unmuteButton
 --for analytics
 local profileName, profileAge, pauseCount, count, roundCount
 --for after modal
-local name, email, age, namedisplay, agedisplay -- forward reference (needed for Lua closure)
+local name, age, displayName, displayAge -- forward reference (needed for Lua closure)
 
 ------- Load DB ---------
 local path = system.pathForFile("JaVaMiaDb.sqlite3", system.ResourceDirectory)
@@ -196,15 +196,15 @@ function closeDialog()
 	userAge.isVisible = false
 
 	-- SAVE TO PROFILE
-	--  if username.text == "" or userAge.text == "" then
-	-- 	toast.new("Please enter your information.", 1000, 80, -105, "toastText")
-	-- else
+	 if username.text == "" or userAge.text == "" then
+	 	toast.new("Please enter your information.", 1000, 80, -105, "toastText")
+	 else
 		levelGroup.isVisible = false
 		name.isVisible = false
 		age.isVisible = false
 		saveProfile(username.text, userAge.text)
 		saveToFile()
-	-- end 
+	 end 
 end
 
 -- Show profile modal
@@ -393,14 +393,12 @@ function zoomIn(event)
 end
 
 function pauseGame(event)
---    if(event.phase == "ended") then
-      	pauseCount = pauseCount + 1
-    	mainTimer:pause()
-    	audio.pause(gameTwoMusicChannel)
-        pauseButton.isVisible = false
-        showpauseDialog()
-        return true
---    end
+ 	pauseCount = pauseCount + 1
+	mainTimer:pause()
+	audio.pause(gameTwoMusicChannel)
+    pauseButton.isVisible = false
+    showPauseDialog()
+    return true
 end
 
 function resume_onBtnRelease()
@@ -448,7 +446,7 @@ function exit_onBtnRelease()
 end
 
 -- Show pause modal
-function showpauseDialog()
+function showPauseDialog()
 	pauseGroup = display.newGroup()
 	local pausedialog = display.newImage("images/pause/pause_modal.png")
  	pausedialog.x = display.contentCenterX;
