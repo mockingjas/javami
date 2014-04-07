@@ -453,7 +453,7 @@ end
 function scene:createScene(event)
 	print("SFLSKFLSDK")
 	muted = 0
-	profileName = "test" --temp
+	profileName = "Default" --temp
 	profileAge = 4 --temp
 	isClick = false
 	--get passed parameters from previous scene

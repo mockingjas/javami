@@ -884,7 +884,7 @@ function scene:createScene(event)
 
 	-- ** VARIABLES  ** --
 	screenGroup = self.view
-	profileName = "javami"
+	profileName = "Default"
 	profileAge = 4
 	item = {}
 	itemTries = {0}

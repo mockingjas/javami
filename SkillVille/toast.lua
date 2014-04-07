@@ -25,14 +25,14 @@ function new(pText, pTime, xcoord, ycoord, game)
     local toast = display.newGroup();
 
     if game == "toastText" then 
-        toast.text                      = display.newText(toast, pText, xcoord + 10, ycoord, native.systemFont, 12);
+        toast.text                      = display.newText(toast, pText, xcoord + 5, ycoord, native.systemFont, 12);
         toast.text.align                = "center"
-        toast.background                = display.newRoundedRect( toast, xcoord, -115, toast.text.width + 20, toast.text.height + 20, 16 );
+        toast.background                = display.newRoundedRect( toast, xcoord, - 105, toast.text.width + 20, toast.text.height + 20, 16 );
         toast.background.strokeWidth    = 4
         toast.background:setFillColor(0.28, 0.25, 0.28)
         toast.background:setStrokeColor(0.38, 0.35, 0.38)
         toast.text:toFront();
-        toast.text:setFillColor(0,0,0)
+        toast.text:setFillColor(1,1,1)
         toast.x = display.contentWidth * .5
         toast.y = display.contentHeight * .9
     elseif game == "toastGameTwo" then
