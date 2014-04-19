@@ -528,7 +528,7 @@ function checkAnswer(target)
 			progressValue = 10
 			if level == 'medium' then
 				progressValue = progressValue + 5
-			else
+			elseif level == 'hard' then
 				progressValue = progressValue + 10
 			end
 			progressBarFill.width = progressBarFill.width + (320/progressValue)
@@ -639,6 +639,8 @@ function dragImage (event)
 end 
 
 -- Function for setting the grid layout of the images
+-- Retrieved from: https://github.com/worldstar/GridView-for-Corona-SDK
+-- Modified by the developers
 function drawGrid(gridX, gridY, photoArray, photoTextArray, columnNumber, paddingX, paddingY, photoWidth, photoHeight)
 	local currentX = gridX
 	local currentY = gridY
